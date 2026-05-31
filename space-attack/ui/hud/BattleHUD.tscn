@@ -1,3 +1,35 @@
 [gd_scene format=3 uid="uid://cwbkoyhscwk5h"]
 
-[node name="BattleHud" type="Node2D" unique_id=1822489045]
+[ext_resource type="Script" uid="uid://sd0cw2jerm2v" path="res://ui/hud/BattleHUD.gd" id="1_eq25i"]
+
+[node name="BattleHUD" type="CanvasLayer" unique_id=293741182]
+script = ExtResource("1_eq25i")
+
+[node name="ScoreLabel" type="Label" parent="." unique_id=299578290]
+unique_name_in_owner = true
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 10.0
+offset_bottom = 10.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "Очки: 0"
+
+[node name="CreditsLabel" type="Label" parent="." unique_id=1881754571]
+unique_name_in_owner = true
+offset_left = 10.0
+offset_top = 40.0
+offset_right = 10.0
+offset_bottom = 40.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "Кредиты: 0"
+horizontal_alignment = 2
+
+[node name="WaveLabel" type="Label" parent="." unique_id=656092802]
+offset_left = 20.0
+offset_top = 620.0
+offset_right = 21.0
+offset_bottom = 643.0
+theme_override_font_sizes/font_size = 20
+text = "Wave: 1"

@@ -1,3 +1,33 @@
 [gd_scene format=3 uid="uid://v0k31172i4xn"]
 
+[ext_resource type="Script" uid="uid://d3ikng2afebjs" path="res://levels/Main.gd" id="1_h11cf"]
+[ext_resource type="PackedScene" uid="uid://djal53301egii" path="res://entities/player/Player.tscn" id="1_s5j47"]
+[ext_resource type="PackedScene" uid="uid://cwbkoyhscwk5h" path="res://ui/hud/BattleHUD.tscn" id="3_2jfjj"]
+
 [node name="Main" type="Node2D" unique_id=212548923]
+script = ExtResource("1_h11cf")
+
+[node name="Player" parent="." unique_id=930832991 instance=ExtResource("1_s5j47")]
+
+[node name="ScoutTimer" type="Timer" parent="." unique_id=416042736]
+wait_time = 2.0
+
+[node name="BattleHUD" parent="." unique_id=293741182 instance=ExtResource("3_2jfjj")]
+
+[node name="LivesLabel" type="Label" parent="BattleHUD" unique_id=1432467417]
+unique_name_in_owner = true
+offset_left = 10.0
+offset_top = 70.0
+offset_right = 85.0
+offset_bottom = 93.0
+theme_override_font_sizes/font_size = 24
+text = "❤️ ❤️ ❤️"
+
+[node name="FighterTimer" type="Timer" parent="." unique_id=2021023966]
+wait_time = 5.0
+
+[node name="KamikazeTimer" type="Timer" parent="." unique_id=823533871]
+wait_time = 8.0
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2135894699]
+position = Vector2(576, 324)

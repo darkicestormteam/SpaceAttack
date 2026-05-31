@@ -1,3 +1,79 @@
 [gd_scene format=3 uid="uid://bcytk2lujuhy1"]
 
-[node name="Hangar" type="Node2D" unique_id=844308600]
+[ext_resource type="Script" uid="uid://g6phf3aub522" path="res://ui/screens/Hangar.gd" id="1_gr1t4"]
+
+[node name="Hangar" type="Control" unique_id=1465974610]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_gr1t4")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1148021287]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0.05, 0.05, 0.1, 1)
+
+[node name="TitleLabel" type="Label" parent="." unique_id=1082935067]
+layout_mode = 0
+offset_left = 326.0
+offset_top = 100.0
+offset_right = 826.0
+offset_bottom = 180.0
+theme_override_colors/font_color = Color(0, 0.6666667, 1, 1)
+theme_override_font_sizes/font_size = 48
+text = "SpaceAttack"
+horizontal_alignment = 1
+
+[node name="CreditsLabel" type="Label" parent="." unique_id=1917797506]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 326.0
+offset_top = 200.0
+offset_right = 826.0
+offset_bottom = 240.0
+theme_override_colors/font_color = Color(1, 0.8666667, 0, 1)
+theme_override_font_sizes/font_size = 28
+text = "⭐ 0"
+horizontal_alignment = 1
+
+[node name="HighScoreLabel" type="Label" parent="." unique_id=382355387]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 326.0
+offset_top = 250.0
+offset_right = 826.0
+offset_bottom = 290.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "🏆 Лучший счёт: 0"
+horizontal_alignment = 1
+
+[node name="PlayButton" type="Button" parent="." unique_id=345791407]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 426.0
+offset_top = 330.0
+offset_right = 726.0
+offset_bottom = 380.0
+theme_override_font_sizes/font_size = 22
+text = "Играть"
+
+[node name="ShopButton" type="Button" parent="." unique_id=2124154302]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 426.0
+offset_top = 400.0
+offset_right = 726.0
+offset_bottom = 450.0
+theme_override_font_sizes/font_size = 22
+text = "Магазин"
+
+[node name="QuitButton" type="Button" parent="." unique_id=915214681]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 426.0
+offset_top = 470.0
+offset_right = 726.0
+offset_bottom = 520.0
+theme_override_font_sizes/font_size = 22
+text = "Выход"

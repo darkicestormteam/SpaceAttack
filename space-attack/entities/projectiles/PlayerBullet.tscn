@@ -1,3 +1,16 @@
 [gd_scene format=3 uid="uid://cco6yjwtsi58n"]
 
-[node name="PlayerBullet" type="Node2D" unique_id=430177888]
+[ext_resource type="Script" uid="uid://h8bvn67d2fvv" path="res://entities/projectiles/PlayerBullet.gd" id="1_h6vv8"]
+[ext_resource type="Texture2D" uid="uid://ctnqjk81ppyt7" path="res://entities/projectiles/bullet_texture.tres" id="2_55aux"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kqf08"]
+size = Vector2(8, 8)
+
+[node name="PlayerBullet" type="Area2D" unique_id=1377564896]
+script = ExtResource("1_h6vv8")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1723884853]
+texture = ExtResource("2_55aux")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=20931298]
+shape = SubResource("RectangleShape2D_kqf08")

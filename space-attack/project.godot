@@ -11,8 +11,18 @@ config_version=5
 [application]
 
 config/name="SpaceAttack"
+run/main_scene="uid://v0k31172i4xn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+SaveManager="*res://project_root/autoloads/SaveManager.gd"
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg", "res://addons/virtual_joystick/plugin.cfg")
 
 [physics]
 

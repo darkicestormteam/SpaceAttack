@@ -1,3 +1,15 @@
 [gd_scene format=3 uid="uid://i35lndg10lst"]
 
-[node name="Scout" type="Node2D" unique_id=364820279]
+[ext_resource type="Script" uid="uid://b8mkk37d7k7i2" path="res://entities/enemies/Scout.gd" id="1_bun20"]
+[ext_resource type="Texture2D" uid="uid://bbuow50wq4ovn" path="res://entities/enemies/scout_texture.tres" id="2_f5bat"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qdfom"]
+
+[node name="Scout" type="CharacterBody2D" unique_id=222796757]
+script = ExtResource("1_bun20")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=375449331]
+texture = ExtResource("2_f5bat")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1733419448]
+shape = SubResource("RectangleShape2D_qdfom")
