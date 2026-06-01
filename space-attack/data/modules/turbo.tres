@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3 uid="uid://turbo01"]
+
+[resource]
+name = "Турбо-ускоритель"
+type = "utility"
+description = "Увеличивает скорость передвижения корабля на 30%"

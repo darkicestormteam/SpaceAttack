@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3 uid="uid://nanobots01"]
+
+[resource]
+name = "Нано-роботы"
+type = "utility"
+description = "Восстанавливает 1 HP каждые 10 секунд"

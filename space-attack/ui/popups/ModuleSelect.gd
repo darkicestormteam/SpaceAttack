@@ -1,25 +1,24 @@
 extends CanvasLayer
 
-# Popup выбора модуля для конкретного слота ("weapon" | "defense" | "utility").
-# Заполняется на основе owned_modules из SaveManager и фильтруется по типу модуля,
-# который соответствует выбранному слоту.
-
 signal module_selected(module_id: String)
 signal popup_closed
 
 const MODULE_PATHS: Dictionary = {
+	"laser": "res://data/modules/Laser_Common.tres",
 	"shotgun": "res://data/modules/shotgun.tres",
-	"Laser_Common": "res://data/modules/Laser_Common.tres",
-	"Laser_Rare": "res://data/modules/Laser_Rare.tres",
+	"rocket": "res://data/modules/rocket.tres",
 	"shield": "res://data/modules/shield.tres",
+	"energy_shield": "res://data/modules/energy_shield.tres",
+	"reactive_armor": "res://data/modules/reactive_armor.tres",
+	"magnet": "res://data/modules/magnet.tres",
 	"shockwave": "res://data/modules/shockwave.tres",
-	"magnet": "res://data/modules/magnet.tres"
+	"turbo": "res://data/modules/turbo.tres",
+	"nanobots": "res://data/modules/nanobots.tres"
 }
 
-# Прямые списки модулей по слотам — максимально надёжно
-const WEAPON_MODULES: Array = ["shotgun", "Laser_Common", "Laser_Rare"]
-const DEFENSE_MODULES: Array = ["shield"]
-const UTILITY_MODULES: Array = ["shockwave", "magnet"]
+const WEAPON_MODULES: Array = ["laser", "shotgun", "rocket"]
+const DEFENSE_MODULES: Array = ["shield", "energy_shield", "reactive_armor"]
+const UTILITY_MODULES: Array = ["magnet", "shockwave", "turbo", "nanobots"]
 
 var _target_slot: String = "weapon"
 
@@ -34,7 +33,6 @@ func _ready() -> void:
 	unequip_button.pressed.connect(_on_unequip_pressed)
 
 
-# Вызывается из Hangar перед показом
 func setup(slot: String) -> void:
 	_target_slot = slot
 	title_label.text = "Выберите модуль: %s" % _slot_display_name(slot)
@@ -42,7 +40,6 @@ func setup(slot: String) -> void:
 
 
 func _refresh_list() -> void:
-	# Очищаем старые кнопки
 	for child in list_container.get_children():
 		child.queue_free()
 
@@ -51,7 +48,6 @@ func _refresh_list() -> void:
 
 	for module_id in owned_ids:
 		var mid := str(module_id)
-		# Определяем тип слота напрямую
 		var module_type: String = ""
 		if mid in WEAPON_MODULES:
 			module_type = "weapon"
@@ -59,7 +55,6 @@ func _refresh_list() -> void:
 			module_type = "defense"
 		elif mid in UTILITY_MODULES:
 			module_type = "utility"
-		# Фильтруем только те, что подходят к слоту
 		if module_type != _target_slot:
 			continue
 

@@ -1,13 +1,18 @@
 extends CanvasLayer
 
-# Popup, который показывает результат открытия сундука.
-
 signal popup_closed
 
 const MODULE_PATHS: Dictionary = {
+	"laser": "res://data/modules/Laser_Common.tres",
 	"shotgun": "res://data/modules/shotgun.tres",
+	"rocket": "res://data/modules/rocket.tres",
 	"shield": "res://data/modules/shield.tres",
-	"shockwave": "res://data/modules/shockwave.tres"
+	"energy_shield": "res://data/modules/energy_shield.tres",
+	"reactive_armor": "res://data/modules/reactive_armor.tres",
+	"magnet": "res://data/modules/magnet.tres",
+	"shockwave": "res://data/modules/shockwave.tres",
+	"turbo": "res://data/modules/turbo.tres",
+	"nanobots": "res://data/modules/nanobots.tres"
 }
 
 @onready var title_label: Label = %TitleLabel
@@ -19,7 +24,6 @@ func _ready() -> void:
 	close_button.pressed.connect(_on_close_pressed)
 
 
-# mode: "new" — новый модуль; "duplicate" — модуль уже был, выдана компенсация
 func setup(module_id: String, is_new: bool, compensation: int) -> void:
 	var module_resource: Resource = _load_module(module_id)
 	var display_name: String = module_id

@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://bcytk2lujuhy1"]
+[gd_scene format=3 uid="uid://bcytk2lujuhy1"]
 
 [ext_resource type="Script" uid="uid://g6phf3aub522" path="res://ui/screens/Hangar.gd" id="1_gr1t4"]
 
-[node name="Hangar" type="Control"]
+[node name="Hangar" type="Control" unique_id=151760925]
 unique_name_in_owner = true
 layout_mode = 3
 anchors_preset = 15
@@ -12,14 +12,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_gr1t4")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=873154303]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 color = Color(0.05, 0.05, 0.1, 1)
 
-[node name="TitleLabel" type="Label" parent="."]
+[node name="TitleLabel" type="Label" parent="." unique_id=1442429151]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -34,7 +36,7 @@ theme_override_font_sizes/font_size = 36
 text = "SpaceAttack"
 horizontal_alignment = 1
 
-[node name="CreditsLabel" type="Label" parent="."]
+[node name="CreditsLabel" type="Label" parent="." unique_id=332450885]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 5
@@ -50,7 +52,7 @@ theme_override_font_sizes/font_size = 22
 text = "⭐ 0"
 horizontal_alignment = 1
 
-[node name="HighScoreLabel" type="Label" parent="."]
+[node name="HighScoreLabel" type="Label" parent="." unique_id=179641777]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 5
@@ -66,7 +68,7 @@ theme_override_font_sizes/font_size = 18
 text = "🏆 Лучший счёт: 0"
 horizontal_alignment = 1
 
-[node name="MenuButtons" type="HBoxContainer" parent="."]
+[node name="MenuButtons" type="HBoxContainer" parent="." unique_id=881518501]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -79,28 +81,31 @@ grow_horizontal = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="PlayButton" type="Button" parent="MenuButtons"]
+[node name="PlayButton" type="Button" parent="MenuButtons" unique_id=913410097]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 48)
+layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 20
 text = "Играть"
 
-[node name="ShopButton" type="Button" parent="MenuButtons"]
+[node name="ShopButton" type="Button" parent="MenuButtons" unique_id=1999847846]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 48)
+layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 20
 text = "Магазин"
 
-[node name="QuitButton" type="Button" parent="MenuButtons"]
+[node name="QuitButton" type="Button" parent="MenuButtons" unique_id=1554948790]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 48)
+layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 20
 text = "Выход"
 
-[node name="SlotsTitle" type="Label" parent="."]
+[node name="SlotsTitle" type="Label" parent="." unique_id=160695244]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -115,7 +120,7 @@ theme_override_font_sizes/font_size = 22
 text = "Слоты корабля"
 horizontal_alignment = 1
 
-[node name="SlotsRow" type="HBoxContainer" parent="."]
+[node name="SlotsRow" type="HBoxContainer" parent="." unique_id=510000389]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -128,31 +133,34 @@ grow_horizontal = 2
 theme_override_constants/separation = 24
 alignment = 1
 
-[node name="WeaponSlot" type="Button" parent="SlotsRow"]
+[node name="WeaponSlot" type="Button" parent="SlotsRow" unique_id=1803315653]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(280, 100)
+layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 18
 text = "Оружие
 [пусто]"
 
-[node name="DefenseSlot" type="Button" parent="SlotsRow"]
+[node name="DefenseSlot" type="Button" parent="SlotsRow" unique_id=584849269]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(280, 100)
+layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 18
 text = "Защита
 [пусто]"
 
-[node name="UtilitySlot" type="Button" parent="SlotsRow"]
+[node name="UtilitySlot" type="Button" parent="SlotsRow" unique_id=1130485055]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(280, 100)
+layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 18
 text = "Утилита
 [пусто]"
 
-[node name="ChestButton" type="Button" parent="."]
+[node name="ChestButton" type="Button" parent="." unique_id=297630130]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 5
@@ -166,7 +174,7 @@ grow_horizontal = 2
 theme_override_font_sizes/font_size = 20
 text = "🎁 Открыть сундук (500 ⭐)"
 
-[node name="ChestHintLabel" type="Label" parent="."]
+[node name="ChestHintLabel" type="Label" parent="." unique_id=475965590]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 5

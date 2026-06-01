@@ -17,6 +17,11 @@ var wave_counter: int = 1
 var enemies_killed_in_wave: int = 0
 var enemies_to_next_wave: int = 10
 
+# Босс
+var is_boss_fight: bool = false
+var boss_wave: int = 5
+var _boss_instance: Node = null
+
 const MARGIN: float = 20.0
 
 
@@ -102,6 +107,9 @@ func shake_camera(duration: float, intensity: float) -> void:
 
 
 func _on_enemy_killed() -> void:
+	if is_boss_fight:
+		return  # Во время босса убийства аддов не двигают волну
+	
 	enemies_killed_in_wave += 1
 	
 	if enemies_killed_in_wave >= enemies_to_next_wave:
@@ -112,6 +120,11 @@ func _advance_wave() -> void:
 	wave_counter += 1
 	enemies_killed_in_wave = 0
 	enemies_to_next_wave += 5
+	
+	# Если на этой волне — босс, запускаем босс-файт
+	if wave_counter == boss_wave:
+		start_boss_fight()
+		return
 	
 	wave_changed.emit(wave_counter)
 	
@@ -128,6 +141,50 @@ func _advance_wave() -> void:
 	elif not kamikaze_timer.is_stopped():
 		var new_kamikaze_interval = max(2.0, kamikaze_timer.wait_time - 0.3)
 		kamikaze_timer.wait_time = new_kamikaze_interval
+
+
+func start_boss_fight() -> void:
+	is_boss_fight = true
+	
+	# Останавливаем все таймеры спавна
+	scout_timer.stop()
+	fighter_timer.stop()
+	kamikaze_timer.stop()
+	
+	# Создаём босса
+	var boss_scene = preload("res://entities/enemies/Boss.tscn")
+	if boss_scene:
+		_boss_instance = boss_scene.instantiate()
+		var vps = get_viewport_rect().size
+		_boss_instance.global_position = Vector2(vps.x / 2.0, 80.0)
+		add_child(_boss_instance)
+	
+	wave_changed.emit(wave_counter)
+	# Можно добавить shake или сообщение
+
+
+func end_boss_fight() -> void:
+	# Удаляем босса если ещё жив
+	if _boss_instance != null and is_instance_valid(_boss_instance):
+		_boss_instance.queue_free()
+		_boss_instance = null
+	
+	is_boss_fight = false
+	
+	# Переходим к следующей волне и перезапускаем таймеры
+	wave_counter += 1
+	enemies_killed_in_wave = 0
+	enemies_to_next_wave += 5
+	wave_changed.emit(wave_counter)
+	
+	# Перезапуск таймеров с текущими интервалами
+	scout_timer.start()
+	if fighter_timer.is_stopped():
+		fighter_timer.start()
+	if wave_counter >= 2 and kamikaze_timer.is_stopped():
+		kamikaze_timer.start()
+	elif not kamikaze_timer.is_stopped():
+		kamikaze_timer.start()
 
 
 func _on_scout_timer_timeout() -> void:

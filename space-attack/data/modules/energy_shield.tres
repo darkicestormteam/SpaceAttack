@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3 uid="uid://cjaeknjwwv37y"]
+
+[resource]
+name = "Энергощит"
+type = "defense"
+description = "Поглощает урон → кредиты. Прочность 50. Перезарядка 20с."

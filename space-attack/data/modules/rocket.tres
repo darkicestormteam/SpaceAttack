@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3 uid="uid://rocket01"]
+
+[resource]
+name = "Ракетница"
+type = "weapon"
+description = "Мощная ракета, медленная стрельба"

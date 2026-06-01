@@ -6,16 +6,13 @@ var fire_rate_upgrade_level: int = 0
 var health_upgrade_level: int = 0
 var high_score: int = 0
 
-# Словарь принадлежащих игроку модулей: {"shotgun": 1, "shield": 1, "magnet": 1}
 var owned_modules: Dictionary = {}
-# Словарь экипированных модулей по слотам: {"weapon": "shotgun", "defense": "shield", "utility": "magnet"}
 var equipped_modules: Dictionary = {
 	"weapon": "",
 	"defense": "",
 	"utility": ""
 }
 
-# Карта соответствия типа модуля и слота
 const MODULE_SLOT_BY_TYPE: Dictionary = {
 	"weapon": "weapon",
 	"defense": "defense",
@@ -23,6 +20,12 @@ const MODULE_SLOT_BY_TYPE: Dictionary = {
 }
 
 const SAVE_PATH: String = "user://savegame.json"
+
+const DEFAULT_MODULE_IDS: Array = [
+	"laser", "shotgun", "rocket",
+	"shield", "energy_shield", "reactive_armor",
+	"magnet", "shockwave", "turbo", "nanobots"
+]
 
 
 func _ready() -> void:
@@ -49,7 +52,6 @@ func load_game() -> Dictionary:
 			health_upgrade_level = data.get("health_upgrade_level", 0)
 			high_score = data.get("high_score", 0)
 
-			# Загружаем модули. Если в сейве нет — инициализируем значениями по умолчанию
 			var loaded_owned = data.get("owned_modules", {})
 			if loaded_owned is Dictionary:
 				owned_modules = (loaded_owned as Dictionary).duplicate()
@@ -62,10 +64,13 @@ func load_game() -> Dictionary:
 			else:
 				equipped_modules = {"weapon": "", "defense": "", "utility": ""}
 
-			# Гарантируем наличие всех слотов
 			for slot in ["weapon", "defense", "utility"]:
 				if not equipped_modules.has(slot):
 					equipped_modules[slot] = ""
+
+			for module_id in DEFAULT_MODULE_IDS:
+				if not owned_modules.has(module_id):
+					owned_modules[module_id] = 1
 		else:
 			set_defaults()
 	else:
@@ -108,25 +113,16 @@ func set_defaults() -> void:
 	fire_rate_upgrade_level = 0
 	health_upgrade_level = 0
 	high_score = 0
-	# По умолчанию все базовые модули уже выдаются игроку
-	owned_modules = {
-		"shotgun": 1,
-		"Laser_Common": 1,
-		"Laser_Rare": 1,
-		"shield": 1,
-		"magnet": 1,
-		"shockwave": 1
-	}
+	owned_modules = {}
+	for mid in DEFAULT_MODULE_IDS:
+		owned_modules[mid] = 1
 	equipped_modules = {
-		"weapon": "shotgun",
+		"weapon": "laser",
 		"defense": "shield",
 		"utility": "magnet"
 	}
 
 
-# ---------- Система модулей ----------
-
-# Добавляет модуль в инвентарь. Возвращает true, если модуль новый, иначе false.
 func add_module(module_id: String) -> bool:
 	if module_id == null or module_id.is_empty():
 		return false
@@ -137,50 +133,40 @@ func add_module(module_id: String) -> bool:
 	return true
 
 
-# Проверяет, есть ли модуль у игрока
 func has_module(module_id: String) -> bool:
 	return owned_modules.has(module_id) and int(owned_modules[module_id]) > 0
 
 
-# Экипирует модуль в указанный слот. Слот может быть: "weapon", "defense", "utility"
-# Или может быть передан type модуля ("weapon"/"defense"/"utility") — слот подставится автоматически.
 func equip_module(slot: String, module_id: String) -> bool:
 	var target_slot := slot
-	# Если передали type модуля вместо имени слота, найдём соответствующий слот
 	if not target_slot in ["weapon", "defense", "utility"]:
 		if MODULE_SLOT_BY_TYPE.has(target_slot):
 			target_slot = MODULE_SLOT_BY_TYPE[target_slot]
 		else:
 			return false
-
 	if not has_module(module_id):
 		return false
-
 	equipped_modules[target_slot] = module_id
 	save_game()
 	return true
 
 
-# Снимает модуль из слота
 func unequip_module(slot: String) -> void:
 	if equipped_modules.has(slot):
 		equipped_modules[slot] = ""
 		save_game()
 
 
-# Возвращает id модуля, экипированного в слот (или пустую строку)
 func get_equipped_in_slot(slot: String) -> String:
 	if equipped_modules.has(slot):
 		return equipped_modules[slot]
 	return ""
 
 
-# Возвращает список id модулей, принадлежащих игроку
 func get_owned_module_ids() -> Array:
 	return owned_modules.keys()
 
 
-# Списывает кредиты. Возвращает true при успехе.
 func spend_credits(amount: int) -> bool:
 	if credits < amount:
 		return false
@@ -189,7 +175,6 @@ func spend_credits(amount: int) -> bool:
 	return true
 
 
-# Начисляет кредиты
 func add_credits(amount: int) -> void:
 	credits += amount
 	save_game()
