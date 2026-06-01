@@ -111,6 +111,8 @@ func set_defaults() -> void:
 	# По умолчанию все базовые модули уже выдаются игроку
 	owned_modules = {
 		"shotgun": 1,
+		"Laser_Common": 1,
+		"Laser_Rare": 1,
 		"shield": 1,
 		"magnet": 1,
 		"shockwave": 1
