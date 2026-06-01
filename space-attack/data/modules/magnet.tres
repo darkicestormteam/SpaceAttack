@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3 uid="uid://dmagnetuid"]
+
+[resource]
+name = "Магнит"
+type = "utility"
+description = "Привлекает броню и патроны к кораблю"

@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3 uid="uid://d2ggyr60sxosy"]
+
+[resource]
+name = "Дробовик"
+type = "weapon"
+description = "Стреляет веером из 3 пуль"

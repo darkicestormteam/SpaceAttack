@@ -108,6 +108,37 @@ text = "200 ⭐"
 [node name="Sep2" type="HSeparator" parent="ShopPanel" unique_id=1437975239]
 layout_mode = 2
 
+[node name="Sep2Title" type="Label" parent="ShopPanel" unique_id=1437975240]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "⚡ Модули"
+horizontal_alignment = 1
+
+[node name="ShockwaveRow" type="HBoxContainer" parent="ShopPanel" unique_id=1437975241]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ShockwaveInfo" type="VBoxContainer" parent="ShopPanel/ShockwaveRow" unique_id=1437975242]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShockwaveTitle" type="Label" parent="ShopPanel/ShockwaveRow/ShockwaveInfo" unique_id=1437975243]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "💥 Импульсная волна"
+
+[node name="ShockwaveHint" type="Label" parent="ShopPanel/ShockwaveRow/ShockwaveInfo" unique_id=1437975244]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "Кулдаун 8 сек, радиус 200 px, урон 20"
+
+[node name="ShockwaveButton" type="Button" parent="ShopPanel/ShockwaveRow" unique_id=1437975245]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "300 ⭐"
+
 [node name="BackButton" type="Button" parent="ShopPanel" unique_id=1278293850]
 custom_minimum_size = Vector2(200, 44)
 layout_mode = 2

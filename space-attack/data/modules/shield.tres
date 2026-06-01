@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3 uid="uid://dshielduid"]
+
+[resource]
+name = "Щит"
+type = "defense"
+description = "Поглощает 1 урон каждые 5 секунд"

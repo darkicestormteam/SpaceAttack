@@ -28,10 +28,12 @@ func _ready() -> void:
 	scout_timer.start()
 	
 	fighter_timer.timeout.connect(_on_fighter_timer_timeout)
-	# FighterTimer starts 10 seconds after game start
+	# FighterTimer starts after 10 sec
 	get_tree().create_timer(10.0).timeout.connect(func(): fighter_timer.start())
 	
 	kamikaze_timer.timeout.connect(_on_kamikaze_timer_timeout)
+	# KamikazeTimer starts after 20 sec
+	get_tree().create_timer(20.0).timeout.connect(func(): kamikaze_timer.start())
 	
 	var hud = $BattleHUD
 	if hud:
@@ -106,10 +108,6 @@ func _on_enemy_killed() -> void:
 	
 	if enemies_killed_in_wave >= enemies_to_next_wave:
 		_advance_wave()
-	
-	# Kamikaze starts after 10 total kills or wave >= 2
-	if (enemies_killed_in_wave >= 10 or wave_counter >= 2) and kamikaze_timer.is_stopped():
-		kamikaze_timer.start()
 
 
 func _advance_wave() -> void:

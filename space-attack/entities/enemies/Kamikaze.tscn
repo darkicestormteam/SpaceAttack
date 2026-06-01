@@ -2,17 +2,20 @@
 
 [ext_resource type="Script" uid="uid://ds0rc2af18l3v" path="res://entities/enemies/Kamikaze.gd" id="1_5dgmh"]
 [ext_resource type="Texture2D" uid="uid://hrmg3s8pscfa" path="res://entities/enemies/Kamikaze_texture.tres" id="2_mcgja"]
+[ext_resource type="Texture2D" uid="uid://dajges33itvo" path="res://entities/enemies/kamikaze_border_texture.tres" id="3_border"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cv710"]
 
 [node name="Kamikaze" type="CharacterBody2D" unique_id=1368427548]
 script = ExtResource("1_5dgmh")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1526381269]
+[node name="BorderSprite" type="Sprite2D" parent="." unique_id=1526381268]
+texture = ExtResource("3_border")
+
+[node name="InnerSprite" type="Sprite2D" parent="." unique_id=1526381269]
 modulate = Color(1, 0.15, 0.15, 1)
+scale = Vector2(0.8, 0.8)
 texture = ExtResource("2_mcgja")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=699747767]
 shape = SubResource("RectangleShape2D_cv710")
-
-[node name="DeathParticles" type="CPUParticles2D" parent="." unique_id=1542153611]

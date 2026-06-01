@@ -3,6 +3,10 @@ extends Area2D
 const SPEED: float = 600.0
 
 var damage: int = 10
+# Направление движения пули. По умолчанию — строго вверх (старое поведение).
+# Чтобы пуля летела под углом, нужно задать это свойство до _ready/_process
+# (например, сразу после instantiate в Player.gd).
+var direction: Vector2 = Vector2.UP
 
 
 func _ready() -> void:
@@ -11,9 +15,9 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	# Движение вверх
-	global_position.y -= SPEED * delta
-	
+	# Движение в направлении direction
+	global_position += direction.normalized() * SPEED * delta
+
 	# Удаление при выходе за экран
 	var viewport_size = get_viewport_rect().size
 	if global_position.y < -50 or global_position.y > viewport_size.y + 50:

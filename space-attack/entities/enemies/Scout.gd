@@ -38,6 +38,7 @@ func die() -> void:
 	if main and main.has_method(&"_on_enemy_killed"):
 		main._on_enemy_killed()
 	_spawn_death_particles()
+	_spawn_death_circle()
 	queue_free()
 
 
@@ -52,3 +53,15 @@ func _spawn_death_particles() -> void:
 	particles.emitting = true
 	get_tree().current_scene.add_child(particles)
 	get_tree().create_timer(1.0).timeout.connect(particles.queue_free)
+
+
+func _spawn_death_circle() -> void:
+	var c := Node2D.new()
+	c.global_position = global_position
+	c.set_process(false)
+	c.draw.connect(func():
+		c.draw_circle(Vector2.ZERO, 16.0, Color.RED)
+	)
+	get_tree().current_scene.add_child(c)
+	c.queue_redraw()
+	get_tree().create_timer(0.3).timeout.connect(c.queue_free)

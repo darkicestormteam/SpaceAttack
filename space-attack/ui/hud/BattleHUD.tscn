@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://cwbkoyhscwk5h"]
+[gd_scene load_steps=2 format=3 uid="uid://cwbkoyhscwk5h"]
 
 [ext_resource type="Script" uid="uid://sd0cw2jerm2v" path="res://ui/hud/BattleHUD.gd" id="1_eq25i"]
 
@@ -33,3 +33,37 @@ offset_right = 21.0
 offset_bottom = 643.0
 theme_override_font_sizes/font_size = 20
 text = "Wave: 1"
+
+[node name="ShockwaveButton" type="Button" parent="." unique_id=1200000001]
+unique_name_in_owner = true
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = -110.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 32
+text = "💥"
+
+[node name="ShockwaveCooldownLabel" type="Label" parent="." unique_id=1200000002]
+unique_name_in_owner = true
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = -150.0
+offset_right = -10.0
+offset_bottom = -115.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.5, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Готово (F)"
+horizontal_alignment = 1

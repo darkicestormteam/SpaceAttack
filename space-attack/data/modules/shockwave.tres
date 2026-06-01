@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3 uid="uid://dshockwaveuid"]
+
+[resource]
+name = "Импульсная волна"
+type = "utility"
+description = "Активная способность: волна радиусом 200 пикселей наносит 20 урона врагам и уничтожает вражеские пули. Кулдаун 8 секунд."
