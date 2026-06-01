@@ -9,14 +9,17 @@ signal popup_closed
 
 const MODULE_PATHS: Dictionary = {
 	"shotgun": "res://data/modules/shotgun.tres",
+	"Laser_Common": "res://data/modules/Laser_Common.tres",
+	"Laser_Rare": "res://data/modules/Laser_Rare.tres",
 	"shield": "res://data/modules/shield.tres",
-	"shockwave": "res://data/modules/shockwave.tres"
+	"shockwave": "res://data/modules/shockwave.tres",
+	"magnet": "res://data/modules/magnet.tres"
 }
 
 # Прямые списки модулей по слотам — максимально надёжно
-const WEAPON_MODULES: Array = ["shotgun"]
+const WEAPON_MODULES: Array = ["shotgun", "Laser_Common", "Laser_Rare"]
 const DEFENSE_MODULES: Array = ["shield"]
-const UTILITY_MODULES: Array = ["shockwave"]
+const UTILITY_MODULES: Array = ["shockwave", "magnet"]
 
 var _target_slot: String = "weapon"
 

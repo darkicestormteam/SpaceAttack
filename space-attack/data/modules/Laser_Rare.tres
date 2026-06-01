@@ -1,3 +1,6 @@
 [gd_resource type="Resource" format=3 uid="uid://urfum54k3wel"]
 
 [resource]
+name = "Лазер (Редкий)"
+type = "weapon"
+description = "Улучшенный лазерный луч"

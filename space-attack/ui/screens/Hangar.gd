@@ -10,8 +10,11 @@ const CHEST_POOL: Array = ["shotgun", "shield", "shockwave"]
 # Пути к ресурсам модулей
 const MODULE_PATHS: Dictionary = {
 	"shotgun": "res://data/modules/shotgun.tres",
+	"Laser_Common": "res://data/modules/Laser_Common.tres",
+	"Laser_Rare": "res://data/modules/Laser_Rare.tres",
 	"shield": "res://data/modules/shield.tres",
-	"shockwave": "res://data/modules/shockwave.tres"
+	"shockwave": "res://data/modules/shockwave.tres",
+	"magnet": "res://data/modules/magnet.tres"
 }
 
 # Сцены popups
