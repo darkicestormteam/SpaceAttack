@@ -1,0 +1,21 @@
+```
+# Godot-specific ignores
+*.import
+*.uid
+export_presets.cfg
+godot_vcs_ignore.cfg
+
+# Build artifacts
+*.import
+**/import/*
+**/cache/*
+
+# Temporary files
+*.tmp
+*.temp
+*.backup
+
+# OS specific
+.DS_Store
+Thumbs.db
+```

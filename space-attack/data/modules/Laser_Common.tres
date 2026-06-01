@@ -1,3 +1,6 @@
 [gd_resource type="Resource" format=3 uid="uid://b4mehle3syxpg"]
 
 [resource]
+name = "Лазер (Обычный)"
+type = "weapon"
+description = "Стреляет лазерным лучом"
