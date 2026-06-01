@@ -32,8 +32,6 @@ func _ready() -> void:
 	get_tree().create_timer(10.0).timeout.connect(func(): fighter_timer.start())
 	
 	kamikaze_timer.timeout.connect(_on_kamikaze_timer_timeout)
-	# KamikazeTimer starts after 20 sec
-	get_tree().create_timer(20.0).timeout.connect(func(): kamikaze_timer.start())
 	
 	var hud = $BattleHUD
 	if hud:
@@ -124,8 +122,11 @@ func _advance_wave() -> void:
 		var new_fighter_interval = max(1.0, fighter_timer.wait_time - 0.2)
 		fighter_timer.wait_time = new_fighter_interval
 	
-	if not kamikaze_timer.is_stopped():
-		var new_kamikaze_interval = max(3.0, kamikaze_timer.wait_time - 0.5)
+	# Запуск KamikazeTimer при wave >= 2 (если ещё не запущен)
+	if wave_counter >= 2 and kamikaze_timer.is_stopped():
+		kamikaze_timer.start()
+	elif not kamikaze_timer.is_stopped():
+		var new_kamikaze_interval = max(2.0, kamikaze_timer.wait_time - 0.3)
 		kamikaze_timer.wait_time = new_kamikaze_interval
 
 

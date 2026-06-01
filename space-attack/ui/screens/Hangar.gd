@@ -5,13 +5,13 @@ const CHEST_COST: int = 500
 const CHEST_DUPLICATE_COMPENSATION: int = 100
 
 # Возможные модули в сундуке
-const CHEST_POOL: Array = ["shotgun", "shield", "magnet"]
+const CHEST_POOL: Array = ["shotgun", "shield", "shockwave"]
 
 # Пути к ресурсам модулей
 const MODULE_PATHS: Dictionary = {
 	"shotgun": "res://data/modules/shotgun.tres",
 	"shield": "res://data/modules/shield.tres",
-	"magnet": "res://data/modules/magnet.tres"
+	"shockwave": "res://data/modules/shockwave.tres"
 }
 
 # Сцены popups

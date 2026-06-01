@@ -114,6 +114,56 @@ theme_override_font_sizes/font_size = 18
 text = "⚡ Модули"
 horizontal_alignment = 1
 
+[node name="ShotgunRow" type="HBoxContainer" parent="ShopPanel" unique_id=1537975241]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ShotgunInfo" type="VBoxContainer" parent="ShopPanel/ShotgunRow" unique_id=1537975242]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShotgunTitle" type="Label" parent="ShopPanel/ShotgunRow/ShotgunInfo" unique_id=1537975243]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "🔫 Дробовик"
+
+[node name="ShotgunHint" type="Label" parent="ShopPanel/ShotgunRow/ShotgunInfo" unique_id=1537975244]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "3 пули веером, больше урон"
+
+[node name="ShotgunButton" type="Button" parent="ShopPanel/ShotgunRow" unique_id=1537975245]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "300 ⭐"
+
+[node name="ShieldRow" type="HBoxContainer" parent="ShopPanel" unique_id=1637975241]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ShieldInfo" type="VBoxContainer" parent="ShopPanel/ShieldRow" unique_id=1637975242]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShieldTitle" type="Label" parent="ShopPanel/ShieldRow/ShieldInfo" unique_id=1637975243]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "🛡 Щит"
+
+[node name="ShieldHint" type="Label" parent="ShopPanel/ShieldRow/ShieldInfo" unique_id=1637975244]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "Автоблок раз в 10 сек"
+
+[node name="ShieldButton" type="Button" parent="ShopPanel/ShieldRow" unique_id=1637975245]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "300 ⭐"
+
 [node name="ShockwaveRow" type="HBoxContainer" parent="ShopPanel" unique_id=1437975241]
 layout_mode = 2
 theme_override_constants/separation = 8

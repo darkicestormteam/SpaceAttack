@@ -15,6 +15,8 @@ const SHOCKWAVE_COST: int = 300
 @onready var damage_button: Button = $ShopPanel/DamageRow/DamageButton
 @onready var fire_rate_button: Button = $ShopPanel/FireRateRow/FireRateButton
 @onready var health_button: Button = $ShopPanel/HealthRow/HealthButton
+@onready var shotgun_button: Button = %ShotgunButton
+@onready var shield_button: Button = %ShieldButton
 @onready var shockwave_button: Button = %ShockwaveButton
 @onready var back_button: Button = $ShopPanel/BackButton
 
@@ -26,6 +28,10 @@ func _ready() -> void:
 	damage_button.pressed.connect(_on_damage_buy_pressed)
 	fire_rate_button.pressed.connect(_on_fire_rate_buy_pressed)
 	health_button.pressed.connect(_on_health_buy_pressed)
+	if shotgun_button:
+		shotgun_button.pressed.connect(_on_shotgun_buy_pressed)
+	if shield_button:
+		shield_button.pressed.connect(_on_shield_buy_pressed)
 	if shockwave_button:
 		shockwave_button.pressed.connect(_on_shockwave_buy_pressed)
 	back_button.pressed.connect(_on_back_pressed)
@@ -40,6 +46,8 @@ func update_ui() -> void:
 	_update_button(damage_button, SaveManager.damage_upgrade_level, "damage")
 	_update_button(fire_rate_button, SaveManager.fire_rate_upgrade_level, "fire_rate")
 	_update_button(health_button, SaveManager.health_upgrade_level, "health")
+	_update_module_button(shotgun_button, "shotgun")
+	_update_module_button(shield_button, "shield")
 	_update_shockwave_button()
 
 
@@ -128,6 +136,42 @@ func _on_fire_rate_buy_pressed() -> void:
 
 func _on_health_buy_pressed() -> void:
 	_buy_upgrade("health")
+
+
+func _update_module_button(button: Button, module_id: String) -> void:
+	if not button:
+		return
+	if SaveManager.has_module(module_id):
+		button.text = "Куплено"
+		button.disabled = true
+		return
+	if SaveManager.credits < SHOCKWAVE_COST:
+		button.text = str(SHOCKWAVE_COST) + " ⭐"
+		button.disabled = true
+		return
+	button.text = str(SHOCKWAVE_COST) + " ⭐"
+	button.disabled = false
+
+
+func _buy_module(module_id: String, equip_slot: String) -> void:
+	if SaveManager.has_module(module_id):
+		return
+	if SaveManager.credits < SHOCKWAVE_COST:
+		return
+	SaveManager.credits -= SHOCKWAVE_COST
+	SaveManager.add_module(module_id)
+	if SaveManager.get_equipped_in_slot(equip_slot).is_empty():
+		SaveManager.equip_module(equip_slot, module_id)
+	SaveManager.save_game()
+	update_ui()
+
+
+func _on_shotgun_buy_pressed() -> void:
+	_buy_module("shotgun", "weapon")
+
+
+func _on_shield_buy_pressed() -> void:
+	_buy_module("shield", "defense")
 
 
 func _on_shockwave_buy_pressed() -> void:

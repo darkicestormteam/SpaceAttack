@@ -10,8 +10,13 @@ signal popup_closed
 const MODULE_PATHS: Dictionary = {
 	"shotgun": "res://data/modules/shotgun.tres",
 	"shield": "res://data/modules/shield.tres",
-	"magnet": "res://data/modules/magnet.tres"
+	"shockwave": "res://data/modules/shockwave.tres"
 }
+
+# Прямые списки модулей по слотам — максимально надёжно
+const WEAPON_MODULES: Array = ["shotgun"]
+const DEFENSE_MODULES: Array = ["shield"]
+const UTILITY_MODULES: Array = ["shockwave"]
 
 var _target_slot: String = "weapon"
 
@@ -42,10 +47,15 @@ func _refresh_list() -> void:
 	var has_any_for_slot := false
 
 	for module_id in owned_ids:
-		var module_resource: Resource = _load_module(module_id)
-		if module_resource == null:
-			continue
-		var module_type: String = _get_module_type(module_resource)
+		var mid := str(module_id)
+		# Определяем тип слота напрямую
+		var module_type: String = ""
+		if mid in WEAPON_MODULES:
+			module_type = "weapon"
+		elif mid in DEFENSE_MODULES:
+			module_type = "defense"
+		elif mid in UTILITY_MODULES:
+			module_type = "utility"
 		# Фильтруем только те, что подходят к слоту
 		if module_type != _target_slot:
 			continue
@@ -54,8 +64,12 @@ func _refresh_list() -> void:
 		var row := HBoxContainer.new()
 		row.custom_minimum_size = Vector2(0, 64)
 
+		var module_resource: Resource = _load_module(module_id)
+		var display_name: String = module_id
+		if module_resource != null:
+			display_name = _get_module_name(module_resource, module_id)
 		var name_label := Label.new()
-		name_label.text = _get_module_name(module_resource, module_id)
+		name_label.text = display_name
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		row.add_child(name_label)

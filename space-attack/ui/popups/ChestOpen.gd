@@ -7,7 +7,7 @@ signal popup_closed
 const MODULE_PATHS: Dictionary = {
 	"shotgun": "res://data/modules/shotgun.tres",
 	"shield": "res://data/modules/shield.tres",
-	"magnet": "res://data/modules/magnet.tres"
+	"shockwave": "res://data/modules/shockwave.tres"
 }
 
 @onready var title_label: Label = %TitleLabel
