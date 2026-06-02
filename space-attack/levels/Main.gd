@@ -7,7 +7,6 @@ signal wave_changed(new_wave: int)
 
 @onready var scout_timer: Timer = $ScoutTimer
 @onready var fighter_timer: Timer = $FighterTimer
-@onready var kamikaze_timer: Timer = $KamikazeTimer
 @onready var camera: Camera2D = $Camera2D
 
 var sm: Node  # SaveManager reference
@@ -36,8 +35,6 @@ func _ready() -> void:
 	# FighterTimer starts after 10 sec
 	get_tree().create_timer(10.0).timeout.connect(func(): fighter_timer.start())
 	
-	kamikaze_timer.timeout.connect(_on_kamikaze_timer_timeout)
-	
 	var hud = $BattleHUD
 	if hud:
 		score_changed.connect(hud.update_score)
@@ -57,6 +54,12 @@ func _ready() -> void:
 				sm.health_upgrade_level
 			)
 
+	# PauseMenu
+	var pause_menu = $PauseMenu
+	if pause_menu:
+		pause_menu.hangar_requested.connect(_on_pause_hangar)
+		pause_menu.restart_requested.connect(_on_pause_restart)
+
 
 func _on_player_health_changed(new_health: int) -> void:
 	lives_changed.emit(new_health)
@@ -69,8 +72,6 @@ func _on_player_died() -> void:
 func game_over() -> void:
 	scout_timer.stop()
 	fighter_timer.stop()
-	kamikaze_timer.stop()
-	
 	if score > sm.high_score:
 		sm.high_score = score
 	sm.save_game()
@@ -134,13 +135,6 @@ func _advance_wave() -> void:
 	if not fighter_timer.is_stopped():
 		var new_fighter_interval = max(1.0, fighter_timer.wait_time - 0.2)
 		fighter_timer.wait_time = new_fighter_interval
-	
-	# Запуск KamikazeTimer при wave >= 2 (если ещё не запущен)
-	if wave_counter >= 2 and kamikaze_timer.is_stopped():
-		kamikaze_timer.start()
-	elif not kamikaze_timer.is_stopped():
-		var new_kamikaze_interval = max(2.0, kamikaze_timer.wait_time - 0.3)
-		kamikaze_timer.wait_time = new_kamikaze_interval
 
 
 func start_boss_fight() -> void:
@@ -149,7 +143,6 @@ func start_boss_fight() -> void:
 	# Останавливаем все таймеры спавна
 	scout_timer.stop()
 	fighter_timer.stop()
-	kamikaze_timer.stop()
 	
 	# Создаём босса
 	var boss_scene = preload("res://entities/enemies/Boss.tscn")
@@ -181,16 +174,29 @@ func end_boss_fight() -> void:
 	scout_timer.start()
 	if fighter_timer.is_stopped():
 		fighter_timer.start()
-	if wave_counter >= 2 and kamikaze_timer.is_stopped():
-		kamikaze_timer.start()
-	elif not kamikaze_timer.is_stopped():
-		kamikaze_timer.start()
 
 
 func _on_scout_timer_timeout() -> void:
 	var scene = preload("res://entities/enemies/Scout.tscn")
-	if scene:
-		_spawn_enemy(scene)
+	if not scene:
+		return
+	# Выбираем поведение по вероятностям: 40% Kamikaze, 30% SineWave, 20% DiveBomber, 10% Flanker
+	var roll := randf() * 100.0
+	var scout_behavior: int  # Scout.Behavior
+	if roll < 40.0:
+		scout_behavior = 0  # KAMIKAZE
+	elif roll < 70.0:
+		scout_behavior = 1  # SINE_WAVE
+	elif roll < 90.0:
+		scout_behavior = 2  # DIVE_BOMBER
+	else:
+		scout_behavior = 3  # FLANKER
+	var enemy = scene.instantiate()
+	enemy.behavior = scout_behavior
+	var vps = get_viewport_rect().size
+	var rx := randf_range(MARGIN, vps.x - MARGIN)
+	enemy.global_position = Vector2(rx, -50)
+	add_child(enemy)
 
 
 func _on_fighter_timer_timeout() -> void:
@@ -199,10 +205,6 @@ func _on_fighter_timer_timeout() -> void:
 		_spawn_enemy(scene)
 
 
-func _on_kamikaze_timer_timeout() -> void:
-	var scene = preload("res://entities/enemies/Kamikaze.tscn")
-	if scene:
-		_spawn_enemy(scene)
 
 
 func _spawn_enemy(scene: PackedScene) -> void:
@@ -211,3 +213,15 @@ func _spawn_enemy(scene: PackedScene) -> void:
 	var rx = randf_range(MARGIN, vps.x - MARGIN)
 	enemy.global_position = Vector2(rx, -50)
 	add_child(enemy)
+
+
+# --- PauseMenu handlers ---
+
+func _on_pause_hangar() -> void:
+	get_tree().paused = false
+	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
+
+
+func _on_pause_restart() -> void:
+	get_tree().paused = false
+	get_tree().reload_current_scene()

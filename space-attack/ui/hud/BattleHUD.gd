@@ -3,6 +3,7 @@ extends CanvasLayer
 @onready var score_label: Label = %ScoreLabel
 @onready var credits_label: Label = %CreditsLabel
 @onready var wave_label: Label = $WaveLabel
+@onready var lives_label: Label = %LivesLabel
 @onready var shockwave_button: Button = %ShockwaveButton
 @onready var shockwave_cooldown_label: Label = %ShockwaveCooldownLabel
 
@@ -91,8 +92,8 @@ func update_credits(value: int) -> void:
 
 
 func update_lives(value: int) -> void:
-	# Сюда можно добавить отображение жизней (если появится LivesLabel)
-	pass
+	if lives_label != null:
+		lives_label.text = "❤️ " + str(value)
 
 
 func update_wave(value: int) -> void:

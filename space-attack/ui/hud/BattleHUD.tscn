@@ -5,75 +5,74 @@
 [node name="BattleHUD" type="CanvasLayer" unique_id=293741182]
 script = ExtResource("1_eq25i")
 
-[node name="ScoreLabel" type="Label" parent="." unique_id=299578290]
-unique_name_in_owner = true
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 10.0
-offset_bottom = 10.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 20
-text = "Очки: 0"
+[node name="TopBar" type="HBoxContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 60.0
+grow_horizontal = 2
+theme_override_constants/separation = 20
 
-[node name="CreditsLabel" type="Label" parent="." unique_id=1881754571]
+[node name="LivesLabel" type="Label" parent="TopBar" unique_id=1432467417]
 unique_name_in_owner = true
-offset_left = 10.0
-offset_top = 40.0
-offset_right = 10.0
-offset_bottom = 40.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 20
-text = "Кредиты: 0"
-horizontal_alignment = 2
-
-[node name="WaveLabel" type="Label" parent="." unique_id=656092802]
-offset_left = 20.0
-offset_top = 620.0
-offset_right = 21.0
-offset_bottom = 643.0
-theme_override_font_sizes/font_size = 20
-text = "Wave: 1"
-
-[node name="LivesLabel" type="Label" parent="." unique_id=1300000001]
-unique_name_in_owner = true
-offset_left = 10.0
-offset_top = 70.0
-offset_right = 200.0
-offset_bottom = 95.0
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 28
 text = "❤️ 3"
 
-[node name="ShockwaveButton" type="Button" parent="." unique_id=1200000001]
+[node name="ScoreLabel" type="Label" parent="TopBar" unique_id=299578290]
 unique_name_in_owner = true
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -110.0
-offset_top = -110.0
-offset_right = -10.0
-offset_bottom = -10.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_font_sizes/font_size = 32
-text = "💥"
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
+text = "Очки: 0"
 
-[node name="ShockwaveCooldownLabel" type="Label" parent="." unique_id=1200000002]
+[node name="CreditsLabel" type="Label" parent="TopBar" unique_id=1881754571]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_font_sizes/font_size = 28
+text = "⭐ 0"
+horizontal_alignment = 2
+
+[node name="WaveLabel" type="Label" parent="."]
+unique_name_in_owner = true
+offset_left = 16.0
+offset_top = 1224.0
+offset_right = 200.0
+offset_bottom = 1260.0
+theme_override_font_sizes/font_size = 24
+text = "Волна: 1"
+
+[node name="ShockwaveContainer" type="VBoxContainer" parent="."]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -110.0
-offset_top = -150.0
-offset_right = -10.0
-offset_bottom = -115.0
+offset_top = -200.0
+offset_right = -16.0
+offset_bottom = -100.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.5, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_constants/separation = 8
+
+[node name="ShockwaveCooldownLabel" type="Label" parent="ShockwaveContainer" unique_id=1200000002]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
 text = "Готово (F)"
 horizontal_alignment = 1
+
+[node name="ShockwaveButton" type="Button" parent="ShockwaveContainer" unique_id=1200000001]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(80, 80)
+theme_override_font_sizes/font_size = 36
+text = "💥"

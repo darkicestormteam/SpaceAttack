@@ -1,196 +1,72 @@
-[gd_scene format=3 uid="uid://uy27m0vm6qg5"]
+[gd_scene format=3 uid="uid://bshop12345678"]
 
-[ext_resource type="Script" uid="uid://byrpxgf6q0jo5" path="res://ui/screens/Shop.gd" id="1_q3mht"]
+[ext_resource type="Script" uid="uid://dshop87654321" path="res://ui/screens/Shop.gd" id="1_shop"]
 
-[node name="Shop" type="Control" unique_id=507461528]
+[node name="Shop" type="Control"]
+unique_name_in_owner = true
 layout_mode = 3
-anchors_preset = 0
-script = ExtResource("1_q3mht")
-
-[node name="Background" type="ColorRect" parent="." unique_id=1116321932]
-layout_mode = 0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.08, 0.08, 0.12, 1)
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_shop")
 
-[node name="ShopPanel" type="VBoxContainer" parent="." unique_id=750139053]
-layout_mode = 0
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.1, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8666667, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "🛒 Магазин"
+horizontal_alignment = 1
+
+[node name="CreditsLabel" type="Label" parent="MarginContainer/VBox" unique_id=1]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "⭐ 0"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 400)
+
+[node name="ItemsVBox" type="VBoxContainer" parent="MarginContainer/VBox/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="TitleLabel" type="Label" parent="ShopPanel" unique_id=514093254]
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "🛒 Магазин улучшений"
-horizontal_alignment = 1
-
-[node name="CreditsLabel" type="Label" parent="ShopPanel" unique_id=1583848931]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "⭐ 0 кредитов"
-horizontal_alignment = 1
-
-[node name="Sep1" type="HSeparator" parent="ShopPanel" unique_id=1851137697]
-layout_mode = 2
-
-[node name="DamageRow" type="HBoxContainer" parent="ShopPanel" unique_id=437922578]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="DamageInfo" type="VBoxContainer" parent="ShopPanel/DamageRow" unique_id=139923198]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="DamageTitle" type="Label" parent="ShopPanel/DamageRow/DamageInfo" unique_id=1842337232]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "💥 Урон"
-
-[node name="DamageLevel" type="Label" parent="ShopPanel/DamageRow/DamageInfo" unique_id=337852069]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Уровень: 0 / 3"
-
-[node name="DamageButton" type="Button" parent="ShopPanel/DamageRow" unique_id=667245405]
-custom_minimum_size = Vector2(100, 40)
-layout_mode = 2
-text = "100 ⭐"
-
-[node name="FireRateRow" type="HBoxContainer" parent="ShopPanel" unique_id=92435732]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="FireRateInfo" type="VBoxContainer" parent="ShopPanel/FireRateRow" unique_id=1198841503]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="FireRateTitle" type="Label" parent="ShopPanel/FireRateRow/FireRateInfo" unique_id=869137805]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "🔫 Скорострельность"
-
-[node name="FireRateLevel" type="Label" parent="ShopPanel/FireRateRow/FireRateInfo" unique_id=76766035]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Уровень: 0 / 3"
-
-[node name="FireRateButton" type="Button" parent="ShopPanel/FireRateRow" unique_id=1404754370]
-custom_minimum_size = Vector2(100, 40)
-layout_mode = 2
-text = "150 ⭐"
-
-[node name="HealthRow" type="HBoxContainer" parent="ShopPanel" unique_id=1774939339]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="HealthInfo" type="VBoxContainer" parent="ShopPanel/HealthRow" unique_id=810712183]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="HealthTitle" type="Label" parent="ShopPanel/HealthRow/HealthInfo" unique_id=1859529208]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "❤️ Жизни"
-
-[node name="HealthLevel" type="Label" parent="ShopPanel/HealthRow/HealthInfo" unique_id=85545945]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Уровень: 0 / 3"
-
-[node name="HealthButton" type="Button" parent="ShopPanel/HealthRow" unique_id=946439724]
-custom_minimum_size = Vector2(100, 40)
-layout_mode = 2
-text = "200 ⭐"
-
-[node name="Sep2" type="HSeparator" parent="ShopPanel" unique_id=1437975239]
-layout_mode = 2
-
-[node name="Sep2Title" type="Label" parent="ShopPanel" unique_id=1437975240]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "⚡ Модули"
-horizontal_alignment = 1
-
-[node name="ShotgunRow" type="HBoxContainer" parent="ShopPanel" unique_id=1537975241]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="ShotgunInfo" type="VBoxContainer" parent="ShopPanel/ShotgunRow" unique_id=1537975242]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ShotgunTitle" type="Label" parent="ShopPanel/ShotgunRow/ShotgunInfo" unique_id=1537975243]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "🔫 Дробовик"
-
-[node name="ShotgunHint" type="Label" parent="ShopPanel/ShotgunRow/ShotgunInfo" unique_id=1537975244]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-text = "3 пули веером, больше урон"
-
-[node name="ShotgunButton" type="Button" parent="ShopPanel/ShotgunRow" unique_id=1537975245]
+[node name="BackButton" type="Button" parent="MarginContainer/VBox" unique_id=2]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 40)
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
-text = "300 ⭐"
-
-[node name="ShieldRow" type="HBoxContainer" parent="ShopPanel" unique_id=1637975241]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="ShieldInfo" type="VBoxContainer" parent="ShopPanel/ShieldRow" unique_id=1637975242]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ShieldTitle" type="Label" parent="ShopPanel/ShieldRow/ShieldInfo" unique_id=1637975243]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "🛡 Щит"
-
-[node name="ShieldHint" type="Label" parent="ShopPanel/ShieldRow/ShieldInfo" unique_id=1637975244]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-text = "Автоблок раз в 10 сек"
-
-[node name="ShieldButton" type="Button" parent="ShopPanel/ShieldRow" unique_id=1637975245]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 40)
-layout_mode = 2
-text = "300 ⭐"
-
-[node name="ShockwaveRow" type="HBoxContainer" parent="ShopPanel" unique_id=1437975241]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="ShockwaveInfo" type="VBoxContainer" parent="ShopPanel/ShockwaveRow" unique_id=1437975242]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ShockwaveTitle" type="Label" parent="ShopPanel/ShockwaveRow/ShockwaveInfo" unique_id=1437975243]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "💥 Импульсная волна"
-
-[node name="ShockwaveHint" type="Label" parent="ShopPanel/ShockwaveRow/ShockwaveInfo" unique_id=1437975244]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-text = "Кулдаун 8 сек, радиус 200 px, урон 20"
-
-[node name="ShockwaveButton" type="Button" parent="ShopPanel/ShockwaveRow" unique_id=1437975245]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 40)
-layout_mode = 2
-text = "300 ⭐"
-
-[node name="BackButton" type="Button" parent="ShopPanel" unique_id=1278293850]
-custom_minimum_size = Vector2(200, 44)
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "⬅ Назад в ангар"
+theme_override_font_sizes/font_size = 24
+text = "← Назад"

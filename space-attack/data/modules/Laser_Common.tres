@@ -1,6 +1,3 @@
 [gd_resource type="Resource" format=3 uid="uid://b4mehle3syxpg"]
 
 [resource]
-name = "Лазер"
-type = "weapon"
-description = "Одиночный мощный лазер"
