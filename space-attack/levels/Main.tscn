@@ -4,11 +4,16 @@
 [ext_resource type="PackedScene" uid="uid://djal53301egii" path="res://entities/player/Player.tscn" id="1_s5j47"]
 [ext_resource type="PackedScene" uid="uid://cwbkoyhscwk5h" path="res://ui/hud/BattleHUD.tscn" id="3_2jfjj"]
 [ext_resource type="PackedScene" uid="uid://b4bi0urtawtb6" path="res://ui/hud/PauseMenu.tscn" id="4_pause"]
+[ext_resource type="PackedScene" uid="uid://ct67847q65t3v" path="res://levels/Background/StarBackground.tscn" id="5_lbxsr"]
 
 [node name="Main" type="Node2D" unique_id=212548923]
 script = ExtResource("1_h11cf")
 
+[node name="StarBackground" parent="." unique_id=371064750 instance=ExtResource("5_lbxsr")]
+scroll_speed = Vector2(0, -200)
+
 [node name="Player" parent="." unique_id=930832991 instance=ExtResource("1_s5j47")]
+position = Vector2(360, 1092)
 
 [node name="ScoutTimer" type="Timer" parent="." unique_id=416042736]
 wait_time = 2.0
@@ -30,4 +35,10 @@ wait_time = 5.0
 [node name="PauseMenu" parent="." unique_id=2129356955 instance=ExtResource("4_pause")]
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=2135894699]
+process_mode = 4
 position = Vector2(360, 640)
+
+[node name="VanguardButton" type="Button" parent="." unique_id=623053214]
+offset_left = -32.0
+offset_right = -24.0
+offset_bottom = 8.0

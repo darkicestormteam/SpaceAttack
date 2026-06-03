@@ -29,11 +29,31 @@ var _kamikaze_turn_speed: float = 120.0  # градусов в секунду
 var _kamikaze_phase: int = 0  # 0 = наведение, 1 = полёт по касательной
 var _kamikaze_coast_velocity: Vector2 = Vector2.ZERO
 
+# Флаг для Goliath тарана
+var is_being_rammed: bool = false
+
 
 func _ready() -> void:
+	add_to_group("enemy")
 	_start_x = global_position.x
 	_bullet_scene = preload("res://entities/projectiles/EnemyBullet.tscn")
 	_setup_behavior()
+	var hitbox := get_node_or_null("Hitbox")
+	if hitbox:
+		hitbox.body_entered.connect(_on_hitbox_body_entered)
+
+
+func _on_hitbox_body_entered(body: Node) -> void:
+	if is_being_rammed or is_queued_for_deletion():
+		return
+	if body == self or not (body is CharacterBody2D):
+		return
+	if not body.is_in_group("player"):
+		return
+	# Симметричный обмен: игрок получает 1 урон, враг умирает
+	if body.has_method("take_damage"):
+		body.take_damage(1)
+	_die()
 
 
 func _setup_behavior() -> void:
@@ -77,15 +97,7 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 	if global_position.x < -100 or global_position.x > viewport_size.x + 100:
 		queue_free()
-
-	# Столкновение с игроком (для всех кроме KAMIKAZE, там отдельная логика)
-	if behavior != Behavior.KAMIKAZE:
-		var player = get_tree().current_scene.get_node_or_null("Player")
-		if player and not is_queued_for_deletion():
-			if global_position.distance_to(player.global_position) < 30:
-				if player.has_method("take_damage"):
-					player.take_damage(1)
-				_die()
+	# Контактный урон с игроком обрабатывается через Area2D Hitbox -> _on_hitbox_body_entered
 
 
 # --- KAMIKAZE (плавное наведение + паника после пролёта) ---
@@ -122,11 +134,7 @@ func _process_kamikaze(delta: float, _viewport_size: Vector2) -> void:
 		# Фаза паники: летим по случайной диагонали, больше не наводимся
 		global_position += _kamikaze_velocity * delta
 	
-	# Столкновение с игроком (только в фазе наведения)
-	if _kamikaze_phase == 0 and global_position.distance_to(player.global_position) < 35:
-		if player.has_method("take_damage"):
-			player.take_damage(1)
-		_die()
+	# Столкновение с игроком для KAMIKAZE обрабатывается через Area2D Hitbox -> _on_hitbox_body_entered
 
 
 # --- SINE_WAVE ---

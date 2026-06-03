@@ -13,6 +13,22 @@ var equipped_modules: Dictionary = {
 	"utility": ""
 }
 
+# Система кораблей
+var unlocked_ships: Array = ["vanguard"]
+var current_ship: String = "vanguard"
+
+const SHIP_COSTS: Dictionary = {
+	"vanguard": 0,
+	"phantom": 2000,
+	"goliath": 5000
+}
+
+const SHIP_NAMES: Dictionary = {
+	"vanguard": "Vanguard",
+	"phantom": "Phantom",
+	"goliath": "Goliath"
+}
+
 const MODULE_SLOT_BY_TYPE: Dictionary = {
 	"weapon": "weapon",
 	"defense": "defense",
@@ -71,6 +87,14 @@ func load_game() -> Dictionary:
 			for module_id in DEFAULT_MODULE_IDS:
 				if not owned_modules.has(module_id):
 					owned_modules[module_id] = 1
+
+			# Корабли
+			var loaded_unlocked = data.get("unlocked_ships", [])
+			if loaded_unlocked is Array:
+				unlocked_ships = loaded_unlocked.duplicate()
+			if not unlocked_ships.has("vanguard"):
+				unlocked_ships.append("vanguard")
+			current_ship = data.get("current_ship", "vanguard")
 		else:
 			set_defaults()
 	else:
@@ -86,7 +110,9 @@ func _to_dict() -> Dictionary:
 		"health_upgrade_level": health_upgrade_level,
 		"high_score": high_score,
 		"owned_modules": owned_modules.duplicate(),
-		"equipped_modules": equipped_modules.duplicate()
+		"equipped_modules": equipped_modules.duplicate(),
+		"unlocked_ships": unlocked_ships.duplicate(),
+		"current_ship": current_ship
 	}
 
 
@@ -98,7 +124,9 @@ func save_game() -> void:
 		"health_upgrade_level": health_upgrade_level,
 		"high_score": high_score,
 		"owned_modules": owned_modules,
-		"equipped_modules": equipped_modules
+		"equipped_modules": equipped_modules,
+		"unlocked_ships": unlocked_ships,
+		"current_ship": current_ship
 	}
 
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -121,6 +149,36 @@ func set_defaults() -> void:
 		"defense": "shield",
 		"utility": "magnet"
 	}
+	unlocked_ships = ["vanguard"]
+	current_ship = "vanguard"
+
+
+func is_ship_unlocked(ship_id: String) -> bool:
+	return ship_id in unlocked_ships
+
+
+func unlock_ship(ship_id: String) -> bool:
+	if ship_id in unlocked_ships:
+		return false
+	unlocked_ships.append(ship_id)
+	save_game()
+	return true
+
+
+func select_ship(ship_id: String) -> bool:
+	if not is_ship_unlocked(ship_id):
+		return false
+	current_ship = ship_id
+	save_game()
+	return true
+
+
+func get_ship_cost(ship_id: String) -> int:
+	return SHIP_COSTS.get(ship_id, 99999)
+
+
+func get_ship_name(ship_id: String) -> String:
+	return SHIP_NAMES.get(ship_id, ship_id)
 
 
 func add_module(module_id: String) -> bool:

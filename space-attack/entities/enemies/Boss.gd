@@ -7,11 +7,13 @@ const SHOOT_INTERVAL: float = 2.0
 const SUMMON_INTERVAL: float = 6.0
 
 var health: int = MAX_HEALTH
+var is_being_rammed: bool = false
 var _start_x: float
 var _time: float = 0.0
 
 
 func _ready() -> void:
+	add_to_group("enemy")
 	_start_x = global_position.x
 	queue_redraw()
 

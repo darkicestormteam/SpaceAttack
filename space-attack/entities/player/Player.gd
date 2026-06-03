@@ -11,12 +11,26 @@ const INVULN_DURATION: float = 1.0
 const SHIELD_COOLDOWN: float = 10.0
 const SHIELD_FLASH_DURATION: float = 0.2
 
+# Phantom — dash
+const DASH_COOLDOWN_TIME: float = 3.0
+const DASH_DISTANCE: float = 150.0
+const DOUBLE_TAP_WINDOW: float = 0.3
+const DASH_INVULN_DURATION: float = 0.2
+
+# Goliath
+const GOLIATH_SPEED_MULTIPLIER: float = 0.7
+
 var bullet_damage: int = 10
 var shoot_delay: float = 0.2
 var max_health: int = 3
 
 var current_weapon_module: String = ""
-var current_speed: float = SPEED
+var current_ship: String = "vanguard"
+var is_goliath: bool = false
+
+# Phantom dash
+var last_input_time: Dictionary = {"left": 0.0, "right": 0.0, "up": 0.0, "down": 0.0}
+var dash_cooldown: float = 0.0
 
 # Defense — старый shield
 var has_shield_module: bool = false
@@ -54,7 +68,7 @@ signal shockwave_used
 signal shockwave_ready
 
 @onready var muzzle: Marker2D = $Muzzle
-@onready var sprite_2d: Sprite2D = $Sprite2D
+@onready var vanguard_sprite: Sprite2D = $Vanguard   # название вашего спрайта
 
 var shoot_timer: float = 0.0
 var health: int = 3
@@ -88,6 +102,12 @@ func _ready() -> void:
 	nanobots_timer.autostart = false
 	add_child(nanobots_timer)
 	nanobots_timer.timeout.connect(_on_nanobots_heal)
+
+	# Читаем корабль
+	var sm := get_node_or_null("/root/SaveManager")
+	if sm:
+		current_ship = sm.current_ship
+		is_goliath = (current_ship == "goliath")
 
 
 func set_upgrades(damage_level: int, fire_rate_level: int, health_level: int) -> void:
@@ -157,7 +177,6 @@ func _on_nanobots_heal() -> void:
 	if nanobots_active and health < max_health:
 		health += 1
 		health_changed.emit(health)
-		# Визуальная вспышка
 		var flash = Node2D.new()
 		flash.set_script(preload("res://entities/player/HealFlash.gd"))
 		get_tree().current_scene.add_child(flash)
@@ -175,23 +194,63 @@ func _show_energy_shield_visual(show: bool) -> void:
 		energy_shield_visual = null
 
 
-func _process(_delta: float) -> void:
-	shoot_timer += _delta
+func _process(delta: float) -> void:
+	shoot_timer += delta
 	if shoot_timer >= shoot_delay:
 		shoot_timer = 0.0
 		_shoot()
 	if shockwave_cooldown > 0.0:
-		shockwave_cooldown = max(0.0, shockwave_cooldown - _delta)
+		shockwave_cooldown = max(0.0, shockwave_cooldown - delta)
 		if shockwave_cooldown <= 0.0:
 			shockwave_ready.emit()
+	if dash_cooldown > 0.0:
+		dash_cooldown = max(0.0, dash_cooldown - delta)
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not has_shockwave_module:
-		return
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_F or event.keycode == KEY_SPACE:
-			try_activate_shockwave()
+	if has_shockwave_module:
+		if event is InputEventKey and event.pressed and not event.echo:
+			if event.keycode == KEY_F or event.keycode == KEY_SPACE:
+				try_activate_shockwave()
+	# Phantom двойное нажатие
+	if current_ship == "phantom" and event is InputEventKey and event.pressed and not event.echo:
+		var now := Time.get_ticks_msec() / 1000.0
+		var dir_key: String = ""
+		match event.keycode:
+			KEY_A, KEY_LEFT:
+				dir_key = "left"
+			KEY_D, KEY_RIGHT:
+				dir_key = "right"
+			KEY_W, KEY_UP:
+				dir_key = "up"
+			KEY_S, KEY_DOWN:
+				dir_key = "down"
+		if not dir_key.is_empty():
+			var elapsed = now - last_input_time[dir_key]
+			last_input_time[dir_key] = now
+			if elapsed > 0.0 and elapsed < DOUBLE_TAP_WINDOW and dash_cooldown <= 0.0:
+				_do_dash(dir_key)
+
+
+func _do_dash(dir_key: String) -> void:
+	var dash_dir: Vector2 = Vector2.ZERO
+	match dir_key:
+		"left": dash_dir = Vector2.LEFT
+		"right": dash_dir = Vector2.RIGHT
+		"up": dash_dir = Vector2.UP
+		"down": dash_dir = Vector2.DOWN
+	global_position += dash_dir * DASH_DISTANCE
+	# Ограничение экраном
+	var vps = get_viewport_rect().size
+	global_position.x = clamp(global_position.x, MARGIN, vps.x - MARGIN)
+	global_position.y = clamp(global_position.y, MARGIN, vps.y - MARGIN)
+
+	invulnerable = true
+	dash_cooldown = DASH_COOLDOWN_TIME
+	vanguard_sprite.modulate = Color(0.6, 0.6, 1, 0.8)
+	await get_tree().create_timer(DASH_INVULN_DURATION).timeout
+	invulnerable = false
+	vanguard_sprite.modulate = Color.WHITE
 
 
 func try_activate_shockwave() -> bool:
@@ -211,18 +270,48 @@ func try_activate_shockwave() -> bool:
 
 
 func _physics_process(_delta: float) -> void:
-	var target_pos: Vector2 = get_global_mouse_position()
-	var viewport_size = get_viewport_rect().size
-	target_pos.x = clamp(target_pos.x, MARGIN, viewport_size.x - MARGIN)
-	target_pos.y = clamp(target_pos.y, MARGIN, viewport_size.y - MARGIN)
-	var direction = (target_pos - global_position).normalized()
-	var distance = global_position.distance_to(target_pos)
-	if distance > 2.0:
-		var speed_mult = TURBO_SPEED_MULTIPLIER if turbo_active else 1.0
-		velocity = direction * SPEED * speed_mult
-	else:
-		velocity = Vector2.ZERO
+	var input_vector := Input.get_vector("left", "right", "up", "down")
+	var speed_mult = TURBO_SPEED_MULTIPLIER if turbo_active else 1.0
+	if is_goliath:
+		speed_mult *= GOLIATH_SPEED_MULTIPLIER
+	velocity = input_vector * SPEED * speed_mult
 	move_and_slide()
+
+	# Ограничение экраном
+	var vps = get_viewport_rect().size
+	global_position.x = clamp(global_position.x, MARGIN, vps.x - MARGIN)
+	global_position.y = clamp(global_position.y, MARGIN, vps.y - MARGIN)
+
+	# Goliath таран — проверяем расстояние до всех врагов
+	if is_goliath:
+		var enemies = get_tree().get_nodes_in_group("enemy")
+		for enemy in enemies:
+			if not is_instance_valid(enemy) or enemy.is_queued_for_deletion():
+				continue
+			var dist = global_position.distance_to(enemy.global_position)
+			if dist < 35:  # Радиус столкновения
+				# Устанавливаем флаг тарана, чтобы враг не наносил урон в этот кадр
+				if "is_being_rammed" in enemy:
+					enemy.is_being_rammed = true
+				
+				var enemy_health = enemy.health if "health" in enemy else -1
+				if enemy_health > 0 and enemy_health <= 20:
+					# Малый враг (Scout/Kamikaze) — таран без урона игроку
+					invulnerable = true  # Кратковременная неуязвимость
+					if enemy.has_method("_die"):
+						enemy._die()
+					else:
+						enemy.queue_free()
+					# Снимаем неуязвимость через 0.15с
+					get_tree().create_timer(0.15).timeout.connect(func():
+						if is_instance_valid(self) and not is_queued_for_deletion():
+							invulnerable = false
+					)
+				else:
+					# Крупный враг (Fighter/Boss) — наносим урон, игрок получает 1 урон
+					if enemy.has_method("take_damage"):
+						enemy.take_damage(bullet_damage * 2)
+					take_damage(1)
 
 
 func _shoot() -> void:
@@ -343,13 +432,13 @@ func _start_blinking() -> void:
 	if blink_tween:
 		blink_tween.kill()
 	blink_tween = create_tween()
-	blink_tween.tween_property(sprite_2d, "modulate:a", 0.3, 0.1)
-	blink_tween.tween_property(sprite_2d, "modulate:a", 1.0, 0.1)
+	blink_tween.tween_property(vanguard_sprite, "modulate:a", 0.3, 0.1)
+	blink_tween.tween_property(vanguard_sprite, "modulate:a", 1.0, 0.1)
 	blink_tween.set_loops()
 
 
 func _stop_blinking() -> void:
-	sprite_2d.modulate.a = 1.0
+	vanguard_sprite.modulate.a = 1.0
 	if blink_tween:
 		blink_tween.kill()
 		blink_tween = null

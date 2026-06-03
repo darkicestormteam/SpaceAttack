@@ -1,18 +1,87 @@
 [gd_scene format=3 uid="uid://djal53301egii"]
 
 [ext_resource type="Script" uid="uid://dnrewalqi1ee3" path="res://entities/player/Player.gd" id="1_mab2k"]
-[ext_resource type="Texture2D" uid="uid://csi51ku2u3n8w" path="res://entities/player/player_texture.tres" id="2_453mm"]
+[ext_resource type="Texture2D" uid="uid://vpu4rj6cyqn7" path="res://assets/sprites/player/Vanguard.png" id="2_453mm"]
+[ext_resource type="Texture2D" uid="uid://cleesrwysukm0" path="res://assets/sprites/player/Vanguard-rocket_enginet.png" id="2_l3c03"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eaotn"]
+atlas = ExtResource("2_l3c03")
+region = Rect2(0, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g3lhm"]
+atlas = ExtResource("2_l3c03")
+region = Rect2(32, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4pwj0"]
+atlas = ExtResource("2_l3c03")
+region = Rect2(64, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fmb3c"]
+atlas = ExtResource("2_l3c03")
+region = Rect2(96, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rl6fg"]
+atlas = ExtResource("2_l3c03")
+region = Rect2(128, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q57vx"]
+atlas = ExtResource("2_l3c03")
+region = Rect2(160, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ak4un"]
+atlas = ExtResource("2_l3c03")
+region = Rect2(192, 0, 32, 30)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_1ms0h"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eaotn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g3lhm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4pwj0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fmb3c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rl6fg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q57vx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ak4un")
+}],
+"loop": true,
+"name": &"run",
+"speed": 20.0
+}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_l3c03"]
-size = Vector2(24, 24)
+size = Vector2(24, 64)
 
 [node name="Player" type="CharacterBody2D" unique_id=930832991]
 script = ExtResource("1_mab2k")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1130660799]
+[node name="Vanguard" type="Sprite2D" parent="." unique_id=1130660799]
+position = Vector2(0, 21)
+scale = Vector2(2, 2)
 texture = ExtResource("2_453mm")
 
+[node name="Vanguard-rocket_enginet" type="AnimatedSprite2D" parent="." unique_id=2088282238]
+position = Vector2(0, 67)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_1ms0h")
+animation = &"run"
+autoplay = "run"
+frame_progress = 0.64640784
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=771391093]
+position = Vector2(0, 20)
 shape = SubResource("RectangleShape2D_l3c03")
 
 [node name="Muzzle" type="Marker2D" parent="." unique_id=1172174488]

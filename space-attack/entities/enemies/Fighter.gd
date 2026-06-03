@@ -3,30 +3,40 @@ extends CharacterBody2D
 const SPEED: float = 100.0
 
 var health: int = 40
+var is_being_rammed: bool = false
 
 @onready var shoot_timer: Timer = $ShootTimer
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var muzzle: Marker2D = $Muzzle
+@onready var hitbox: Area2D = $Hitbox
 
 
 func _ready() -> void:
+	add_to_group("enemy")
 	shoot_timer.timeout.connect(_shoot)
 	shoot_timer.start()
+	hitbox.body_entered.connect(_on_hitbox_body_entered)
 
 
 func _process(delta: float) -> void:
 	global_position.y += SPEED * delta
-	
+
 	var viewport_size = get_viewport_rect().size
 	if global_position.y > viewport_size.y + 50:
 		queue_free()
-	
-	var player = get_tree().current_scene.get_node_or_null("Player")
-	if player and not is_queued_for_deletion():
-		if global_position.distance_to(player.global_position) < 28:
-			if player.has_method("take_damage"):
-				player.take_damage(1)
-			queue_free()
+
+
+func _on_hitbox_body_entered(body: Node) -> void:
+	if is_being_rammed or is_queued_for_deletion():
+		return
+	if body == self or not (body is CharacterBody2D):
+		return
+	if not body.is_in_group("player"):
+		return
+	# Симметричный обмен: игрок получает 1 урон, враг умирает
+	if body.has_method("take_damage"):
+		body.take_damage(1)
+	die()
 
 
 func _shoot() -> void:

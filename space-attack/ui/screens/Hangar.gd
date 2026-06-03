@@ -26,6 +26,9 @@ const CHEST_OPEN_SCENE: PackedScene = preload("res://ui/popups/ChestOpen.tscn")
 @onready var play_button: Button = %PlayButton
 @onready var shop_button: Button = %ShopButton
 @onready var quit_button: Button = %QuitButton
+@onready var vanguard_button: Button = %VanguardButton
+@onready var phantom_button: Button = %PhantomButton
+@onready var goliath_button: Button = %GoliathButton
 @onready var weapon_slot: Button = %WeaponSlot
 @onready var defense_slot: Button = %DefenseSlot
 @onready var utility_slot: Button = %UtilitySlot
@@ -40,6 +43,9 @@ func _ready() -> void:
 	play_button.pressed.connect(_on_play_pressed)
 	shop_button.pressed.connect(_on_shop_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
+	vanguard_button.pressed.connect(_on_vanguard_pressed)
+	phantom_button.pressed.connect(_on_phantom_pressed)
+	goliath_button.pressed.connect(_on_goliath_pressed)
 	weapon_slot.pressed.connect(_on_weapon_slot_pressed)
 	defense_slot.pressed.connect(_on_defense_slot_pressed)
 	utility_slot.pressed.connect(_on_utility_slot_pressed)
@@ -49,6 +55,7 @@ func _ready() -> void:
 func update_ui() -> void:
 	credits_label.text = "⭐ " + str(SaveManager.credits)
 	high_score_label.text = "🏆 Лучший счёт: " + str(SaveManager.high_score)
+	_refresh_ship_buttons()
 	_refresh_slot_buttons()
 
 
@@ -80,6 +87,62 @@ func _module_display_name(module_id: String) -> String:
 	if "name" in res:
 		return str(res.name)
 	return module_id
+
+
+func _refresh_ship_buttons() -> void:
+	var current = SaveManager.current_ship
+	_vanguard_button_text(current)
+	_phantom_button_text(current)
+	_goliath_button_text(current)
+
+
+func _vanguard_button_text(current: String) -> void:
+	vanguard_button.text = "Vanguard\nБазовый"
+	vanguard_button.disabled = (current == "vanguard")
+	vanguard_button.modulate = Color(1, 1, 1, 1) if current == "vanguard" else Color(0.8, 0.8, 0.8, 0.8)
+
+
+func _phantom_button_text(current: String) -> void:
+	if SaveManager.is_ship_unlocked("phantom"):
+		phantom_button.text = "Phantom\nРывок"
+		phantom_button.disabled = (current == "phantom")
+		phantom_button.modulate = Color(1, 1, 1, 1) if current == "phantom" else Color(0.8, 0.8, 0.8, 0.8)
+	else:
+		phantom_button.text = "Phantom\n2000⭐"
+		phantom_button.disabled = false
+		phantom_button.modulate = Color(0.7, 0.7, 0.7, 0.8)
+
+
+func _goliath_button_text(current: String) -> void:
+	if SaveManager.is_ship_unlocked("goliath"):
+		goliath_button.text = "Goliath\nТаран"
+		goliath_button.disabled = (current == "goliath")
+		goliath_button.modulate = Color(1, 1, 1, 1) if current == "goliath" else Color(0.8, 0.8, 0.8, 0.8)
+	else:
+		goliath_button.text = "Goliath\n5000⭐"
+		goliath_button.disabled = false
+		goliath_button.modulate = Color(0.7, 0.7, 0.7, 0.8)
+
+
+func _on_vanguard_pressed() -> void:
+	SaveManager.select_ship("vanguard")
+	update_ui()
+
+
+func _on_phantom_pressed() -> void:
+	if not SaveManager.is_ship_unlocked("phantom"):
+		_show_info("Не куплен", "Купите Phantom в магазине за 2000 ⭐")
+		return
+	SaveManager.select_ship("phantom")
+	update_ui()
+
+
+func _on_goliath_pressed() -> void:
+	if not SaveManager.is_ship_unlocked("goliath"):
+		_show_info("Не куплен", "Купите Goliath в магазине за 5000 ⭐")
+		return
+	SaveManager.select_ship("goliath")
+	update_ui()
 
 
 func _on_play_pressed() -> void:

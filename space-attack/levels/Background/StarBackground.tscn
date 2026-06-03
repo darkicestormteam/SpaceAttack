@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://ct67847q65t3v"]
+
+[ext_resource type="Script" uid="uid://2836v144gf5w" path="res://levels/Background/star_background.gd" id="1_r2pyg"]
+[ext_resource type="Texture2D" uid="uid://ddtn5fxvh87h0" path="res://assets/sprites/backgrounds/2D_starfield_1.png" id="2_r2pyg"]
+
+[node name="StarBackground" type="ParallaxBackground" unique_id=371064750]
+scroll_ignore_camera_zoom = true
+script = ExtResource("1_r2pyg")
+scroll_speed = Vector2(0, -100)
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=556472815]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="StarsFar" type="ParallaxLayer" parent="." unique_id=1238671889]
+position = Vector2(0, 192)
+motion_mirroring = Vector2(0, 1280)
+
+[node name="Sprite2D" type="Sprite2D" parent="StarsFar" unique_id=652658909]
+position = Vector2(360, 640)
+texture = ExtResource("2_r2pyg")
+
+[node name="StarsNear" type="ParallaxLayer" parent="." unique_id=963567052]
+visible = false
+motion_mirroring = Vector2(0, 40)

@@ -21,7 +21,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.05, 0.05, 0.1, 1)
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=2116224127]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,17 +32,20 @@ offset_right = -16.0
 offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 16
+
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer" unique_id=869723930]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
 alignment = 1
 
-[node name="TitleLabel" type="Label" parent="VBox"]
+[node name="TitleLabel" type="Label" parent="ScrollContainer/VBox" unique_id=36105433]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.6666667, 1, 1)
 theme_override_font_sizes/font_size = 36
 text = "SpaceAttack"
 horizontal_alignment = 1
 
-[node name="CreditsLabel" type="Label" parent="VBox" unique_id=332450885]
+[node name="CreditsLabel" type="Label" parent="ScrollContainer/VBox" unique_id=332450885]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8666667, 0, 1)
@@ -50,90 +53,119 @@ theme_override_font_sizes/font_size = 24
 text = "⭐ 0"
 horizontal_alignment = 1
 
-[node name="HighScoreLabel" type="Label" parent="VBox" unique_id=179641777]
+[node name="HighScoreLabel" type="Label" parent="ScrollContainer/VBox" unique_id=179641777]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "🏆 Лучший счёт: 0"
 horizontal_alignment = 1
 
-[node name="MenuButtons" type="VBoxContainer" parent="VBox" unique_id=881518501]
+[node name="ShipTitle" type="Label" parent="ScrollContainer/VBox" unique_id=698171178]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Корабли"
+horizontal_alignment = 1
+
+[node name="ShipRow" type="HBoxContainer" parent="ScrollContainer/VBox" unique_id=62261194]
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="PlayButton" type="Button" parent="VBox/MenuButtons" unique_id=913410097]
+[node name="VanguardButton" type="Button" parent="ScrollContainer/VBox/ShipRow" unique_id=1901722364]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 70)
+custom_minimum_size = Vector2(200, 70)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 20
+text = "Vanguard
+Базовый"
+
+[node name="PhantomButton" type="Button" parent="ScrollContainer/VBox/ShipRow" unique_id=1936055504]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 70)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Phantom
+2000⭐"
+
+[node name="GoliathButton" type="Button" parent="ScrollContainer/VBox/ShipRow" unique_id=739379317]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 70)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Goliath
+5000⭐"
+
+[node name="MenuButtons" type="HBoxContainer" parent="ScrollContainer/VBox" unique_id=881518501]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="PlayButton" type="Button" parent="ScrollContainer/VBox/MenuButtons" unique_id=913410097]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "Играть"
 
-[node name="ShopButton" type="Button" parent="VBox/MenuButtons" unique_id=1999847846]
+[node name="ShopButton" type="Button" parent="ScrollContainer/VBox/MenuButtons" unique_id=1999847846]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 70)
+custom_minimum_size = Vector2(200, 64)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 text = "Магазин"
 
-[node name="QuitButton" type="Button" parent="VBox/MenuButtons" unique_id=1554948790]
+[node name="QuitButton" type="Button" parent="ScrollContainer/VBox/MenuButtons" unique_id=1554948790]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 70)
+custom_minimum_size = Vector2(200, 64)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 text = "Выход"
 
-[node name="SlotsTitle" type="Label" parent="VBox" unique_id=160695244]
+[node name="SlotsTitle" type="Label" parent="ScrollContainer/VBox" unique_id=160695244]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
 theme_override_font_sizes/font_size = 24
 text = "Слоты корабля"
 horizontal_alignment = 1
 
-[node name="SlotsVBox" type="VBoxContainer" parent="VBox" unique_id=510000389]
+[node name="SlotsVBox" type="VBoxContainer" parent="ScrollContainer/VBox" unique_id=510000389]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 alignment = 1
 
-[node name="WeaponSlot" type="Button" parent="VBox/SlotsVBox" unique_id=1803315653]
+[node name="WeaponSlot" type="Button" parent="ScrollContainer/VBox/SlotsVBox" unique_id=1803315653]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 70)
+custom_minimum_size = Vector2(280, 64)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "Оружие
 [пусто]"
 
-[node name="DefenseSlot" type="Button" parent="VBox/SlotsVBox" unique_id=584849269]
+[node name="DefenseSlot" type="Button" parent="ScrollContainer/VBox/SlotsVBox" unique_id=584849269]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 70)
+custom_minimum_size = Vector2(280, 64)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "Защита
 [пусто]"
 
-[node name="UtilitySlot" type="Button" parent="VBox/SlotsVBox" unique_id=1130485055]
+[node name="UtilitySlot" type="Button" parent="ScrollContainer/VBox/SlotsVBox" unique_id=1130485055]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 70)
+custom_minimum_size = Vector2(280, 64)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "Утилита
 [пусто]"
 
-[node name="ChestButton" type="Button" parent="VBox" unique_id=297630130]
+[node name="ChestButton" type="Button" parent="ScrollContainer/VBox" unique_id=297630130]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 70)
+custom_minimum_size = Vector2(280, 64)
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "🎁 Открыть сундук (500 ⭐)"
 
-[node name="ChestHintLabel" type="Label" parent="VBox" unique_id=475965590]
+[node name="ChestHintLabel" type="Label" parent="ScrollContainer/VBox" unique_id=475965590]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.6)

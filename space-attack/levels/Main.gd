@@ -8,6 +8,9 @@ signal wave_changed(new_wave: int)
 @onready var scout_timer: Timer = $ScoutTimer
 @onready var fighter_timer: Timer = $FighterTimer
 @onready var camera: Camera2D = $Camera2D
+@onready var parallax_bg: ParallaxBackground = $StarBackground if has_node("StarBackground") else null
+
+@export var background_speed: float = 50.0  # скорость движения фона (вниз)
 
 var sm: Node  # SaveManager reference
 
@@ -59,6 +62,12 @@ func _ready() -> void:
 	if pause_menu:
 		pause_menu.hangar_requested.connect(_on_pause_hangar)
 		pause_menu.restart_requested.connect(_on_pause_restart)
+
+
+func _process(delta: float) -> void:
+	if parallax_bg:
+		# Двигаем фон вниз (положительная скорость)
+		parallax_bg.scroll_offset.y += background_speed * delta
 
 
 func _on_player_health_changed(new_health: int) -> void:
@@ -203,8 +212,6 @@ func _on_fighter_timer_timeout() -> void:
 	var scene = preload("res://entities/enemies/Fighter.tscn")
 	if scene:
 		_spawn_enemy(scene)
-
-
 
 
 func _spawn_enemy(scene: PackedScene) -> void:
