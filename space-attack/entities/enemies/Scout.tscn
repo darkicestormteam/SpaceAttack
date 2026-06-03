@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b8mkk37d7k7i2" path="res://entities/enemies/Scout.gd" id="1_bun20"]
 [ext_resource type="Texture2D" uid="uid://bbuow50wq4ovn" path="res://entities/enemies/scout_texture.tres" id="2_f5bat"]
+[ext_resource type="Shape2D" path="res://entities/enemies/scout_hitbox_shape.tres" id="3_f5bat"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qdfom"]
 
@@ -13,3 +14,8 @@ texture = ExtResource("2_f5bat")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1733419448]
 shape = SubResource("RectangleShape2D_qdfom")
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=1632910396]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=320089026]
+shape = ExtResource("3_f5bat")

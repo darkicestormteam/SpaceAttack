@@ -7,7 +7,7 @@ signal shield_recharged
 
 const SPEED: float = 400.0
 const MARGIN: float = 20.0
-const INVULN_DURATION: float = 1.0
+const INVULN_DURATION: float = 1.5
 const SHIELD_COOLDOWN: float = 10.0
 const SHIELD_FLASH_DURATION: float = 0.2
 
@@ -77,6 +77,7 @@ var blink_tween: Tween
 
 
 func _ready() -> void:
+	add_to_group("player")
 	health_changed.emit(health)
 
 	shield_timer = Timer.new()
@@ -246,10 +247,15 @@ func _do_dash(dir_key: String) -> void:
 	global_position.y = clamp(global_position.y, MARGIN, vps.y - MARGIN)
 
 	invulnerable = true
+	# Дэш тоже даёт кратковременную неуязвимость с прохождением сквозь врагов
+	collision_layer = 0
+	collision_mask = 0
 	dash_cooldown = DASH_COOLDOWN_TIME
 	vanguard_sprite.modulate = Color(0.6, 0.6, 1, 0.8)
 	await get_tree().create_timer(DASH_INVULN_DURATION).timeout
 	invulnerable = false
+	collision_layer = 1
+	collision_mask = 1
 	vanguard_sprite.modulate = Color.WHITE
 
 
@@ -281,37 +287,8 @@ func _physics_process(_delta: float) -> void:
 	var vps = get_viewport_rect().size
 	global_position.x = clamp(global_position.x, MARGIN, vps.x - MARGIN)
 	global_position.y = clamp(global_position.y, MARGIN, vps.y - MARGIN)
-
-	# Goliath таран — проверяем расстояние до всех врагов
-	if is_goliath:
-		var enemies = get_tree().get_nodes_in_group("enemy")
-		for enemy in enemies:
-			if not is_instance_valid(enemy) or enemy.is_queued_for_deletion():
-				continue
-			var dist = global_position.distance_to(enemy.global_position)
-			if dist < 35:  # Радиус столкновения
-				# Устанавливаем флаг тарана, чтобы враг не наносил урон в этот кадр
-				if "is_being_rammed" in enemy:
-					enemy.is_being_rammed = true
-				
-				var enemy_health = enemy.health if "health" in enemy else -1
-				if enemy_health > 0 and enemy_health <= 20:
-					# Малый враг (Scout/Kamikaze) — таран без урона игроку
-					invulnerable = true  # Кратковременная неуязвимость
-					if enemy.has_method("_die"):
-						enemy._die()
-					else:
-						enemy.queue_free()
-					# Снимаем неуязвимость через 0.15с
-					get_tree().create_timer(0.15).timeout.connect(func():
-						if is_instance_valid(self) and not is_queued_for_deletion():
-							invulnerable = false
-					)
-				else:
-					# Крупный враг (Fighter/Boss) — наносим урон, игрок получает 1 урон
-					if enemy.has_method("take_damage"):
-						enemy.take_damage(bullet_damage * 2)
-					take_damage(1)
+	# Урон игроку от столкновений с врагами теперь обрабатывается через Area2D Hitbox
+	# на каждом враге (см. Boss.gd, Fighter.gd, Scout.gd -> _on_hitbox_body_entered).
 
 
 func _shoot() -> void:
@@ -375,6 +352,11 @@ func take_damage(amount: int) -> void:
 	self.health -= amount
 	health_changed.emit(health)
 	invulnerable = true
+	# Отключаем collision_layer и collision_mask чтобы игрок "пролетал насквозь" всех врагов
+	# (Area2D на врагах перестаёт детектировать тело, и move_and_slide не скользит
+	#  по коллайдерам врагов — тело становится полностью "призрачным")
+	collision_layer = 0
+	collision_mask = 0
 	_start_blinking()
 	var main = get_tree().current_scene
 	if main and main.has_method("shake_camera"):
@@ -384,6 +366,9 @@ func take_damage(amount: int) -> void:
 		return
 	await get_tree().create_timer(INVULN_DURATION).timeout
 	invulnerable = false
+	# Восстанавливаем collision_layer и collision_mask после окончания неуязвимости
+	collision_layer = 1
+	collision_mask = 1
 	_stop_blinking()
 
 

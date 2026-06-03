@@ -1,12 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://cfg6kj82pu67t"]
+[gd_scene format=3 uid="uid://cfg6kj82pu67t"]
 
-[ext_resource type="Script" path="res://entities/enemies/Boss.gd" id="1_boss"]
+[ext_resource type="Script" uid="uid://lv5637cn52tp" path="res://entities/enemies/Boss.gd" id="1_boss"]
+[ext_resource type="Shape2D" path="res://entities/enemies/boss_hitbox_shape.tres" id="2_1e3lm"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_boss"]
 size = Vector2(60, 60)
 
-[node name="Boss" type="CharacterBody2D"]
+[node name="Boss" type="CharacterBody2D" unique_id=483174784]
 script = ExtResource("1_boss")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1542806948]
 shape = SubResource("RectangleShape2D_boss")
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=1655890686]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1257798529]
+shape = ExtResource("2_1e3lm")

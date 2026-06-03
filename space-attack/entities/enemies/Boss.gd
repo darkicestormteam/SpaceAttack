@@ -11,6 +11,8 @@ var is_being_rammed: bool = false
 var _start_x: float
 var _time: float = 0.0
 
+@onready var hitbox: Area2D = $Hitbox
+
 
 func _ready() -> void:
 	add_to_group("enemy")
@@ -32,6 +34,23 @@ func _ready() -> void:
 	summon_timer.autostart = true
 	summon_timer.timeout.connect(_summon_adds)
 	add_child(summon_timer)
+
+	# Обработчик столкновений с игроком через Area2D Hitbox
+	if hitbox:
+		hitbox.body_entered.connect(_on_hitbox_body_entered)
+
+
+func _on_hitbox_body_entered(body: Node) -> void:
+	if is_being_rammed or is_queued_for_deletion():
+		return
+	if body == self or not (body is CharacterBody2D):
+		return
+	if not body.is_in_group("player"):
+		return
+	# Симметричный обмен: игрок получает 1 урон при физическом столкновении, противник получает 30 урона
+	if body.has_method("take_damage"):
+		body.take_damage(1)
+	take_damage(30)
 
 
 func _draw() -> void:

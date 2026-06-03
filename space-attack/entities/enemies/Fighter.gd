@@ -33,10 +33,10 @@ func _on_hitbox_body_entered(body: Node) -> void:
 		return
 	if not body.is_in_group("player"):
 		return
-	# Симметричный обмен: игрок получает 1 урон, враг умирает
+	# Симметричный обмен: игрок получает 1 урон, враг получает 30 урона
 	if body.has_method("take_damage"):
 		body.take_damage(1)
-	die()
+	take_damage(30)
 
 
 func _shoot() -> void:

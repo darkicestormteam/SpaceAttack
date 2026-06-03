@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bqlndc1fdvr5c" path="res://entities/enemies/Fighter.gd" id="1_ambcg"]
 [ext_resource type="Texture2D" uid="uid://dwpw86vux3i1m" path="res://entities/enemies/fighter_texture.tres" id="2_fghrt"]
+[ext_resource type="Shape2D" path="res://entities/enemies/fighter_hitbox_shape.tres" id="3_28bto"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_28x28"]
 size = Vector2(28, 28)
@@ -20,3 +21,8 @@ position = Vector2(0, 20)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1818770856]
 shape = SubResource("RectangleShape2D_28x28")
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=403715605]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=270497909]
+shape = ExtResource("3_28bto")
