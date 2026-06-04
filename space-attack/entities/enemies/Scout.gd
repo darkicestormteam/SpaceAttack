@@ -32,6 +32,10 @@ var _kamikaze_coast_velocity: Vector2 = Vector2.ZERO
 # Флаг для Goliath тарана
 var is_being_rammed: bool = false
 
+var _player_in_hitbox: Node = null
+var _contact_damage_timer: Timer = null
+const CONTACT_DAMAGE_INTERVAL: float = 2.0
+
 
 func _ready() -> void:
 	add_to_group("enemy")
@@ -41,6 +45,51 @@ func _ready() -> void:
 	var hitbox := get_node_or_null("Hitbox")
 	if hitbox:
 		hitbox.body_entered.connect(_on_hitbox_body_entered)
+		hitbox.body_exited.connect(_on_hitbox_body_exited)
+
+	# Таймер периодического урона при контакте с игроком (каждые 2 секунды)
+	_contact_damage_timer = Timer.new()
+	_contact_damage_timer.name = "ContactDamageTimer"
+	_contact_damage_timer.wait_time = CONTACT_DAMAGE_INTERVAL
+	_contact_damage_timer.one_shot = false
+	_contact_damage_timer.autostart = false
+	add_child(_contact_damage_timer)
+	_contact_damage_timer.timeout.connect(_on_contact_damage_timer)
+
+
+func _on_hitbox_body_exited(body: Node) -> void:
+	if body == _player_in_hitbox:
+		_player_in_hitbox = null
+		if _contact_damage_timer:
+			_contact_damage_timer.stop()
+
+
+func _on_contact_damage_timer() -> void:
+	if is_queued_for_deletion():
+		if _contact_damage_timer:
+			_contact_damage_timer.stop()
+		return
+	if not is_instance_valid(_player_in_hitbox):
+		_player_in_hitbox = null
+		if _contact_damage_timer:
+			_contact_damage_timer.stop()
+		return
+	if not (_player_in_hitbox is CharacterBody2D):
+		return
+	if not _player_in_hitbox.is_in_group("player"):
+		return
+	if is_being_rammed:
+		return
+	if _player_in_hitbox.has_method("take_damage"):
+		_player_in_hitbox.take_damage(1)
+	if is_queued_for_deletion():
+		if _contact_damage_timer:
+			_contact_damage_timer.stop()
+		return
+	take_damage(30)
+	if is_queued_for_deletion():
+		if _contact_damage_timer:
+			_contact_damage_timer.stop()
 
 
 func _on_hitbox_body_entered(body: Node) -> void:
@@ -53,7 +102,14 @@ func _on_hitbox_body_entered(body: Node) -> void:
 	# Симметричный обмен: игрок получает 1 урон, враг получает 30 урона
 	if body.has_method("take_damage"):
 		body.take_damage(1)
+	if is_queued_for_deletion():
+		return
 	take_damage(30)
+	# Если враг выжил — запускаем периодический урон каждые 2 секунды
+	if not is_queued_for_deletion():
+		_player_in_hitbox = body
+		if _contact_damage_timer and _contact_damage_timer.is_stopped():
+			_contact_damage_timer.start()
 
 
 func _setup_behavior() -> void:

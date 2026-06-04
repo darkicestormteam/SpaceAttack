@@ -12,6 +12,9 @@ var _start_x: float
 var _time: float = 0.0
 
 @onready var hitbox: Area2D = $Hitbox
+var _player_in_hitbox: Node = null
+var _contact_damage_timer: Timer = null
+const CONTACT_DAMAGE_INTERVAL: float = 2.0
 
 
 func _ready() -> void:
@@ -35,9 +38,57 @@ func _ready() -> void:
 	summon_timer.timeout.connect(_summon_adds)
 	add_child(summon_timer)
 
+	# Таймер периодического урона при контакте с игроком (каждые 2 секунды)
+	_contact_damage_timer = Timer.new()
+	_contact_damage_timer.name = "ContactDamageTimer"
+	_contact_damage_timer.wait_time = CONTACT_DAMAGE_INTERVAL
+	_contact_damage_timer.one_shot = false
+	_contact_damage_timer.autostart = false
+	add_child(_contact_damage_timer)
+	_contact_damage_timer.timeout.connect(_on_contact_damage_timer)
+
 	# Обработчик столкновений с игроком через Area2D Hitbox
 	if hitbox:
 		hitbox.body_entered.connect(_on_hitbox_body_entered)
+		hitbox.body_exited.connect(_on_hitbox_body_exited)
+
+
+func _on_hitbox_body_exited(body: Node) -> void:
+	# Игрок покинул зону — останавливаем периодический урон
+	if body == _player_in_hitbox:
+		_player_in_hitbox = null
+		if _contact_damage_timer:
+			_contact_damage_timer.stop()
+
+
+func _on_contact_damage_timer() -> void:
+	# Периодический урон каждые 2 секунды пока игрок в зоне и враг жив
+	if is_queued_for_deletion():
+		if _contact_damage_timer:
+			_contact_damage_timer.stop()
+		return
+	if not is_instance_valid(_player_in_hitbox):
+		_player_in_hitbox = null
+		if _contact_damage_timer:
+			_contact_damage_timer.stop()
+		return
+	if not (_player_in_hitbox is CharacterBody2D):
+		return
+	if not _player_in_hitbox.is_in_group("player"):
+		return
+	if is_being_rammed:
+		return
+	# Симметричный обмен каждые 2 секунды пока игрок в зоне
+	if _player_in_hitbox.has_method("take_damage"):
+		_player_in_hitbox.take_damage(1)
+	if is_queued_for_deletion():
+		if _contact_damage_timer:
+			_contact_damage_timer.stop()
+		return
+	take_damage(30)
+	if is_queued_for_deletion():
+		if _contact_damage_timer:
+			_contact_damage_timer.stop()
 
 
 func _on_hitbox_body_entered(body: Node) -> void:
@@ -50,7 +101,14 @@ func _on_hitbox_body_entered(body: Node) -> void:
 	# Симметричный обмен: игрок получает 1 урон при физическом столкновении, противник получает 30 урона
 	if body.has_method("take_damage"):
 		body.take_damage(1)
+	if is_queued_for_deletion():
+		return
 	take_damage(30)
+	# Если враг выжил — запускаем периодический урон каждые 2 секунды
+	if not is_queued_for_deletion():
+		_player_in_hitbox = body
+		if _contact_damage_timer and _contact_damage_timer.is_stopped():
+			_contact_damage_timer.start()
 
 
 func _draw() -> void:
