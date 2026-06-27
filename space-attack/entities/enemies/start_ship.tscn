@@ -1,0 +1,98 @@
+[gd_scene format=3 uid="uid://bp8pqugeaeywd"]
+
+[ext_resource type="Script" uid="uid://dcyifmjh6arcx" path="res://entities/enemies/start_ship.gd" id="1_gt2pc"]
+[ext_resource type="Texture2D" uid="uid://d1erppyocc2lh" path="res://assets/sprites/backgrounds/BackgroundSpace.png" id="1_wix07"]
+[ext_resource type="PackedScene" uid="uid://0ws0g1n04dk5" path="res://entities/enemies/Cannon.tscn" id="2_wix07"]
+
+[sub_resource type="Animation" id="Animation_dl33a"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-496, -40)]
+}
+
+[sub_resource type="Animation" id="Animation_1oden"]
+resource_name = "run"
+length = 10.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 10),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(-496, -40), Vector2(0, -40)]
+}
+
+[sub_resource type="Animation" id="Animation_kyh5k"]
+resource_name = "run_2"
+length = 10.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 10),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, -40), Vector2(-496, -40)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_kyh5k"]
+_data = {
+&"RESET": SubResource("Animation_dl33a"),
+&"run": SubResource("Animation_1oden"),
+&"run_2": SubResource("Animation_kyh5k")
+}
+
+[node name="StartShip" type="Node2D" unique_id=2039714250]
+position = Vector2(-496, -40)
+script = ExtResource("1_gt2pc")
+cannon_scene = ExtResource("2_wix07")
+deactivate_animation = "run_2"
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1919649779]
+position = Vector2(-2, -90)
+texture = ExtResource("1_wix07")
+
+[node name="Sprite2D2" type="Sprite2D" parent="." unique_id=317785046]
+position = Vector2(-2, 860)
+texture = ExtResource("1_wix07")
+
+[node name="Sprite2D3" type="Sprite2D" parent="." unique_id=276035366]
+position = Vector2(-2, 1810)
+texture = ExtResource("1_wix07")
+
+[node name="GunSlot1" type="Marker2D" parent="." unique_id=1862369198]
+position = Vector2(212, -158)
+
+[node name="GunSlot2" type="Marker2D" parent="." unique_id=352916548]
+position = Vector2(212, -22)
+
+[node name="GunSlot3" type="Marker2D" parent="." unique_id=847347533]
+position = Vector2(210, 792)
+
+[node name="GunSlot4" type="Marker2D" parent="." unique_id=253072724]
+position = Vector2(210, 928)
+
+[node name="GunSlot5" type="Marker2D" parent="." unique_id=1202491069]
+position = Vector2(214, 1741)
+
+[node name="GunSlot6" type="Marker2D" parent="." unique_id=967661041]
+position = Vector2(214, 1877)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1161678155]
+libraries/ = SubResource("AnimationLibrary_kyh5k")

@@ -1,66 +1,202 @@
-[gd_scene load_steps=2 format=3 uid="uid://bchestopen01"]
+[gd_scene format=3 uid="uid://bchestopen01"]
 
-[ext_resource type="Script" path="res://ui/popups/ChestOpen.gd" id="1_chestopen"]
+[ext_resource type="Script" uid="uid://dfo1sb1lph6oa" path="res://ui/popups/ChestOpen.gd" id="1_chestopen"]
 
-[node name="ChestOpen" type="CanvasLayer"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0, 0, 0, 0.48235294)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_accept"]
+bg_color = Color(0, 0, 0, 0.8509804)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.8, 0.8, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_again"]
+bg_color = Color(0, 0, 0, 0.7)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.8, 0.8, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="ChestOpen" type="CanvasLayer" unique_id=1758431395]
+process_mode = 3
 script = ExtResource("1_chestopen")
 
-[node name="Dim" type="ColorRect" parent="."]
-layout_mode = 3
+[node name="Blocker" type="ColorRect" parent="." unique_id=1688987439]
+unique_name_in_owner = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.6)
+color = Color(0, 0, 0, 0)
 
-[node name="Panel" type="Panel" parent="."]
-layout_mode = 3
+[node name="Dim" type="ColorRect" parent="." unique_id=772347180]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.8)
+
+[node name="Panel" type="Panel" parent="." unique_id=575634284]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="ModuleBtnHolder" type="Control" parent="Panel" unique_id=528786713]
+unique_name_in_owner = true
+layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -160.0
-offset_right = 300.0
-offset_bottom = 160.0
+offset_left = -104.0
+offset_top = -225.0
+offset_right = 24.0
+offset_bottom = -97.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="VBox" type="VBoxContainer" parent="Panel"]
+[node name="NameLabel" type="Label" parent="Panel" unique_id=17571011]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 24.0
-offset_top = 24.0
-offset_right = -24.0
-offset_bottom = -24.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -151.0
+offset_top = -33.0
+offset_right = 149.0
+offset_bottom = -3.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 16
-
-[node name="TitleLabel" type="Label" parent="Panel/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "🎁 Сундук"
-horizontal_alignment = 1
-
-[node name="ResultLabel" type="Label" parent="Panel/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
 theme_override_font_sizes/font_size = 24
-text = "..."
+text = "Название модуля"
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2
 
-[node name="CloseButton" type="Button" parent="Panel/VBox"]
+[node name="RarityLabel" type="Label" parent="Panel" unique_id=1745767841]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = 8.0
+offset_right = 150.0
+offset_bottom = 38.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_font_sizes/font_size = 24
-text = "OK"
+text = "Редкость"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ProgressLabel" type="Label" parent="Panel" unique_id=1758431396]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -309.0
+offset_right = 150.0
+offset_bottom = -279.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.5, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "Получено: 0 / 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DuplicateLabel" type="Label" parent="Panel" unique_id=852504035]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = 157.0
+offset_right = 150.0
+offset_bottom = 187.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
+theme_override_font_sizes/font_size = 24
+text = "Дубликат! +100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnRow" type="HBoxContainer" parent="Panel" unique_id=2116016434]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -216.0
+offset_top = 71.0
+offset_right = 217.0
+offset_bottom = 131.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="AcceptBtn" type="Button" parent="Panel/BtnRow" unique_id=24753366]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_accept")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_accept")
+theme_override_styles/hover = SubResource("StyleBoxFlat_accept")
+text = "Принять"
+
+[node name="AgainBtn" type="Button" parent="Panel/BtnRow" unique_id=1115133853]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_again")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_again")
+theme_override_styles/hover = SubResource("StyleBoxFlat_again")
+text = "Открыть ещё
+(500)"

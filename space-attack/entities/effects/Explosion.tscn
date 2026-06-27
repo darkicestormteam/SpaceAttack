@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://6abx3f2i3o6g"]
+
+[ext_resource type="Script" uid="uid://5h87cxco7lak" path="res://entities/effects/Explosion.gd" id="1_kpsbu"]
+[ext_resource type="SpriteFrames" uid="uid://vdm245rttcke" path="res://entities/effects/ExplosionFrames.tres" id="2_pa5ms"]
+[ext_resource type="AudioStream" uid="uid://cbaisiyomgcow" path="res://assets/audio/sfx/single-remote-explosion.ogg" id="3_ofcll"]
+
+[node name="Explosion" type="Node2D" unique_id=271067842]
+script = ExtResource("1_kpsbu")
+sprite_scale = 1.0
+
+[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=1055579276]
+sprite_frames = ExtResource("2_pa5ms")
+animation = &"explode"
+frame = 2
+frame_progress = 1.0
+
+[node name="Sound" type="AudioStreamPlayer2D" parent="." unique_id=1470326644]
+bus = &"SFX"
+stream = ExtResource("3_ofcll")
+pitch_scale = 1.62

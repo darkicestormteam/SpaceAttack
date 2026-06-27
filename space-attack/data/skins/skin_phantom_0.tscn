@@ -1,0 +1,144 @@
+[gd_scene format=3 uid="uid://ckdmp0grvyl15"]
+
+[ext_resource type="Texture2D" uid="uid://eoemddadyra7" path="res://assets/sprites/player/Phantom-Sheet.png" id="1_jpq78"]
+[ext_resource type="Texture2D" uid="uid://cbhioxqcguuc2" path="res://assets/sprites/player/Phantom-rocket_enginet.png" id="2_qjbvr"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1ms0h"]
+atlas = ExtResource("1_jpq78")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2rv2u"]
+atlas = ExtResource("1_jpq78")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mq27t"]
+atlas = ExtResource("1_jpq78")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kwk8g"]
+atlas = ExtResource("1_jpq78")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2a181"]
+atlas = ExtResource("1_jpq78")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aubru"]
+atlas = ExtResource("1_jpq78")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ax5yc"]
+atlas = ExtResource("1_jpq78")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j531f"]
+atlas = ExtResource("1_jpq78")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3o3dm"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1ms0h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2rv2u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mq27t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kwk8g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2a181")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aubru")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ax5yc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j531f")
+}],
+"loop": true,
+"name": &"default",
+"speed": 7.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4fbvh"]
+atlas = ExtResource("2_qjbvr")
+region = Rect2(0, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ux552"]
+atlas = ExtResource("2_qjbvr")
+region = Rect2(32, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3uni3"]
+atlas = ExtResource("2_qjbvr")
+region = Rect2(64, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d168t"]
+atlas = ExtResource("2_qjbvr")
+region = Rect2(96, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oj2y3"]
+atlas = ExtResource("2_qjbvr")
+region = Rect2(128, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pnvcq"]
+atlas = ExtResource("2_qjbvr")
+region = Rect2(160, 0, 32, 30)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3o0g8"]
+atlas = ExtResource("2_qjbvr")
+region = Rect2(192, 0, 32, 30)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jg7wv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4fbvh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ux552")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3uni3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d168t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oj2y3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pnvcq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3o0g8")
+}],
+"loop": true,
+"name": &"default",
+"speed": 20.0
+}]
+
+[node name="SkinPhantom3" type="Node2D" unique_id=2036501442]
+z_index = 2
+
+[node name="Phantom" type="AnimatedSprite2D" parent="." unique_id=750740865]
+sprite_frames = SubResource("SpriteFrames_3o3dm")
+autoplay = "default"
+
+[node name="Phantom-rocket_enginet" type="AnimatedSprite2D" parent="Phantom" unique_id=1262223572]
+position = Vector2(-10, 37)
+scale = Vector2(1, 2.92)
+sprite_frames = SubResource("SpriteFrames_jg7wv")
+autoplay = "default"
+
+[node name="Phantom-rocket_enginet2" type="AnimatedSprite2D" parent="Phantom" unique_id=1702861561]
+position = Vector2(10, 37)
+scale = Vector2(1, 2.92)
+sprite_frames = SubResource("SpriteFrames_jg7wv")
+autoplay = "default"

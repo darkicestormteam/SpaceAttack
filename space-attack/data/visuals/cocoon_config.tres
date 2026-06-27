@@ -1,0 +1,11 @@
+[gd_resource type="CocoonConfig" load_steps=2 format=3 uid="uid://cocoon_config"]
+
+[ext_resource type="Script" path="res://data/visuals/CocoonConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+revive_flash_color = Color(0.8, 0.2, 1.0)
+revive_radius = 64.0
+revive_duration = 0.5
+revive_fill_alpha = 0.15
+revive_line_width = 4.0

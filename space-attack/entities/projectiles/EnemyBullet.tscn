@@ -1,7 +1,63 @@
 [gd_scene format=3 uid="uid://bqh8i3yjo0tn5"]
 
 [ext_resource type="Script" uid="uid://cl7ufu4k5shht" path="res://entities/projectiles/EnemyBullet.gd" id="1"]
-[ext_resource type="Texture2D" uid="uid://bg1ov6fsk7lst" path="res://entities/projectiles/bullet_texture.tres" id="2_bullet"]
+[ext_resource type="Texture2D" uid="uid://8s6fji23oadv" path="res://assets/sprites/enemies/Enemy-Laser-Blue.png" id="2_2j4ve"]
+[ext_resource type="Texture2D" uid="uid://cp2yo62khtkq8" path="res://assets/sprites/enemies/Enemy-Laser.png" id="2_8oc6a"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o4g56"]
+atlas = ExtResource("2_2j4ve")
+region = Rect2(0, 0, 19, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oxlgd"]
+atlas = ExtResource("2_2j4ve")
+region = Rect2(19, 0, 19, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tjawq"]
+atlas = ExtResource("2_2j4ve")
+region = Rect2(38, 0, 19, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2j4ve"]
+atlas = ExtResource("2_8oc6a")
+region = Rect2(0, 0, 19, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ntp1b"]
+atlas = ExtResource("2_8oc6a")
+region = Rect2(19, 0, 19, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5xm30"]
+atlas = ExtResource("2_8oc6a")
+region = Rect2(38, 0, 19, 26)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_o4g56"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o4g56")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oxlgd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tjawq")
+}],
+"loop": true,
+"name": &"Blue_Shot",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2j4ve")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ntp1b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5xm30")
+}],
+"loop": true,
+"name": &"shot",
+"speed": 10.0
+}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8x8"]
 size = Vector2(8, 8)
@@ -9,8 +65,11 @@ size = Vector2(8, 8)
 [node name="EnemyBullet" type="Area2D" unique_id=603884330]
 script = ExtResource("1")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1908134494]
-texture = ExtResource("2_bullet")
+[node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=1246553868]
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_o4g56")
+animation = &"Blue_Shot"
+autoplay = "shot"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1550339265]
 shape = SubResource("RectangleShape2D_8x8")

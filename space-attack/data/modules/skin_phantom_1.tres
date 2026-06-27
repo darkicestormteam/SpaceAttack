@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://b12cd34ef5a"]
+
+[ext_resource type="Script" uid="uid://dfsux8esh620d" path="res://data/modules/ModuleData.gd" id="1_ph7lq"]
+
+[resource]
+script = ExtResource("1_ph7lq")
+name = "Фантом Ярость"
+type = "Скин"
+rarity = "rare"
+speed_mult = 1.075
+fire_rate_mult = 0.8

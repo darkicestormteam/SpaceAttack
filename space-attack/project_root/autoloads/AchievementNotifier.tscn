@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dn313smeqp1t2"]
+
+[ext_resource type="Script" path="res://project_root/autoloads/AchievementNotifier.gd" id="1"]
+
+[node name="AchievementNotifier" type="CanvasLayer"]
+layer = 128
+script = ExtResource("1")

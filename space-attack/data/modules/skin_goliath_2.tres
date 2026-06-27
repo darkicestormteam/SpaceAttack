@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://b12cd34ef5e"]
+
+[ext_resource type="Script" uid="uid://dfsux8esh620d" path="res://data/modules/ModuleData.gd" id="1_dcv2o"]
+
+[resource]
+script = ExtResource("1_dcv2o")
+name = "Голиаф Императора"
+type = "Скин"
+rarity = "epic"
+speed_mult = 1.08
+health_bonus = 3
+fire_rate_mult = 0.7

@@ -1,7 +1,36 @@
 [gd_scene format=3 uid="uid://cco6yjwtsi58n"]
 
 [ext_resource type="Script" uid="uid://h8bvn67d2fvv" path="res://entities/projectiles/PlayerBullet.gd" id="1_h6vv8"]
-[ext_resource type="Texture2D" uid="uid://ctnqjk81ppyt7" path="res://entities/projectiles/bullet_texture.tres" id="2_55aux"]
+[ext_resource type="Texture2D" uid="uid://ms28q4eukhuu" path="res://assets/sprites/player/Vanguard-Laser.png" id="2_h6vv8"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_55aux"]
+atlas = ExtResource("2_h6vv8")
+region = Rect2(0, 0, 11, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kqf08"]
+atlas = ExtResource("2_h6vv8")
+region = Rect2(11, 0, 11, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pabt3"]
+atlas = ExtResource("2_h6vv8")
+region = Rect2(22, 0, 11, 26)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_osvs0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_55aux")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kqf08")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pabt3")
+}],
+"loop": true,
+"name": &"shot",
+"speed": 10.0
+}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kqf08"]
 size = Vector2(8, 8)
@@ -9,8 +38,12 @@ size = Vector2(8, 8)
 [node name="PlayerBullet" type="Area2D" unique_id=1377564896]
 script = ExtResource("1_h6vv8")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1723884853]
-texture = ExtResource("2_55aux")
+[node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=2119559658]
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_osvs0")
+animation = &"shot"
+autoplay = "shot"
+frame_progress = 0.27531204
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=20931298]
 shape = SubResource("RectangleShape2D_kqf08")

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://b12cd34ef6a"]
+
+[ext_resource type="Script" uid="uid://dfsux8esh620d" path="res://data/modules/ModuleData.gd" id="1_6a8xk"]
+
+[resource]
+script = ExtResource("1_6a8xk")
+name = "Фантом"
+type = "Скин"
+rarity = "rare"

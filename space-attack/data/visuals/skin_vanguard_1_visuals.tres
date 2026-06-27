@@ -1,0 +1,86 @@
+[gd_resource type="Resource" script_class="ModuleVisuals" format=3 uid="uid://dxd3uxm8bexvc"]
+
+[ext_resource type="Texture2D" uid="uid://do8h8g35sihel" path="res://assets/sprites/player/VanguardV2-Sheet.png" id="1_4cid5"]
+[ext_resource type="Script" uid="uid://er6gppbklj2o" path="res://data/visuals/ModuleVisuals.gd" id="2_orgyn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hcgvx"]
+atlas = ExtResource("1_4cid5")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ncfhs"]
+atlas = ExtResource("1_4cid5")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cc5fx"]
+atlas = ExtResource("1_4cid5")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dictp"]
+atlas = ExtResource("1_4cid5")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1qsmo"]
+atlas = ExtResource("1_4cid5")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gq3fl"]
+atlas = ExtResource("1_4cid5")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8dspt"]
+atlas = ExtResource("1_4cid5")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uxecs"]
+atlas = ExtResource("1_4cid5")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h4k2y"]
+atlas = ExtResource("1_4cid5")
+region = Rect2(1024, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jdh2u"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hcgvx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ncfhs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cc5fx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dictp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1qsmo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gq3fl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8dspt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uxecs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h4k2y")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[resource]
+script = ExtResource("2_orgyn")
+button_size = Vector2(128, 128)
+icon_animated_frames = SubResource("SpriteFrames_jdh2u")
+background_speed = 1.0
+hover_color = Color(1, 1, 1, 1)
+pressed_color = Color(1, 1, 1, 1)
+disabled_color = Color(0.5, 0.5, 0.5, 1)
+selected_color = Color(0.8, 0.9, 1, 1)
+fallback_text = "Vanguard Стиль 2"

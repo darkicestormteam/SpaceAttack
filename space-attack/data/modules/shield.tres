@@ -1,6 +1,10 @@
-[gd_resource type="Resource" format=3 uid="uid://dshielduid"]
+[gd_resource type="Resource" script_class="ModuleData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/modules/ModuleData.gd" id="1_md"]
 
 [resource]
-name = "Щит"
+script = ExtResource("1_md")
+name = "Энергощит"
 type = "defense"
-description = "Поглощает 1 урон каждые 5 секунд"
+description = "Выдерживает 5 урона, после чего ломается до конца раунда"
+rarity = "common"

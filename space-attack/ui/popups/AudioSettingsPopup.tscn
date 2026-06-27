@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bjk2l8cegfma0"]
+
+[ext_resource type="Script" uid="uid://dh3wkswe66pms" path="res://ui/popups/AudioSettingsPopup.gd" id="1_ogd2l"]
+
+[node name="AudioSettingsPopup" type="CanvasLayer"]
+script = ExtResource("1_ogd2l")

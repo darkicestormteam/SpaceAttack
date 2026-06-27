@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://b12cd34ef57"]
+
+[ext_resource type="Script" uid="uid://dfsux8esh620d" path="res://data/modules/ModuleData.gd" id="1_0bxll"]
+
+[resource]
+script = ExtResource("1_0bxll")
+name = "Вангвард МКII"
+type = "Скин"
+rarity = "rare"
+pellet_color = Color(0.4, 0.7019608, 1, 1)
+speed_mult = 1.05
+fire_rate_mult = 0.9

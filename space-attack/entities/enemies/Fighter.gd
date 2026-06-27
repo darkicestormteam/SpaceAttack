@@ -1,6 +1,15 @@
 extends CharacterBody2D
 
 const SPEED: float = 100.0
+const HEALTH_PACK_DROP_CHANCE: float = 0.02
+const HEALTH_PACK_SCENE: PackedScene = preload("res://entities/items/HealthPack.tscn")
+
+# Лёгкое покачивание по X
+const SINE_AMPLITUDE: float = 30.0
+const SINE_FREQ: float = 1.5
+
+var _time: float = 0.0
+var _start_x: float
 
 var health: int = 40
 var is_being_rammed: bool = false
@@ -9,14 +18,33 @@ var is_being_rammed: bool = false
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var muzzle: Marker2D = $Muzzle
 @onready var hitbox: Area2D = $Hitbox
+@onready var anim_player: AnimationPlayer = $AnimationPlayer
 
 var _player_in_hitbox: Node = null
 var _contact_damage_timer: Timer = null
-const CONTACT_DAMAGE_INTERVAL: float = 2.0
+const CONTACT_DAMAGE_INTERVAL: float = 0.5
+
+# === Настройки визуальной индикации урона (редактируются в Инспекторе) ===
+@export_group("Damage Flash")
+## Цвет яркой вспышки (значения > 1 дают эффект «пересвета»).
+@export var flash_color_bright: Color = Color(3, 3, 3, 1)
+## Цвет тинта урона (обычно красноватый).
+@export var flash_color_damage: Color = Color(1.5, 0.3, 0.3, 1)
+## Длительность одной фазы мерцания (сек).
+@export_range(0.01, 0.5, 0.01) var flash_step_duration: float = 0.05
+## Сколько раз повторить вспышку bright→damage.
+@export_range(1, 10, 1) var flash_cycles: int = 2
 
 
 func _ready() -> void:
 	add_to_group("enemy")
+	_start_x = global_position.x
+	
+	# Множитель здоровья от сложности
+	var hp_mult := Constants.enemy_hp_mult()
+	if hp_mult != 1.0:
+		health = int(ceil(float(health) * hp_mult))
+	
 	shoot_timer.timeout.connect(_shoot)
 	shoot_timer.start()
 	hitbox.body_entered.connect(_on_hitbox_body_entered)
@@ -68,7 +96,10 @@ func _on_contact_damage_timer() -> void:
 
 
 func _process(delta: float) -> void:
+	_time += delta
 	global_position.y += SPEED * delta
+	# Лёгкое покачивание по X
+	global_position.x = _start_x + sin(_time * SINE_FREQ) * SINE_AMPLITUDE
 
 	var viewport_size = get_viewport_rect().size
 	if global_position.y > viewport_size.y + 50:
@@ -105,21 +136,47 @@ func _shoot() -> void:
 		var bullet = bullet_scene.instantiate()
 		bullet.global_position = muzzle.global_position
 		var dir = (player.global_position - global_position).normalized()
+		# Ограничиваем угол стрельбы: только вниз (180°)
+		# Если Y-компонент направления отрицательный (стрельба вверх) —
+		# разрешаем стрелять только в нижнюю полуокружность
+		if dir.y < 0.0:
+			dir.y = -dir.y
+		bullet.use_blue = true
 		bullet.direction = dir
 		get_tree().current_scene.add_child(bullet)
 
 
 func take_damage(amount: int) -> void:
-	var tw = create_tween()
-	tw.tween_property(sprite, "modulate", Color.WHITE, 0.05)
-	tw.tween_property(sprite, "modulate", Color(1.0, 0.5, 0.0), 0.05)
-	
+	# Визуальная индикация получения урона — мерцание
+	_flash_damage()
+
 	health -= amount
 	if health <= 0:
 		die()
 
 
+func _flash_damage() -> void:
+	# Быстрое мерцание: bright → damage повторяется flash_cycles раз, затем возврат к нормали.
+	# Цвета и длительность настраиваются в Инспекторе (см. @export_group выше).
+	var tw := create_tween()
+	for i in range(flash_cycles):
+		tw.tween_property(self, "modulate", flash_color_bright, flash_step_duration)
+		tw.tween_property(self, "modulate", flash_color_damage, flash_step_duration)
+	# Финальный возврат к нормальному цвету
+	tw.tween_property(self, "modulate", Color.WHITE, flash_step_duration)
+
+
+func _try_drop_health_pack() -> void:
+	if not (randf() < HEALTH_PACK_DROP_CHANCE and HEALTH_PACK_SCENE):
+		return
+	var pack = HEALTH_PACK_SCENE.instantiate()
+	pack.position = global_position
+	get_tree().current_scene.call_deferred("add_child", pack)
+
+
 func die() -> void:
+	_try_drop_health_pack()
+	
 	var main = get_tree().current_scene
 	if main and main.has_method("add_score"):
 		main.add_score(20)
@@ -127,32 +184,12 @@ func die() -> void:
 		main.add_credits(10)
 	if main and main.has_method("_on_enemy_killed"):
 		main._on_enemy_killed()
-	
-	_spawn_death_particles()
-	_spawn_death_circle()
+	set_physics_process(false)
+	set_process(false)
+	var hitbox := get_node_or_null("Hitbox")
+	if hitbox:
+		hitbox.set_deferred("monitoring", false)
+	if anim_player and anim_player.has_animation("die"):
+		anim_player.play("die")
+		await anim_player.animation_finished
 	queue_free()
-
-
-func _spawn_death_particles() -> void:
-	var particles = CPUParticles2D.new()
-	particles.amount = 10
-	particles.lifetime = 0.5
-	particles.one_shot = true
-	particles.explosiveness = 1.0
-	particles.color = Color.ORANGE_RED
-	particles.global_position = global_position
-	particles.emitting = true
-	get_tree().current_scene.add_child(particles)
-	get_tree().create_timer(1.0).timeout.connect(particles.queue_free)
-
-
-func _spawn_death_circle() -> void:
-	var c := Node2D.new()
-	c.global_position = global_position
-	c.set_process(false)
-	c.draw.connect(func():
-		c.draw_circle(Vector2.ZERO, 16.0, Color.RED)
-	)
-	get_tree().current_scene.add_child(c)
-	c.queue_redraw()
-	get_tree().create_timer(0.3).timeout.connect(c.queue_free)

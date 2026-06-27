@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://bxsf07wg6s2en"]
+
+[ext_resource type="Script" uid="uid://35bbrimpqhan" path="res://entities/items/HealthPack.gd" id="1_kdp4j"]
+[ext_resource type="Texture2D" uid="uid://c3s8lappw3hop" path="res://assets/sprites/ui/moduls/Hilling-Sheet.png" id="2_gh10l"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gh10l"]
+atlas = ExtResource("2_gh10l")
+region = Rect2(0, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ac0gf"]
+atlas = ExtResource("2_gh10l")
+region = Rect2(24, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6u4jp"]
+atlas = ExtResource("2_gh10l")
+region = Rect2(48, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kcy4j"]
+atlas = ExtResource("2_gh10l")
+region = Rect2(72, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mur46"]
+atlas = ExtResource("2_gh10l")
+region = Rect2(96, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qes34"]
+atlas = ExtResource("2_gh10l")
+region = Rect2(120, 0, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1unv8"]
+atlas = ExtResource("2_gh10l")
+region = Rect2(144, 0, 24, 24)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_qes34"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gh10l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ac0gf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6u4jp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kcy4j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mur46")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qes34")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1unv8")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1unv8"]
+
+[node name="HealthPack" type="Area2D" unique_id=1786844119]
+script = ExtResource("1_kdp4j")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=918285989]
+scale = Vector2(2, 1.7)
+sprite_frames = SubResource("SpriteFrames_qes34")
+autoplay = "default"
+frame_progress = 0.18331568
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=426814252]
+shape = SubResource("CapsuleShape2D_1unv8")

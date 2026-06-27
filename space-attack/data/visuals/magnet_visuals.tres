@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ModuleVisuals" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/visuals/ModuleVisuals.gd" id="1_mv"]
+
+[resource]
+script = ExtResource("1_mv")
+button_size = Vector2(64, 64)
+icon_scale = 1.0
+icon_offset = Vector2(0, 0)
+background_speed = 10.0
+background_offset = Vector2(0, 0)
+normal_color = Color(1, 0.3, 0.6, 1)
+hover_color = Color(1, 0.45, 0.75, 1)
+pressed_color = Color(0.9, 0.25, 0.5, 1)
+disabled_color = Color(0.5, 0.2, 0.3, 0.8)
+selected_color = Color(1, 1, 0.6, 1)
+rarity_color = Color(1, 0.3, 0.6, 1)
+icon_path_convention = "res://assets/sprites/ui/moduls/{id}.png"
+fallback_text = "М"

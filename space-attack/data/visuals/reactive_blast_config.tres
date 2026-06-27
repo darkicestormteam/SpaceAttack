@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/visuals/ReactiveBlastConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+arc_color = Color(1, 0.6, 0.2, 0.8)
+arc_radius = 40.0
+arc_width = 2.0
+fill_color = Color(1, 0.4, 0.1, 0.15)
+fill_radius_mult = 0.5
+duration = 0.15
+final_scale = 3.0

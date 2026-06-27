@@ -1,12 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://bmoduleselect01"]
+[gd_scene format=3 uid="uid://bhfiprdsxtqt1"]
 
-[ext_resource type="Script" path="res://ui/popups/ModuleSelect.gd" id="1_moduleselect"]
+[ext_resource type="Script" uid="uid://crf5is5gve3le" path="res://ui/popups/ModuleSelect.gd" id="1_moduleselect"]
 
-[node name="ModuleSelect" type="CanvasLayer"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wdohx"]
+bg_color = Color(0, 0, 0, 0.6156863)
+
+[node name="ModuleSelect" type="CanvasLayer" unique_id=1770844629]
 script = ExtResource("1_moduleselect")
 
-[node name="Dim" type="ColorRect" parent="."]
-layout_mode = 3
+[node name="Dim" type="ColorRect" parent="." unique_id=1583881957]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -14,8 +16,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.6)
 
-[node name="Panel" type="Panel" parent="."]
-layout_mode = 3
+[node name="Panel" type="Panel" parent="." unique_id=223226163]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -27,8 +28,9 @@ offset_right = 320.0
 offset_bottom = 350.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_wdohx")
 
-[node name="VBox" type="VBoxContainer" parent="Panel"]
+[node name="VBox" type="VBoxContainer" parent="Panel" unique_id=639973851]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -41,36 +43,36 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 12
 
-[node name="TitleLabel" type="Label" parent="Panel/VBox"]
+[node name="TitleLabel" type="Label" parent="Panel/VBox" unique_id=915378778]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "Выберите модуль"
 horizontal_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBox"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/VBox" unique_id=1966643469]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ListContainer" type="VBoxContainer" parent="Panel/VBox/ScrollContainer"]
+[node name="ListContainer" type="VBoxContainer" parent="Panel/VBox/ScrollContainer" unique_id=724004242]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="ButtonRow" type="HBoxContainer" parent="Panel/VBox"]
+[node name="ButtonRow" type="HBoxContainer" parent="Panel/VBox" unique_id=558005534]
 layout_mode = 2
-alignment = 2
 theme_override_constants/separation = 12
+alignment = 2
 
-[node name="UnequipButton" type="Button" parent="Panel/VBox/ButtonRow"]
+[node name="UnequipButton" type="Button" parent="Panel/VBox/ButtonRow" unique_id=1536335219]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Снять"
 
-[node name="CloseButton" type="Button" parent="Panel/VBox/ButtonRow"]
+[node name="CloseButton" type="Button" parent="Panel/VBox/ButtonRow" unique_id=1283385955]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 64)
 layout_mode = 2

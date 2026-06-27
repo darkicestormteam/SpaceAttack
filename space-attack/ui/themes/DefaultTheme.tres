@@ -1,0 +1,6 @@
+[gd_resource type="Theme" format=3 uid="uid://dumr2vt2qlsef"]
+
+[resource]
+Button/constants/word_wrap_enabled = 3
+Label/constants/word_wrap_enabled = 0
+RichTextLabel/constants/word_wrap_enabled = 3

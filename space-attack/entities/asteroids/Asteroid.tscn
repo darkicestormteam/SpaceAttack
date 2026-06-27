@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://mhaw8rdsqk5k"]
+
+[ext_resource type="Script" uid="uid://cx171fmbd2d1a" path="res://entities/asteroids/Asteroid.gd" id="1_yxqiy"]
+[ext_resource type="Texture2D" uid="uid://nefx8w4f5rkw" path="res://assets/sprites/projectiles/asteroid_1.png" id="2_t2yt1"]
+
+[node name="Asteroid" type="Area2D" unique_id=1601234891]
+collision_layer = 2
+script = ExtResource("1_yxqiy")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2067352763]
+scale = Vector2(2, 2)
+texture = ExtResource("2_t2yt1")
+hframes = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=995326264]
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=636656996]
+rect = Rect2(-48, -48, 96, 96)

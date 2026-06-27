@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://b12cd34ef56"]
+
+[ext_resource type="Script" uid="uid://dfsux8esh620d" path="res://data/modules/ModuleData.gd" id="1_03hsf"]
+
+[resource]
+script = ExtResource("1_03hsf")
+name = "Вангвард"
+type = "Скин"

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/visual_configs/ShockwaveConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+outer_arc_color = Color(0.4, 0.8, 1.0, 0.9)
+outer_arc_width = 0.04
+inner_arc_color = Color(0.6, 0.9, 1.0, 0.6)
+inner_arc_width = 0.03
+fill_color = Color(0.3, 0.7, 1.0, 0.18)
+duration = 0.2
+max_radius = 200.0
+damage = 20

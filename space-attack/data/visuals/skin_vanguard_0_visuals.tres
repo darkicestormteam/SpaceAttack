@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ModuleVisuals" format=3 uid="uid://dxd3uxm8bexvc"]
+
+[ext_resource type="Script" uid="uid://er6gppbklj2o" path="res://data/visuals/ModuleVisuals.gd" id="2_kaac8"]
+[ext_resource type="PackedScene" uid="uid://wc7q5itxfgsf" path="res://data/skins/skin_vangard_0.tscn" id="2_llqrk"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_llqrk"]
+
+[resource]
+script = ExtResource("2_kaac8")
+button_size = Vector2(128, 128)
+icon_texture = SubResource("ImageTexture_llqrk")
+fallback_text = "Vanguard Стиль 1"
+skin_scene = ExtResource("2_llqrk")

@@ -1,0 +1,92 @@
+[gd_resource type="Resource" script_class="ModuleVisuals" format=3 uid="uid://bbu3x36w8vwnb"]
+
+[ext_resource type="Texture2D" uid="uid://27fcq10j0o6n" path="res://assets/sprites/ui/IconButton-Sheet.png" id="1_buqct"]
+[ext_resource type="Script" uid="uid://er6gppbklj2o" path="res://data/visuals/ModuleVisuals.gd" id="1_mv"]
+[ext_resource type="Texture2D" uid="uid://cfsvj24xfytjj" path="res://assets/sprites/ui/moduls/ShotgunMKII.png" id="2_jea23"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d5bao"]
+atlas = ExtResource("1_buqct")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p17by"]
+atlas = ExtResource("1_buqct")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r5bx1"]
+atlas = ExtResource("1_buqct")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2d5vf"]
+atlas = ExtResource("1_buqct")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gyk8b"]
+atlas = ExtResource("1_buqct")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tmgnu"]
+atlas = ExtResource("1_buqct")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tuu6h"]
+atlas = ExtResource("1_buqct")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vpk27"]
+atlas = ExtResource("1_buqct")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qpvps"]
+atlas = ExtResource("1_buqct")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jjeet"]
+atlas = ExtResource("1_buqct")
+region = Rect2(576, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wyqag"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d5bao")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p17by")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r5bx1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2d5vf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gyk8b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tmgnu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tuu6h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vpk27")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qpvps")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jjeet")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[resource]
+script = ExtResource("1_mv")
+button_size = Vector2(128, 128)
+icon_texture = ExtResource("2_jea23")
+icon_scale = 0.96
+icon_offset = Vector2(6, 0)
+background_frames = SubResource("SpriteFrames_wyqag")
+background_speed = 1.0

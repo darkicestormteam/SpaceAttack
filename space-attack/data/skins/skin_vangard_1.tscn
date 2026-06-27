@@ -1,0 +1,82 @@
+[gd_scene format=3 uid="uid://b5tgq36esvj3k"]
+
+[ext_resource type="Texture2D" uid="uid://do8h8g35sihel" path="res://assets/sprites/player/VanguardV2-Sheet.png" id="1_l2von"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q4ow4"]
+atlas = ExtResource("1_l2von")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ejb73"]
+atlas = ExtResource("1_l2von")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4tpsr"]
+atlas = ExtResource("1_l2von")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6xtsn"]
+atlas = ExtResource("1_l2von")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4tade"]
+atlas = ExtResource("1_l2von")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gk28g"]
+atlas = ExtResource("1_l2von")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pqvqe"]
+atlas = ExtResource("1_l2von")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tf6m1"]
+atlas = ExtResource("1_l2von")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lylyp"]
+atlas = ExtResource("1_l2von")
+region = Rect2(1024, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_c3nfe"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q4ow4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ejb73")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4tpsr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6xtsn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4tade")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gk28g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pqvqe")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tf6m1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lylyp")
+}],
+"loop": true,
+"name": &"default",
+"speed": 20.0
+}]
+
+[node name="Node2D" type="Node2D" unique_id=1381087991]
+
+[node name="VanguardV2" type="AnimatedSprite2D" parent="." unique_id=1606340606]
+position = Vector2(0, 1.9073486e-06)
+scale = Vector2(0.9, 0.9)
+sprite_frames = SubResource("SpriteFrames_c3nfe")
+autoplay = "default"

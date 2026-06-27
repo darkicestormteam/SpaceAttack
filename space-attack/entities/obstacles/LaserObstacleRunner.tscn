@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://cyoj6onjol2kj"]
+
+[ext_resource type="Script" uid="uid://dorga7w6knm04" path="res://entities/obstacles/LaserObstacleRunner.gd" id="1_6ui8k"]
+
+[node name="LaserObstacleRunner" type="Node2D" unique_id=670457653]
+script = ExtResource("1_6ui8k")
+max_speed = 800.0
+
+[node name="MarkerSpawn" type="Marker2D" parent="." unique_id=806039773]
+position = Vector2(64, -234)
+
+[node name="MarkerSpawn2" type="Marker2D" parent="." unique_id=1375331477]
+position = Vector2(656, -234)

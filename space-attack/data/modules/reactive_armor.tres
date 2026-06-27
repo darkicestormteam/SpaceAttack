@@ -1,6 +1,0 @@
-[gd_resource type="Resource" format=3 uid="uid://dpjh7f1akkhwi"]
-
-[resource]
-name = "Реактивная броня"
-type = "defense"
-description = "Ответный урон +50% сопротивление. Радиус 200."

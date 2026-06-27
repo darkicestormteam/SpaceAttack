@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ModuleData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/modules/ModuleData.gd" id="1_md"]
+
+[resource]
+script = ExtResource("1_md")
+name = "Дробовик Картечь"
+type = "weapon"
+description = "5 дробинок по 8 урона, широкий веер 70°, дальность 220px. При убийстве врага — 6 дробинок common вылетают из центра. ДПС 80."
+rarity = "legendary"
+pellet_color = Color(1.0, 0.85, 0.3, 1)

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ModuleData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/modules/ModuleData.gd" id="1_md"]
+
+[resource]
+script = ExtResource("1_md")
+name = "Пронзающий Лазер"
+type = "weapon"
+description = "Пуля пронзает всех врагов на линии. Урон 15, скорость 4 выстр/сек."
+rarity = "epic"

@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cejwh84i0gt8f"]
+
+[ext_resource type="Script" uid="uid://bslyhndfth73c" path="res://entities/effects/CocoonReviveWave.gd" id="1_uufgr"]
+
+[node name="CocoonReviveWave" type="Area2D" unique_id=2044304809]
+z_index = 2
+script = ExtResource("1_uufgr")

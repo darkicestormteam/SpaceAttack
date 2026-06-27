@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ModuleVisuals" format=3 uid="uid://dxd3uxm8bexvc"]
+
+[ext_resource type="Script" uid="uid://er6gppbklj2o" path="res://data/visuals/ModuleVisuals.gd" id="1_mv"]
+[ext_resource type="PackedScene" uid="uid://hhpimkoaj5fb" path="res://data/skins/skin_goliaph_2.tscn" id="2_gf87m"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_qghuv"]
+
+[resource]
+script = ExtResource("1_mv")
+button_size = Vector2(128, 128)
+icon_texture = SubResource("ImageTexture_qghuv")
+background_speed = 1.0
+hover_color = Color(1, 1, 1, 1)
+pressed_color = Color(1, 1, 1, 1)
+disabled_color = Color(0.5, 0.5, 0.5, 1)
+selected_color = Color(0.8, 0.9, 1, 1)
+fallback_text = "Goliath Стиль 3"
+skin_scene = ExtResource("2_gf87m")

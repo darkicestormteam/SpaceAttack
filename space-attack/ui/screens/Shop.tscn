@@ -1,8 +1,9 @@
 [gd_scene format=3 uid="uid://bshop12345678"]
 
-[ext_resource type="Script" uid="uid://dshop87654321" path="res://ui/screens/Shop.gd" id="1_shop"]
+[ext_resource type="Script" uid="uid://byrpxgf6q0jo5" path="res://ui/screens/Shop.gd" id="1_shop"]
+[ext_resource type="PackedScene" uid="uid://bhfipat2e6kt1" path="res://ui/popups/ModuleButton.tscn" id="2_module_button"]
 
-[node name="Shop" type="Control"]
+[node name="Shop" type="Control" unique_id=844268173]
 unique_name_in_owner = true
 layout_mode = 3
 anchors_preset = 15
@@ -12,7 +13,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_shop")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=943661376]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -21,7 +22,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.05, 0.05, 0.1, 1)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=246950114]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,31 +34,31 @@ offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBox" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBox" type="VBoxContainer" parent="MarginContainer" unique_id=326425826]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="TitleLabel" type="Label" parent="MarginContainer/VBox"]
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBox" unique_id=18485535]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8666667, 0, 1)
 theme_override_font_sizes/font_size = 32
-text = "🛒 Магазин"
+text = "Магазин"
 horizontal_alignment = 1
 
 [node name="CreditsLabel" type="Label" parent="MarginContainer/VBox" unique_id=1]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "⭐ 0"
+text = "0"
 horizontal_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBox"]
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBox" unique_id=1863980249]
+custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
 size_flags_vertical = 3
-custom_minimum_size = Vector2(0, 400)
 
-[node name="ItemsVBox" type="VBoxContainer" parent="MarginContainer/VBox/ScrollContainer"]
+[node name="ItemsVBox" type="VBoxContainer" parent="MarginContainer/VBox/ScrollContainer" unique_id=1002781451]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -65,130 +66,156 @@ size_flags_vertical = 3
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="ShipTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="ShipTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=177526892]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.8, 1, 1)
 theme_override_font_sizes/font_size = 24
 text = "Корабли"
 horizontal_alignment = 1
 
-[node name="PhantomBuyButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="PhantomBuyButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=2045172909]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Phantom — 2000⭐"
+text = "Phantom — 2000"
 
-[node name="GoliathBuyButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="GoliathBuyButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=939946965]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Goliath — 5000⭐"
+text = "Goliath — 5000"
 
-[node name="ModulesTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="ModulesTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=1953985862]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
 theme_override_font_sizes/font_size = 24
 text = "Модули"
 horizontal_alignment = 1
 
-[node name="ShotgunButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="ShotgunButton" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=105675905 instance=ExtResource("2_module_button")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "Дробовик — 300⭐"
+size_flags_horizontal = 4
+size_flags_vertical = 4
 
-[node name="ShieldButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="ShieldButton" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=141362788 instance=ExtResource("2_module_button")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "Щит — 300⭐"
+size_flags_horizontal = 4
 
-[node name="ShockwaveButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="ShockwaveButton" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=1346059424 instance=ExtResource("2_module_button")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "Шоквейв — 300⭐"
+size_flags_horizontal = 4
 
-[node name="UpgradeTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="UpgradeTitle" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=446459563]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
 theme_override_font_sizes/font_size = 24
 text = "Улучшения"
 horizontal_alignment = 1
 
-[node name="DamageRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="DamageRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=677304394]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 12
+alignment = 1
 
-[node name="DamageLabel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/DamageRow"]
+[node name="DamageLabel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/DamageRow" unique_id=1665391653]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
+size_flags_vertical = 1
 theme_override_font_sizes/font_size = 22
 text = "Урон"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
 
-[node name="DamageLevel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/DamageRow"]
+[node name="DamageLevel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/DamageRow" unique_id=856244700]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
+size_flags_vertical = 1
 theme_override_font_sizes/font_size = 22
 text = "0/3"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
 
-[node name="DamageButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/DamageRow"]
+[node name="DamageButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/DamageRow" unique_id=642226716]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
-text = "100⭐"
+text = "100"
 
-[node name="FireRateRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="FireRateRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=532682902]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 12
+alignment = 1
 
-[node name="FireRateLabel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/FireRateRow"]
+[node name="FireRateLabel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/FireRateRow" unique_id=2048222027]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
+size_flags_vertical = 1
 theme_override_font_sizes/font_size = 22
 text = "Стрельба"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="FireRateLevel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/FireRateRow"]
+[node name="FireRateLevel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/FireRateRow" unique_id=227116503]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
+size_flags_vertical = 1
 theme_override_font_sizes/font_size = 22
 text = "0/3"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
 
-[node name="FireRateButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/FireRateRow"]
+[node name="FireRateButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/FireRateRow" unique_id=97045634]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
-text = "150⭐"
+text = "150"
 
-[node name="HealthRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox"]
+[node name="HealthRow" type="HBoxContainer" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox" unique_id=1845770907]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 12
+alignment = 1
 
-[node name="HealthLabel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/HealthRow"]
+[node name="HealthLabel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/HealthRow" unique_id=1341729187]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
+size_flags_vertical = 1
 theme_override_font_sizes/font_size = 22
 text = "Жизни"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="HealthLevel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/HealthRow"]
+[node name="HealthLevel" type="Label" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/HealthRow" unique_id=1134656683]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
+size_flags_vertical = 1
 theme_override_font_sizes/font_size = 22
 text = "0/3"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
 
-[node name="HealthButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/HealthRow"]
+[node name="HealthButton" type="Button" parent="MarginContainer/VBox/ScrollContainer/ItemsVBox/HealthRow" unique_id=1126218882]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
-text = "200⭐"
+text = "200"
 
 [node name="BackButton" type="Button" parent="MarginContainer/VBox" unique_id=2]
 unique_name_in_owner = true

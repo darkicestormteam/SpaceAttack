@@ -1,6 +1,10 @@
-[gd_resource type="Resource" format=3 uid="uid://cjaeknjwwv37y"]
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://c05fvaqftw1w"]
+
+[ext_resource type="Script" uid="uid://dfsux8esh620d" path="res://data/modules/ModuleData.gd" id="1_md"]
 
 [resource]
+script = ExtResource("1_md")
 name = "Энергощит"
 type = "defense"
-description = "Поглощает урон → кредиты. Прочность 50. Перезарядка 20с."
+description = "Поглощает урон 5"
+rarity = "common "

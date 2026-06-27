@@ -1,6 +1,9 @@
-[gd_resource type="Resource" format=3 uid="uid://d2ggyr60sxosy"]
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://du6id3apwmcr5"]
+
+[ext_resource type="Script" uid="uid://dfsux8esh620d" path="res://data/modules/ModuleData.gd" id="1_md"]
 
 [resource]
+script = ExtResource("1_md")
 name = "Дробовик"
 type = "weapon"
-description = "Стреляет веером из 3 пуль"
+description = "7 дробинок по 5 урона, веер 60°, дальность 250px. ДПС 70."

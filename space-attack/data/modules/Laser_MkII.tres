@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://7vyfjmy7jpcf"]
+
+[ext_resource type="Script" uid="uid://dfsux8esh620d" path="res://data/modules/ModuleData.gd" id="1_md"]
+
+[resource]
+script = ExtResource("1_md")
+name = "Двойной Лазер Mk.II"
+type = "weapon"
+description = "Два расходящихся луча. Урон 8, скорость 4.5 выстр/сек."
+rarity = "rare"

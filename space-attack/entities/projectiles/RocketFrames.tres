@@ -1,0 +1,32 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://d4kjgovx6rcf2"]
+
+[ext_resource type="Texture2D" uid="uid://6fi8ikwsmib6" path="res://assets/sprites/projectiles/Rocket-Sheet.png" id="1_tex"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c8tc6"]
+atlas = ExtResource("1_tex")
+region = Rect2(0, 0, 12, 35)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_crptu"]
+atlas = ExtResource("1_tex")
+region = Rect2(12, 0, 12, 35)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eoei3"]
+atlas = ExtResource("1_tex")
+region = Rect2(24, 0, 12, 35)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c8tc6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_crptu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eoei3")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 12.0
+}]

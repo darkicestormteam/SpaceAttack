@@ -8,28 +8,46 @@
 
 config_version=5
 
+"Ñconfig_version"=5
+autoload=""
+
 [application]
 
 config/name="SpaceAttack"
-run/main_scene="uid://v0k31172i4xn"
+run/main_scene="res://ui/screens/Hangar.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[audio]
+
+buses/default_bus_layout="uid://c735u5yx75s5t"
 
 [autoload]
 
 SaveManager="*res://project_root/autoloads/SaveManager.gd"
+Constant="*uid://cl7r5iw8qnhd3"
+AudioManager="*res://project_root/autoloads/AudioManager.gd"
+AutoWrap="*res://project_root/autoloads/AutoWrap.gd"
+YandexSDK="*uid://d1bthq2mru8h7"
+AchievementNotifier="*res://project_root/autoloads/AchievementNotifier.tscn"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+AdsManager="*res://project_root/autoloads/AdsManager.gd"
+GameManager="*res://project_root/autoloads/GameManager.gd"
 
 [display]
 
 window/size/viewport_width=720
 window/size/viewport_height=1280
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg", "res://addons/virtual_joystick/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg", "res://addons/virtual_joystick/plugin.cfg", "res://addons/yandex_games_sdk/plugin.cfg")
+
+[gui]
+
+theme/custom_font="res://assets/fonts/SonicPressStartButton[NolivantNTEdit]-Regular.ttf"
+common/word_wrap="true"
 
 [input]
 
@@ -58,6 +76,10 @@ down={
 ]
 }
 
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
@@ -68,3 +90,10 @@ textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+
+[yandex_games_sdk]
+
+yandex_sdk_enabled=true
+yandex_sdk_auto_init=false
+custom_head_include=""

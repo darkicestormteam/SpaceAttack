@@ -1,6 +1,9 @@
-[gd_resource type="Resource" format=3 uid="uid://nanobots01"]
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://dgcquy6jf07vv"]
+
+[ext_resource type="Script" uid="uid://dfsux8esh620d" path="res://data/modules/ModuleData.gd" id="1_md"]
 
 [resource]
+script = ExtResource("1_md")
 name = "Нано-роботы"
-type = "utility"
-description = "Восстанавливает 1 HP каждые 10 секунд"
+description = "Восстанавливает 1 HP каждые 20 секунд"
+rarity = "epic"

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ModuleData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/modules/ModuleData.gd" id="1_md"]
+
+[resource]
+script = ExtResource("1_md")
+name = "Кокон возрождения"
+type = "defense"
+description = "Нулевой щит блокирует 1 попадание (перезарядка 25с). При смерти восстанавливает 50% HP (1 раз за игру)"
+rarity = "legendary"

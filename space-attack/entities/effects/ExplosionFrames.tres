@@ -1,0 +1,32 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://vdm245rttcke"]
+
+[ext_resource type="Texture2D" uid="uid://b6rnj07esj5sp" path="res://assets/sprites/projectiles/ExplosionSprites.png" id="1_tex"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wj4tr"]
+atlas = ExtResource("1_tex")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dfn53"]
+atlas = ExtResource("1_tex")
+region = Rect2(48, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ngscj"]
+atlas = ExtResource("1_tex")
+region = Rect2(96, 0, 48, 48)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wj4tr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dfn53")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ngscj")
+}],
+"loop": false,
+"name": &"explode",
+"speed": 15.0
+}]

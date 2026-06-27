@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3]
+
+[ext_resource type="Script" path="res://data/modules/ModuleData.gd" id="1_md"]
+
+[resource]
+script = ExtResource("1_md")
+name = "Самонаводящийся Залп"
+type = "weapon"
+description = "Ракета с сильным наведением. Радиус 200px, поворот 5 рад/сек. По F/Space — Salvo из 5 ракет по линии. Кулдаун 10 сек."
+rarity = "epic"

@@ -13,5 +13,5 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, 20.0, Color(0.1, 1, 0.3, 0.5))
-	draw_arc(Vector2.ZERO, 24.0, 0.0, TAU, 24, Color(0.3, 1, 0.5, 0.7), 1.5)
+	draw_circle(Vector2.ZERO, 28.8, Color(0.13, 1.0, 0.39, 0.5))  # 20 × 1.2 × 1.2
+	draw_arc(Vector2.ZERO, 34.6, 0.0, TAU, 24, Color(0.39, 1.0, 0.65, 0.7), 1.5)  # 24 × 1.2 × 1.2

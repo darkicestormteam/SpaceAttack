@@ -6,13 +6,15 @@
 [node name="StarBackground" type="ParallaxBackground" unique_id=371064750]
 scroll_ignore_camera_zoom = true
 script = ExtResource("1_r2pyg")
-scroll_speed = Vector2(0, -100)
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=556472815]
-visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -272.0
+offset_top = -200.0
+offset_right = 280.0
+offset_bottom = 232.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
@@ -25,6 +27,8 @@ motion_mirroring = Vector2(0, 1280)
 position = Vector2(360, 640)
 texture = ExtResource("2_r2pyg")
 
-[node name="StarsNear" type="ParallaxLayer" parent="." unique_id=963567052]
+[node name="starship" type="ParallaxLayer" parent="." unique_id=963567052]
 visible = false
-motion_mirroring = Vector2(0, 40)
+position = Vector2(0, -1504)
+motion_scale = Vector2(1, 0.5)
+motion_mirroring = Vector2(0, 1900)

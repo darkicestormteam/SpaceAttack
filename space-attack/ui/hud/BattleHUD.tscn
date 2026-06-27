@@ -1,46 +1,212 @@
-[gd_scene load_steps=2 format=3 uid="uid://cwbkoyhscwk5h"]
+[gd_scene format=3 uid="uid://cwbkoyhscwk5h"]
 
 [ext_resource type="Script" uid="uid://sd0cw2jerm2v" path="res://ui/hud/BattleHUD.gd" id="1_eq25i"]
+[ext_resource type="Texture2D" uid="uid://br6ifyifbtpfs" path="res://assets/icons/skils/Shockwave.png" id="2_2rhmi"]
+[ext_resource type="Texture2D" uid="uid://djmt7k35vyr4k" path="res://assets/icons/HP.png" id="2_it487"]
+[ext_resource type="Texture2D" uid="uid://dm32ufpbe64qi" path="res://assets/icons/music.png" id="2_s5q2y"]
+[ext_resource type="Texture2D" uid="uid://b26naiif13f7v" path="res://assets/icons/sound.png" id="3_ks1ty"]
+[ext_resource type="Texture2D" uid="uid://bk6e1yv4402rv" path="res://assets/icons/skils/Goliath Charge.png" id="3_uekgs"]
+[ext_resource type="Texture2D" uid="uid://caei4usmqaggb" path="res://assets/icons/skils/Homing Salvo.png" id="4_s5q2y"]
+[ext_resource type="Texture2D" uid="uid://bcxcp67b1b032" path="res://assets/icons/skils/PhantomDash.png" id="5_ks1ty"]
+[ext_resource type="Texture2D" uid="uid://b5ksruxcor7px" path="res://assets/icons/credit.png" id="8_ks1ty"]
+
+[sub_resource type="Animation" id="Animation_jrtmk"]
+resource_name = "KDGoliathCharge"
+length = 6.0
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer/Goliath Charge/Goliath ChargeButton/Panel1:size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(128, 128), Vector2(128, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HBoxContainer/Goliath Charge/Goliath ChargeButton/Panel1:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 128)]
+}
+
+[sub_resource type="Animation" id="Animation_w4qiq"]
+resource_name = "KDHomingSalvo"
+length = 10.0
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer/Homing Salvo/Homing SalvoButton/Panel2:size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 10),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(128, 128), Vector2(128, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HBoxContainer/Homing Salvo/Homing SalvoButton/Panel2:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 10),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 128)]
+}
+
+[sub_resource type="Animation" id="Animation_2rhmi"]
+resource_name = "KDPhantomDash"
+length = 3.0
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer/PhantomDash/PhantomDashButton/Panel3:size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(128, 128), Vector2(128, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HBoxContainer/PhantomDash/PhantomDashButton/Panel3:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 128)]
+}
+
+[sub_resource type="Animation" id="Animation_eq25i"]
+resource_name = "KDwave"
+length = 8.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer/ShockwaveContainer/ShockwaveButton/Panel:size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(128, 128), Vector2(128, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HBoxContainer/ShockwaveContainer/ShockwaveButton/Panel:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 128)]
+}
+
+[sub_resource type="Animation" id="Animation_40nsa"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HBoxContainer/ShockwaveContainer/ShockwaveButton/Panel:size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(128, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HBoxContainer/ShockwaveContainer/ShockwaveButton/Panel:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 128)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_jrtmk"]
+_data = {
+&"KDGoliathCharge": SubResource("Animation_jrtmk"),
+&"KDHomingSalvo": SubResource("Animation_w4qiq"),
+&"KDPhantomDash": SubResource("Animation_2rhmi"),
+&"KDwave": SubResource("Animation_eq25i"),
+&"RESET": SubResource("Animation_40nsa")
+}
 
 [node name="BattleHUD" type="CanvasLayer" unique_id=293741182]
 script = ExtResource("1_eq25i")
 
-[node name="TopBar" type="HBoxContainer" parent="."]
+[node name="TopBar" type="HBoxContainer" parent="." unique_id=2054221229]
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 16.0
-offset_top = 16.0
-offset_right = -16.0
-offset_bottom = 60.0
+offset_left = 3.0
+offset_top = 18.0
+offset_right = -153.0
+offset_bottom = 82.0
 grow_horizontal = 2
+size_flags_horizontal = 0
 theme_override_constants/separation = 20
 
 [node name="LivesLabel" type="Label" parent="TopBar" unique_id=1432467417]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 0)
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
-theme_override_font_sizes/font_size = 28
-text = "❤️ 3"
+theme_override_font_sizes/font_size = 24
+text = "3"
+horizontal_alignment = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="TopBar/LivesLabel" unique_id=701206367]
+position = Vector2(41, 9)
+texture = ExtResource("2_it487")
 
 [node name="ScoreLabel" type="Label" parent="TopBar" unique_id=299578290]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 28
+size_flags_horizontal = 2
+theme_override_font_sizes/font_size = 24
 text = "Очки: 0"
 
-[node name="CreditsLabel" type="Label" parent="TopBar" unique_id=1881754571]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 0)
+[node name="MusicToggle" type="TextureButton" parent="TopBar" unique_id=1060354631]
 layout_mode = 2
-size_flags_horizontal = 10
-theme_override_font_sizes/font_size = 28
-text = "⭐ 0"
-horizontal_alignment = 2
+size_flags_horizontal = 0
+texture_normal = ExtResource("2_s5q2y")
 
-[node name="WaveLabel" type="Label" parent="."]
+[node name="SfxToggle" type="TextureButton" parent="TopBar" unique_id=1380758375]
+layout_mode = 2
+size_flags_horizontal = 0
+texture_normal = ExtResource("3_ks1ty")
+
+[node name="WaveLabel" type="Label" parent="." unique_id=1308158111]
 unique_name_in_owner = true
 offset_left = 16.0
 offset_top = 1224.0
@@ -49,30 +215,146 @@ offset_bottom = 1260.0
 theme_override_font_sizes/font_size = 24
 text = "Волна: 1"
 
-[node name="ShockwaveContainer" type="VBoxContainer" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=2006521201]
+layout_direction = 3
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -110.0
-offset_top = -200.0
-offset_right = -16.0
-offset_bottom = -100.0
+offset_left = -699.0
+offset_top = -195.0
+offset_right = -142.0
+offset_bottom = -29.0
 grow_horizontal = 0
 grow_vertical = 0
+theme_override_constants/separation = 15
+
+[node name="ShockwaveContainer" type="VBoxContainer" parent="HBoxContainer" unique_id=1078732111]
+layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ShockwaveCooldownLabel" type="Label" parent="ShockwaveContainer" unique_id=1200000002]
+[node name="ShockwaveCooldownLabel" type="Label" parent="HBoxContainer/ShockwaveContainer" unique_id=1200000002]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Готово (F)"
+theme_override_font_sizes/font_size = 24
+text = "F"
 horizontal_alignment = 1
 
-[node name="ShockwaveButton" type="Button" parent="ShockwaveContainer" unique_id=1200000001]
+[node name="ShockwaveButton" type="TextureButton" parent="HBoxContainer/ShockwaveContainer" unique_id=1392334914]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
-custom_minimum_size = Vector2(80, 80)
-theme_override_font_sizes/font_size = 36
-text = "💥"
+texture_normal = ExtResource("2_2rhmi")
+
+[node name="Panel" type="Panel" parent="HBoxContainer/ShockwaveContainer/ShockwaveButton" unique_id=247707609]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 128.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Goliath Charge" type="VBoxContainer" parent="HBoxContainer" unique_id=962403975]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Goliath ChargeCooldownLabel" type="Label" parent="HBoxContainer/Goliath Charge" unique_id=947586797]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "F"
+horizontal_alignment = 1
+
+[node name="Goliath ChargeButton" type="TextureButton" parent="HBoxContainer/Goliath Charge" unique_id=743712303]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+texture_normal = ExtResource("3_uekgs")
+
+[node name="Panel1" type="Panel" parent="HBoxContainer/Goliath Charge/Goliath ChargeButton" unique_id=768509446]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Homing Salvo" type="VBoxContainer" parent="HBoxContainer" unique_id=255839934]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Homing Salvo" type="Label" parent="HBoxContainer/Homing Salvo" unique_id=2004591988]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "F"
+horizontal_alignment = 1
+
+[node name="Homing SalvoButton" type="TextureButton" parent="HBoxContainer/Homing Salvo" unique_id=1172990543]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+texture_normal = ExtResource("4_s5q2y")
+
+[node name="Panel2" type="Panel" parent="HBoxContainer/Homing Salvo/Homing SalvoButton" unique_id=1880145909]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 128.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PhantomDash" type="VBoxContainer" parent="HBoxContainer" unique_id=315331825]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PhantomDashCooldownLabel" type="Label" parent="HBoxContainer/PhantomDash" unique_id=2145185699]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "F"
+horizontal_alignment = 1
+
+[node name="PhantomDashButton" type="TextureButton" parent="HBoxContainer/PhantomDash" unique_id=530315475]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+mouse_filter = 2
+mouse_behavior_recursive = 2
+texture_normal = ExtResource("5_ks1ty")
+
+[node name="Panel3" type="Panel" parent="HBoxContainer/PhantomDash/PhantomDashButton" unique_id=1978286244]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="AnimationPlayer_Shockwave" type="AnimationPlayer" parent="." unique_id=611951013]
+libraries/ = SubResource("AnimationLibrary_jrtmk")
+
+[node name="AnimationPlayer_Goliath" type="AnimationPlayer" parent="." unique_id=814231915]
+libraries/ = SubResource("AnimationLibrary_jrtmk")
+
+[node name="AnimationPlayer_Homing" type="AnimationPlayer" parent="." unique_id=1665188890]
+libraries/ = SubResource("AnimationLibrary_jrtmk")
+
+[node name="AnimationPlayer_Dash" type="AnimationPlayer" parent="." unique_id=1652607690]
+libraries/ = SubResource("AnimationLibrary_jrtmk")
+
+[node name="CreditsLabel" type="Label" parent="." unique_id=1881754571]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 0)
+offset_left = 68.0
+offset_top = 1142.0
+offset_right = 278.0
+offset_bottom = 1172.0
+size_flags_horizontal = 10
+theme_override_font_sizes/font_size = 24
+text = " 0"
+
+[node name="Sprite2D" type="Sprite2D" parent="CreditsLabel" unique_id=1733028319]
+position = Vector2(-29, 17)
+texture = ExtResource("8_ks1ty")

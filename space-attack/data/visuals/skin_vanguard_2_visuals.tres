@@ -1,0 +1,91 @@
+[gd_resource type="Resource" script_class="ModuleVisuals" format=3 uid="uid://dxd3uxm8bexvc"]
+
+[ext_resource type="Texture2D" uid="uid://blcpbw6y5xyo4" path="res://assets/sprites/player/VanguardV3-Sheet.png" id="1_gjd8e"]
+[ext_resource type="Script" uid="uid://er6gppbklj2o" path="res://data/visuals/ModuleVisuals.gd" id="2_es8tm"]
+[ext_resource type="PackedScene" uid="uid://cu2gxr2lby8a6" path="res://data/skins/skin_vangard_2.tscn" id="3_es8tm"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e6ad1"]
+atlas = ExtResource("1_gjd8e")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5usp3"]
+atlas = ExtResource("1_gjd8e")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d7u6f"]
+atlas = ExtResource("1_gjd8e")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5xvmu"]
+atlas = ExtResource("1_gjd8e")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pshc5"]
+atlas = ExtResource("1_gjd8e")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ex3h2"]
+atlas = ExtResource("1_gjd8e")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1aawo"]
+atlas = ExtResource("1_gjd8e")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hrvlj"]
+atlas = ExtResource("1_gjd8e")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ccbe1"]
+atlas = ExtResource("1_gjd8e")
+region = Rect2(1024, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fhx3j"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e6ad1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5usp3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d7u6f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5xvmu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pshc5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ex3h2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1aawo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hrvlj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ccbe1")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="ImageTexture" id="ImageTexture_e6ad1"]
+
+[resource]
+script = ExtResource("2_es8tm")
+button_size = Vector2(128, 128)
+icon_texture = SubResource("ImageTexture_e6ad1")
+icon_animated_frames = SubResource("SpriteFrames_fhx3j")
+background_speed = 1.0
+hover_color = Color(1, 1, 1, 1)
+pressed_color = Color(1, 1, 1, 1)
+disabled_color = Color(0.5, 0.5, 0.5, 1)
+selected_color = Color(0.8, 0.9, 1, 1)
+fallback_text = "Vanguard Стиль 3"
+skin_scene = ExtResource("3_es8tm")

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3]
+
+[ext_resource type="Script" path="res://data/modules/ModuleData.gd" id="1_md"]
+
+[resource]
+script = ExtResource("1_md")
+name = "Шторм Ракет"
+type = "weapon"
+description = "1 выстрел = залп из 3 ракет веером 25°. Каждый 3-й — Большой залп из 5 ракет. Кулдаун большого залпа 4 сек."
+rarity = "legendary"

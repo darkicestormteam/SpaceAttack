@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://bx07d5ou7m2uh"]
+
+[ext_resource type="Script" uid="uid://c5evoo26vbkw4" path="res://ui/popups/MiniAchievementNotification.gd" id="1"]
+
+[node name="MiniAchievementNotification" type="Control" unique_id=1092107727]
+custom_minimum_size = Vector2(330, 80)
+layout_mode = 3
+anchors_preset = 0
+offset_left = -320.0
+offset_bottom = 80.0
+mouse_filter = 2
+script = ExtResource("1")
+
+[node name="Panel" type="Panel" parent="." unique_id=460248932]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel" unique_id=115522980]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/MarginContainer" unique_id=658767201]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="IconRect" type="TextureRect" parent="Panel/MarginContainer/HBoxContainer" unique_id=493749480]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="VBox" type="VBoxContainer" parent="Panel/MarginContainer/HBoxContainer" unique_id=1072862317]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="NameLabel" type="Label" parent="Panel/MarginContainer/HBoxContainer/VBox" unique_id=1153049785]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 32
+vertical_alignment = 1
+
+[node name="RewardLabel" type="Label" parent="Panel/MarginContainer/HBoxContainer/VBox" unique_id=449844731]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 32
+vertical_alignment = 1

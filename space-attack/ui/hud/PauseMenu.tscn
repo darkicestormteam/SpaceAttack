@@ -1,6 +1,10 @@
 [gd_scene format=3 uid="uid://b4bi0urtawtb6"]
 
-[ext_resource type="Script" path="res://ui/hud/PauseMenu.gd" id="1_pause"]
+[ext_resource type="Script" uid="uid://dr0c1rex0j5ju" path="res://ui/hud/PauseMenu.gd" id="1_pause"]
+[ext_resource type="PackedScene" uid="uid://c2wauu6wku8q" path="res://ui/popups/DoubleCreditsPopup.tscn" id="2_j60kq"]
 
-[node name="PauseMenu" type="CanvasLayer"]
+[node name="PauseMenu" type="CanvasLayer" unique_id=677625990]
 script = ExtResource("1_pause")
+
+[node name="DoubleCreditsPopup" parent="." unique_id=2054891804 instance=ExtResource("2_j60kq")]
+visible = false

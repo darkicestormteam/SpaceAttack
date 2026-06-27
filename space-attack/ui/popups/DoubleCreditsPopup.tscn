@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://c2wauu6wku8q"]
+
+[ext_resource type="Script" uid="uid://d4kl1s45wuk66" path="res://ui/popups/DoubleCreditsPopup.gd" id="1_b7s6w"]
+
+[node name="DoubleCreditsPopup" type="CanvasLayer" unique_id=2054891804]
+layer = 20
+script = ExtResource("1_b7s6w")
+
+[node name="Dim" type="ColorRect" parent="." unique_id=1965839043]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="PopupVBox" type="VBoxContainer" parent="." unique_id=709800502]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="PopupVBox" unique_id=923703741]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 36
+text = "Удвоение кредитов!"
+horizontal_alignment = 1
+
+[node name="CreditsLabel" type="Label" parent="PopupVBox" unique_id=226937993]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Вы заработали 100 кредитов!
+Хотите удвоить за просмотр рекламы?"
+horizontal_alignment = 1
+autowrap_mode = 1
+
+[node name="Spacer" type="Control" parent="PopupVBox" unique_id=1575359499]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="YesButton" type="Button" parent="PopupVBox" unique_id=2125937234]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 70)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Да, удвоить за рекламу"
+
+[node name="NoButton" type="Button" parent="PopupVBox" unique_id=1230531312]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 70)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Нет, спасибо"

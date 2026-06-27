@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://ctjkvyv1772w7"]
+
+[ext_resource type="Script" uid="uid://bii8vclm8e334" path="res://entities/effects/Drone.gd" id="1_3ee22"]
+[ext_resource type="Texture2D" uid="uid://oj5djkwc3vlk" path="res://assets/sprites/ui/moduls/Dron.png" id="2_megse"]
+
+[node name="Drone" type="Node2D" unique_id=877703596]
+scale = Vector2(1.5, 1.5)
+script = ExtResource("1_3ee22")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1413926335]
+modulate = Color(0, 0.8, 1, 1)
+texture = ExtResource("2_megse")
+
+[node name="Muzzle" type="Marker2D" parent="." unique_id=1312903503]

@@ -1,0 +1,184 @@
+[gd_scene format=3 uid="uid://ds8kq1x3v7n2c"]
+
+[ext_resource type="Texture2D" uid="uid://dm44y84010jc5" path="res://assets/sprites/player/PhantomV3-Sheet.png" id="1_phantomv3"]
+[ext_resource type="Texture2D" uid="uid://bg3ri422nrobn" path="res://assets/sprites/player/Goliaph-rocket_enginetV3.png" id="2_engine"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_phantom_1"]
+atlas = ExtResource("1_phantomv3")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_phantom_2"]
+atlas = ExtResource("1_phantomv3")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_phantom_3"]
+atlas = ExtResource("1_phantomv3")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_phantom_4"]
+atlas = ExtResource("1_phantomv3")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_phantom_5"]
+atlas = ExtResource("1_phantomv3")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_phantom_6"]
+atlas = ExtResource("1_phantomv3")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_phantom_7"]
+atlas = ExtResource("1_phantomv3")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_phantom_8"]
+atlas = ExtResource("1_phantomv3")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_phantom_9"]
+atlas = ExtResource("1_phantomv3")
+region = Rect2(1024, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_phantom_main"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_phantom_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_phantom_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_phantom_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_phantom_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_phantom_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_phantom_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_phantom_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_phantom_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_phantom_9")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_engine_1"]
+atlas = ExtResource("2_engine")
+region = Rect2(0, 0, 14, 39)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_engine_2"]
+atlas = ExtResource("2_engine")
+region = Rect2(14, 0, 14, 39)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_engine_3"]
+atlas = ExtResource("2_engine")
+region = Rect2(28, 0, 14, 39)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_engine_4"]
+atlas = ExtResource("2_engine")
+region = Rect2(42, 0, 14, 39)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_engine_5"]
+atlas = ExtResource("2_engine")
+region = Rect2(56, 0, 14, 39)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_engine_6"]
+atlas = ExtResource("2_engine")
+region = Rect2(70, 0, 14, 39)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_engine_7"]
+atlas = ExtResource("2_engine")
+region = Rect2(84, 0, 14, 39)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_engine_8"]
+atlas = ExtResource("2_engine")
+region = Rect2(98, 0, 14, 39)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_engine_9"]
+atlas = ExtResource("2_engine")
+region = Rect2(112, 0, 14, 39)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_engine"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_engine_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_engine_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_engine_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_engine_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_engine_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_engine_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_engine_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_engine_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_engine_9")
+}],
+"loop": true,
+"name": &"default",
+"speed": 20.0
+}]
+
+[node name="SkinPhantom3" type="Node2D" unique_id=2036501442]
+z_index = 2
+
+[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=162347122]
+sprite_frames = SubResource("SpriteFrames_phantom_main")
+autoplay = "default"
+frame = 3
+
+[node name="Engine1" type="AnimatedSprite2D" parent="Sprite" unique_id=1241785559]
+z_index = -1
+position = Vector2(-8, 48)
+scale = Vector2(0.56149435, 1.7083987)
+sprite_frames = SubResource("SpriteFrames_engine")
+autoplay = "default"
+
+[node name="Engine2" type="AnimatedSprite2D" parent="Sprite" unique_id=231338110]
+z_index = -1
+position = Vector2(8, 47.000004)
+scale = Vector2(0.56149435, 1.7083987)
+sprite_frames = SubResource("SpriteFrames_engine")
+autoplay = "default"
+
+[node name="Engine3" type="AnimatedSprite2D" parent="Sprite" unique_id=425563705]
+z_index = -1
+position = Vector2(-35, 21.999998)
+rotation = 0.63955367
+scale = Vector2(0.93582124, 1.7083987)
+sprite_frames = SubResource("SpriteFrames_engine")
+autoplay = "default"
+
+[node name="Engine4" type="AnimatedSprite2D" parent="Sprite" unique_id=194681034]
+z_index = -1
+position = Vector2(36, 22)
+rotation = -0.6387905
+scale = Vector2(0.93582124, 1.7083987)
+sprite_frames = SubResource("SpriteFrames_engine")
+autoplay = "default"

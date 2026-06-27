@@ -1,6 +1,10 @@
-[gd_resource type="Resource" format=3 uid="uid://rocket01"]
+[gd_resource type="Resource" script_class="ModuleData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/modules/ModuleData.gd" id="1_md"]
 
 [resource]
+script = ExtResource("1_md")
 name = "Ракетница"
 type = "weapon"
-description = "Мощная ракета, медленная стрельба"
+description = "Ракета, летящая прямо. Медленная стрельба."
+rarity = "common"

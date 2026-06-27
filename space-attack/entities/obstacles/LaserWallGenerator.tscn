@@ -1,0 +1,163 @@
+[gd_scene format=3 uid="uid://d22clsb54e4t2"]
+
+[ext_resource type="Script" uid="uid://dl3y4uk0ujx6h" path="res://entities/obstacles/LaserWallGenerator.gd" id="1_nivbo"]
+[ext_resource type="Texture2D" uid="uid://wkndh0rqf06q" path="res://assets/sprites/enemies/Trap-Sheet.png" id="2_xjlnc"]
+[ext_resource type="Texture2D" uid="uid://c5x35b1ru8i84" path="res://assets/sprites/enemies/LaserTrap-Sheet.png" id="3_pw0kv"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pw0kv"]
+atlas = ExtResource("2_xjlnc")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kkght"]
+atlas = ExtResource("2_xjlnc")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n01dy"]
+atlas = ExtResource("2_xjlnc")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8ubbb"]
+atlas = ExtResource("2_xjlnc")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kfiit"]
+atlas = ExtResource("2_xjlnc")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_82gpn"]
+atlas = ExtResource("2_xjlnc")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hmnd8"]
+atlas = ExtResource("2_xjlnc")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xaov0"]
+atlas = ExtResource("2_xjlnc")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_6c5o4"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pw0kv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kkght")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n01dy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8ubbb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kfiit")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_82gpn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hmnd8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xaov0")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6c5o4"]
+atlas = ExtResource("3_pw0kv")
+region = Rect2(3, 0, 10, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rqem1"]
+atlas = ExtResource("3_pw0kv")
+region = Rect2(19, 0, 10, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_taycg"]
+atlas = ExtResource("3_pw0kv")
+region = Rect2(35, 0, 10, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a0hl2"]
+atlas = ExtResource("3_pw0kv")
+region = Rect2(51, 0, 10, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gxv7k"]
+atlas = ExtResource("3_pw0kv")
+region = Rect2(67, 0, 10, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5hp10"]
+atlas = ExtResource("3_pw0kv")
+region = Rect2(83, 0, 10, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xhpk0"]
+atlas = ExtResource("3_pw0kv")
+region = Rect2(99, 0, 10, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hrs6o"]
+atlas = ExtResource("3_pw0kv")
+region = Rect2(115, 0, 10, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3yi1r"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6c5o4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rqem1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_taycg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a0hl2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gxv7k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5hp10")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xhpk0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hrs6o")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pw0kv"]
+size = Vector2(40.5, 20)
+
+[node name="LaserWallGenerator" type="Area2D" unique_id=1604320230]
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("1_nivbo")
+
+[node name="GeneratorSprite" type="AnimatedSprite2D" parent="." unique_id=935781139]
+z_index = 1
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_6c5o4")
+autoplay = "default"
+flip_h = true
+
+[node name="Beam" type="Area2D" parent="." unique_id=1085603873]
+collision_layer = 0
+collision_mask = 5
+
+[node name="LaserSprite" type="AnimatedSprite2D" parent="Beam" unique_id=1812653382]
+position = Vector2(1, -16)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_3yi1r")
+autoplay = "default"
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Beam" unique_id=992692901]
+position = Vector2(-19.75, 0)
+shape = SubResource("RectangleShape2D_pw0kv")

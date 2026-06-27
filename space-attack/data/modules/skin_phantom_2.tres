@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://b12cd34ef5b"]
+
+[ext_resource type="Script" uid="uid://dfsux8esh620d" path="res://data/modules/ModuleData.gd" id="1_hv4yn"]
+
+[resource]
+script = ExtResource("1_hv4yn")
+name = "Фантом пронзания "
+type = "Скин"
+rarity = "epic"
+speed_mult = 1.1
+health_bonus = 1
+fire_rate_mult = 0.7

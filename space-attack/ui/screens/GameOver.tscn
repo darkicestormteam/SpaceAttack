@@ -3,10 +3,10 @@
 [ext_resource type="Script" uid="uid://c3f2mmnc54xjk" path="res://ui/screens/GameOver.gd" id="1_pi1ua"]
 
 [node name="GameOver" type="CanvasLayer" unique_id=605722981]
+process_mode = 3
 script = ExtResource("1_pi1ua")
 
 [node name="Background" type="ColorRect" parent="." unique_id=424934352]
-layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -14,8 +14,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.7)
 
-[node name="VBox" type="VBoxContainer" parent="."]
-layout_mode = 3
+[node name="VBox" type="VBoxContainer" parent="." unique_id=1684186748]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -34,7 +33,7 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 48
-text = "GAME OVER"
+text = "ПОРАЖЕНИЕ"
 horizontal_alignment = 1
 
 [node name="ScoreLabel" type="Label" parent="VBox" unique_id=22554236]
@@ -51,15 +50,14 @@ theme_override_font_sizes/font_size = 28
 text = "Кредиты: 0"
 horizontal_alignment = 1
 
-[node name="Spacer" type="Control" parent="VBox"]
-layout_mode = 2
+[node name="Spacer" type="Control" parent="VBox" unique_id=1343924514]
 custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
 
 [node name="RestartButton" type="Button" parent="VBox" unique_id=2075726766]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(280, 70)
 layout_mode = 2
-size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
 text = "Заново"
 
@@ -67,6 +65,13 @@ text = "Заново"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(280, 70)
 layout_mode = 2
-size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
 text = "Выход"
+
+[node name="ReviveButton" type="Button" parent="VBox" unique_id=82965372]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+text = "Воскреснуть за рекламу"

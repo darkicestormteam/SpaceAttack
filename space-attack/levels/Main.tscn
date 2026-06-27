@@ -5,12 +5,21 @@
 [ext_resource type="PackedScene" uid="uid://cwbkoyhscwk5h" path="res://ui/hud/BattleHUD.tscn" id="3_2jfjj"]
 [ext_resource type="PackedScene" uid="uid://b4bi0urtawtb6" path="res://ui/hud/PauseMenu.tscn" id="4_pause"]
 [ext_resource type="PackedScene" uid="uid://ct67847q65t3v" path="res://levels/Background/StarBackground.tscn" id="5_lbxsr"]
+[ext_resource type="AudioStream" uid="uid://d3yif1e8r45ub" path="res://assets/audio/music/Maintheme.ogg" id="6_3vw7n"]
+[ext_resource type="AudioStream" uid="uid://c4bjihvhndewc" path="res://assets/audio/music/Boss Battle.ogg" id="7_vmibe"]
+[ext_resource type="PackedScene" uid="uid://bp8pqugeaeywd" path="res://entities/enemies/start_ship.tscn" id="8_start_ship"]
+[ext_resource type="PackedScene" uid="uid://dmr0fcamx7t56" path="res://addons/virtual_joystick/virtual_joystick_scene.tscn" id="9_3mabw"]
+[ext_resource type="Script" uid="uid://dspkawn74uahk" path="res://entities/player/MarkerPhantomDash.gd" id="10_3pm0d"]
 
 [node name="Main" type="Node2D" unique_id=212548923]
+position = Vector2(0, -3)
 script = ExtResource("1_h11cf")
 
 [node name="StarBackground" parent="." unique_id=371064750 instance=ExtResource("5_lbxsr")]
 scroll_speed = Vector2(0, -200)
+
+[node name="StartShip" parent="." unique_id=2039714250 instance=ExtResource("8_start_ship")]
+z_index = -2
 
 [node name="Player" parent="." unique_id=930832991 instance=ExtResource("1_s5j47")]
 position = Vector2(360, 1092)
@@ -19,20 +28,13 @@ position = Vector2(360, 1092)
 wait_time = 2.0
 
 [node name="BattleHUD" parent="." unique_id=293741182 instance=ExtResource("3_2jfjj")]
-
-[node name="LivesLabel2" type="Label" parent="BattleHUD" unique_id=1432467417]
-unique_name_in_owner = true
-offset_left = 10.0
-offset_top = 70.0
-offset_right = 85.0
-offset_bottom = 93.0
-theme_override_font_sizes/font_size = 24
-text = "❤️ ❤️ ❤️"
+layer = 7
 
 [node name="FighterTimer" type="Timer" parent="." unique_id=2021023966]
 wait_time = 5.0
 
 [node name="PauseMenu" parent="." unique_id=2129356955 instance=ExtResource("4_pause")]
+layer = 14
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=2135894699]
 process_mode = 4
@@ -42,3 +44,30 @@ position = Vector2(360, 640)
 offset_left = -32.0
 offset_right = -24.0
 offset_bottom = 8.0
+theme_override_font_sizes/font_size = 32
+
+[node name="BGMusic" type="AudioStreamPlayer" parent="." unique_id=1717645323]
+stream = ExtResource("6_3vw7n")
+autoplay = true
+bus = &"Music"
+
+[node name="BossMusic" type="AudioStreamPlayer" parent="." unique_id=44072963]
+stream = ExtResource("7_vmibe")
+autoplay = true
+bus = &"Music"
+
+[node name="VirtualJoystickLayer" type="CanvasLayer" parent="." unique_id=213212772]
+
+[node name="VirtualJoystick" parent="VirtualJoystickLayer" unique_id=29772332 instance=ExtResource("9_3mabw")]
+modulate = Color(1, 1, 1, 0.05882353)
+offset_right = 449.75
+mouse_filter = 1
+visibility_mode = 2
+action_left = "left"
+action_right = "right"
+action_up = "up"
+action_down = "down"
+
+[node name="MarkerPhantomDash" type="Marker2D" parent="." unique_id=492498438]
+z_index = 9
+script = ExtResource("10_3pm0d")

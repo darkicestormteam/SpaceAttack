@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://cyhbeeg17nyyx"]
+
+[ext_resource type="Script" uid="uid://dv0vvr8ei0kug" path="res://entities/projectiles/PlayerPellet.gd" id="1_jbd6h"]
+[ext_resource type="Texture2D" uid="uid://cfiohx3pdanvu" path="res://assets/sprites/projectiles/ShotGun.png" id="2_xcfjn"]
+[ext_resource type="Shape2D" uid="uid://b0nu3caqymhlw" path="res://entities/projectiles/PelletShape.tres" id="3_xa0xj"]
+[ext_resource type="Texture2D" uid="uid://bnbv6w8m1wvte" path="res://assets/sprites/projectiles/ShotGunRare.png" id="4_rare"]
+[ext_resource type="Texture2D" uid="uid://d35xhpa8aw5s5" path="res://assets/sprites/projectiles/ShotGunEpic.png" id="5_epic"]
+[ext_resource type="Texture2D" uid="uid://bbq2my34ipeep" path="res://assets/sprites/projectiles/ShotGunLegend.png" id="6_legend"]
+
+[node name="PlayerPellet" type="Area2D" unique_id=1381895328]
+scale = Vector2(1.5, 1.5)
+script = ExtResource("1_jbd6h")
+
+[node name="SpriteCommon" type="Sprite2D" parent="." unique_id=81464054]
+texture = ExtResource("2_xcfjn")
+
+[node name="SpriteRare" type="Sprite2D" parent="." unique_id=238630793]
+texture = ExtResource("4_rare")
+
+[node name="SpriteEpic" type="Sprite2D" parent="." unique_id=1393590000]
+texture = ExtResource("5_epic")
+
+[node name="SpriteLegend" type="Sprite2D" parent="." unique_id=377438817]
+texture = ExtResource("6_legend")
+
+[node name="Collision" type="CollisionShape2D" parent="." unique_id=477374663]
+shape = ExtResource("3_xa0xj")

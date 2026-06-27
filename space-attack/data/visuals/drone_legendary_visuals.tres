@@ -1,0 +1,115 @@
+[gd_resource type="Resource" script_class="ModuleVisuals" format=3 uid="uid://bq82q010w1qns"]
+
+[ext_resource type="Script" uid="uid://er6gppbklj2o" path="res://data/visuals/ModuleVisuals.gd" id="1_mv"]
+[ext_resource type="Texture2D" uid="uid://vv68tsdguvix" path="res://assets/sprites/ui/moduls/DronGold-Sheet.png" id="2_5028e"]
+[ext_resource type="Texture2D" uid="uid://27fcq10j0o6n" path="res://assets/sprites/ui/IconButton-Sheet.png" id="2_sheet"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0"]
+atlas = ExtResource("2_sheet")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1"]
+atlas = ExtResource("2_sheet")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2"]
+atlas = ExtResource("2_sheet")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3"]
+atlas = ExtResource("2_sheet")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bg"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kwvb7"]
+atlas = ExtResource("2_5028e")
+region = Rect2(0, 0, 58, 58)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u4pqg"]
+atlas = ExtResource("2_5028e")
+region = Rect2(58, 0, 58, 58)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rcaai"]
+atlas = ExtResource("2_5028e")
+region = Rect2(116, 0, 58, 58)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uwqo1"]
+atlas = ExtResource("2_5028e")
+region = Rect2(174, 0, 58, 58)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a5qcg"]
+atlas = ExtResource("2_5028e")
+region = Rect2(232, 0, 58, 58)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e2yiq"]
+atlas = ExtResource("2_5028e")
+region = Rect2(290, 0, 58, 58)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v2sdg"]
+atlas = ExtResource("2_5028e")
+region = Rect2(348, 0, 58, 58)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mmcc0"]
+atlas = ExtResource("2_5028e")
+region = Rect2(406, 0, 58, 58)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_hna42"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kwvb7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u4pqg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rcaai")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uwqo1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a5qcg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e2yiq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v2sdg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mmcc0")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[resource]
+script = ExtResource("1_mv")
+button_size = Vector2(128, 128)
+icon_scale = 1.8
+icon_offset = Vector2(10, 0)
+icon_animated_frames = SubResource("SpriteFrames_hna42")
+background_frames = SubResource("SpriteFrames_bg")
+background_speed = 1.0
+fallback_text = "DL"

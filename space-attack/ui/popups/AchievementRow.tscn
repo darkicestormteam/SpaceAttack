@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://fv1v5vwckkmn"]
+
+[ext_resource type="Script" uid="uid://duqjsdseffq3o" path="res://ui/popups/AchievementRow.gd" id="1_gehnd"]
+
+[node name="AchievementRow" type="HBoxContainer" unique_id=1875457395]
+offset_right = 133.0
+offset_bottom = 128.0
+theme_override_constants/separation = 10
+script = ExtResource("1_gehnd")
+
+[node name="IconContainer" type="TextureRect" parent="." unique_id=1018851712]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+
+[node name="TextColumn" type="VBoxContainer" parent="." unique_id=343199352]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NameLabel" type="Label" parent="TextColumn" unique_id=1606643826]
+custom_minimum_size = Vector2(30, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+vertical_alignment = 1
+
+[node name="DescLabel" type="Label" parent="TextColumn" unique_id=1735062229]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
+[node name="CategoryLabel" type="Label" parent="TextColumn" unique_id=847043843]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
