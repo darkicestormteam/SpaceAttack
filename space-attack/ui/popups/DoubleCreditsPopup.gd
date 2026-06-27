@@ -1,14 +1,13 @@
 extends CanvasLayer
 
 ## Универсальный попап: "Вы заработали X кредитов. Удвоить за рекламу?"
-## Может использоваться как встроенный в сцену (visible = false),
-## так и создаваться через instantiate().
+## Больше НЕ вызывает рекламу сам — только эмитит choice_made.
+## Вызывающий скрипт сам добавляет rewarded в очередь AdsManager.
 
-signal action_completed(doubled: bool)
+signal choice_made(choice: String)  # "yes" или "no"
 signal popup_closed
 
 var _credits_earned: int = 0
-var _is_loading: bool = false
 var _action_chosen: bool = false
 
 @onready var credits_label: Label = %CreditsLabel
@@ -31,26 +30,11 @@ func setup(credits_earned: int) -> void:
 
 
 func _on_yes_pressed() -> void:
-	if _action_chosen or _is_loading:
+	if _action_chosen:
 		return
 	_action_chosen = true
-	_is_loading = true
 	
-	yes_btn.disabled = true
-	no_btn.disabled = true
-	yes_btn.text = "Загрузка..."
-	
-	var ads = get_node_or_null("/root/AdsManager") as Node
-	var got_reward = false
-	if ads != null and ads.has_method("show_rewarded_and_wait"):
-		got_reward = await ads.show_rewarded_and_wait()
-	
-	if got_reward:
-		SaveManager.credits += _credits_earned
-		SaveManager.save_game()
-		print("[DoubleCreditsPopup] Credits doubled! +%d" % _credits_earned)
-	
-	action_completed.emit(got_reward)
+	choice_made.emit("yes")
 	popup_closed.emit()
 	visible = false
 
@@ -60,7 +44,7 @@ func _on_no_pressed() -> void:
 		return
 	_action_chosen = true
 	
-	action_completed.emit(false)
+	choice_made.emit("no")
 	popup_closed.emit()
 	visible = false
 
@@ -68,7 +52,6 @@ func _on_no_pressed() -> void:
 ## Сброс для повторного использования (если попап встроен в сцену)
 func reset() -> void:
 	_action_chosen = false
-	_is_loading = false
 	yes_btn.disabled = false
 	no_btn.disabled = false
 	yes_btn.text = "Да, удвоить за рекламу"

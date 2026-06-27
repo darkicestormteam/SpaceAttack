@@ -168,11 +168,12 @@ func _on_hangar_pressed() -> void:
 		return
 	_is_action_pending = true
 	
+	var should_double := false
 	if credits_earned > 0:
-		await _show_double_credits_popup()
+		should_double = await _show_double_credits_popup()
 	
 	get_tree().paused = false
-	_request_review_and_go_hangar()
+	await _request_review_and_go_hangar(should_double)
 
 
 # ============================================================
@@ -195,7 +196,8 @@ func _on_restart_pressed() -> void:
 # Показ попапа удвоения кредитов
 # ============================================================
 
-func _show_double_credits_popup() -> void:
+## Возвращает true, если игрок сказал "да" (хочет удвоить).
+func _show_double_credits_popup() -> bool:
 	# Прячем UI на время попапа
 	if dim:
 		dim.visible = false
@@ -205,7 +207,14 @@ func _show_double_credits_popup() -> void:
 	var popup = DOUBLE_CREDITS_POPUP.instantiate()
 	add_child(popup)
 	popup.setup(credits_earned)
-	await popup.action_completed
+	
+	var choice := "no"
+	if popup.has_signal("choice_made"):
+		choice = await popup.choice_made
+	else:
+		await popup.action_completed
+		choice = "yes"
+	
 	if is_instance_valid(popup):
 		popup.queue_free()
 	
@@ -214,16 +223,32 @@ func _show_double_credits_popup() -> void:
 		dim.visible = true
 	if panel:
 		panel.visible = true
+	
+	return choice == "yes"
 
 
 # ============================================================
-# Feedback + Interstitial + Hangar
+# Feedback + Queue + Hangar
 # ============================================================
 
-func _request_review_and_go_hangar() -> void:
+func _request_review_and_go_hangar(should_double: bool = false) -> void:
 	var ads = get_node_or_null("/root/AdsManager") as Node
-	if ads != null and ads.has_method("request_review_if_possible") and ads.is_sdk_ready:
+	if ads == null or not ads.has_method("request_review_if_possible"):
+		get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
+		return
+	
+	# Запрос отзыва (до рекламы)
+	if ads.is_sdk_ready:
 		await ads.request_review_if_possible()
-	if ads != null and ads.has_method("can_show_interstitial"):
-		await ads.show_interstitial_and_wait()
+	
+	# Добавляем rewarded для удвоения
+	if should_double and credits_earned > 0:
+		ads.queue_rewarded_double(credits_earned)
+	
+	# Добавляем interstitial
+	ads.queue_interstitial()
+	
+	# Ждём завершения очереди
+	await ads.queue_completed
+	
 	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")

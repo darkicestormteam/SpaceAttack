@@ -920,7 +920,7 @@ func _on_pause_hangar() -> void:
 	if current_phase != GamePhase.GAME_OVER:
 		_on_game_over_checks()
 	get_tree().paused = false
-	_show_ad_and_go_hangar()
+	await _show_ad_and_go_hangar()
 
 
 func _on_pause_restart() -> void:
@@ -936,11 +936,18 @@ func _on_game_over_checks() -> void:
 	sm.on_game_over(score)
 
 
-# Запустить межстраничную рекламу (если доступна), затем перейти в Hangar
+# Запустить очередь рекламы (interstitial), затем перейти в Hangar
 func _show_ad_and_go_hangar() -> void:
 	var ads = get_node_or_null("/root/AdsManager") as Node
-	if ads != null and ads.has_method("can_show_interstitial"):
-		await ads.show_interstitial_and_wait()
+	if ads == null or not ads.has_method("queue_interstitial"):
+		get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
+		return
+	
+	ads.queue_interstitial()
+	
+	# Ждём завершения очереди
+	await ads.queue_completed
+	
 	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
 
 
