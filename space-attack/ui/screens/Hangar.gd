@@ -215,6 +215,11 @@ func _ready() -> void:
 			ads.check_unconsumed_purchases()
 		elif not ads.is_connected("init_completed", _on_ads_ready_for_purchases):
 			ads.init_completed.connect(_on_ads_ready_for_purchases)
+	
+	# Страховочный останов геймплея: гарантируем красную иконку в ангаре
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("on_battle_end"):
+		gm.on_battle_end()
 
 
 func _on_ads_ready_for_purchases(success: bool) -> void:

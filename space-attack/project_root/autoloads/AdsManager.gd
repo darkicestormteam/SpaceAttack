@@ -537,6 +537,19 @@ func check_unconsumed_purchases() -> void:
 				_apply_all_modules()
 				if not token.is_empty():
 					await sdk.payments.consume_purchase(token)
+			"remove_ads":
+				print("[AdsManager] Consuming pending purchase: remove_ads")
+				# Сохраняем статус отключения рекламы в SaveManager
+				var sm = get_node_or_null("/root/SaveManager")
+				if sm:
+					sm.all_modules_purchased = sm.all_modules_purchased or false
+					# Можно добавить флаг no_ads_purchased если он существует
+					if "no_ads_purchased" in sm:
+						sm.no_ads_purchased = true
+					sm.save_game()
+				# Потребляем покупку
+				if not token.is_empty():
+					await sdk.payments.consume_purchase(token)
 			_:
 				push_warning("[AdsManager] Unknown unconsumed purchase: ", pid)
 
@@ -723,4 +736,18 @@ func _on_game_api_paused() -> void:
 	gameplay_stop()
 
 func _on_game_api_resumed() -> void:
-	gameplay_start()
+	# Ждём 1 кадр, чтобы плагин Mist1351 успел сделать свой авто-старт gameplay
+	await get_tree().process_frame
+	
+	var gm = get_node_or_null("/root/GameManager")
+	var is_battle := false
+	if gm != null and "_current_state" in gm:
+		is_battle = (gm._current_state == gm.GameState.BATTLE)
+	
+	if is_battle:
+		# Плагин уже вызвал gameplay_start — оставляем как есть
+		print("[AdsManager] Game API resumed — in battle, keeping gameplay active")
+	else:
+		# Плагин зажёг зелёную иконку — принудительно гасим
+		print("[AdsManager] Game API resumed — NOT in battle, stopping gameplay")
+		gameplay_stop()

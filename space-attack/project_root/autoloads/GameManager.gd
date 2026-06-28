@@ -64,7 +64,9 @@ func set_state(new_state: GameState) -> void:
 	
 	match new_state:
 		GameState.MENU:
-			on_return_to_menu(prev == GameState.BATTLE)
+			# Всегда останавливаем gameplay при входе в меню,
+			# чтобы иконка в Я.Консоли была красной (gameplay_stop)
+			on_battle_end()
 		GameState.BATTLE:
 			on_battle_start()
 		GameState.PAUSED:
@@ -72,7 +74,7 @@ func set_state(new_state: GameState) -> void:
 		GameState.GAME_OVER:
 			on_battle_end()
 	
-	print("[GameManager] State: ", prev, " → ", new_state)
+	print("[GameManager] State: %s → %s" % [GameState.keys()[prev], GameState.keys()[new_state]])
 
 
 # ============================================================
