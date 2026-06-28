@@ -170,30 +170,18 @@ func _show_internal_rewarded() -> bool:
 		return false
 	
 	var got_reward := false
-	var ad_complete := false
 	
 	var on_rewarded := func() -> void:
 		got_reward = true
-	var on_closed := func() -> void:
-		ad_complete = true
 	
 	rewarded_video_rewarded.connect(on_rewarded)
-	rewarded_video_closed.connect(on_closed)
 	
-	print("[AdsManager] Calling show_rewarded...")
 	show_rewarded()
 	
-	# Используем таймеры для проверки — JS-колбэки не работают во время await
-	var elapsed := 0.0
-	while elapsed < 15.0:
-		if ad_complete:
-			break
-		# Ждём 200ms чтобы JS успел обработать колбэки
-		await get_tree().create_timer(0.2).timeout
-		elapsed += 0.2
+	# Ждём закрытия — один await, без циклов
+	await rewarded_video_closed
 	
 	rewarded_video_rewarded.disconnect(on_rewarded)
-	rewarded_video_closed.disconnect(on_closed)
 	
 	print("[AdsManager] _show_internal_rewarded returning got_reward=", got_reward)
 	return got_reward
