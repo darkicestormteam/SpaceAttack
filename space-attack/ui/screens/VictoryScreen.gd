@@ -244,9 +244,10 @@ func _request_review_and_go_hangar(should_double: bool = false) -> void:
 	# Добавляем rewarded для удвоения
 	if should_double and credits_earned > 0:
 		ads.queue_rewarded_double(credits_earned)
-	
-	# Добавляем interstitial
-	ads.queue_interstitial()
+	else:
+		# Interstitial показываем только если не было rewarded,
+		# чтобы не нагружать игрока двумя рекламами подряд
+		ads.queue_interstitial()
 	
 	# Ждём завершения очереди
 	await ads.queue_completed

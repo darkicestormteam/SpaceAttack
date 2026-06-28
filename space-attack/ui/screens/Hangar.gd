@@ -207,8 +207,22 @@ func _ready() -> void:
 	# Показываем ангар по умолчанию
 	_show_hangar_tab()
 	
-	# Инициализация Yandex SDK и проверка необработанных покупок
-	call_deferred(&"_init_yandex_sdk")
+	# Проверка необработанных покупок Yandex Payments
+	# Если SDK ещё не готов — подписываемся на сигнал инициализации
+	var ads = get_node_or_null("/root/AdsManager")
+	if ads != null and ads.has_method("check_unconsumed_purchases"):
+		if ads.is_sdk_ready:
+			ads.check_unconsumed_purchases()
+		elif not ads.is_connected("init_completed", _on_ads_ready_for_purchases):
+			ads.init_completed.connect(_on_ads_ready_for_purchases)
+
+
+func _on_ads_ready_for_purchases(success: bool) -> void:
+	if not success:
+		return
+	var ads = get_node_or_null("/root/AdsManager")
+	if ads != null and ads.has_method("check_unconsumed_purchases"):
+		ads.check_unconsumed_purchases()
 
 
 func _process(delta: float) -> void:
@@ -1132,27 +1146,3 @@ func _on_settings_pressed() -> void:
 
 func _on_audio_settings_closed() -> void:
 	_sync_audio_buttons()
-
-
-# ============================================================
-# Инициализация Yandex SDK (вызывается один раз при старте)
-# ============================================================
-
-func _init_yandex_sdk() -> void:
-	var ads = get_node_or_null("/root/AdsManager") as Node
-	if ads == null or not ads.has_method("init_async"):
-		return
-	
-	print("[Hangar] Инициализация Yandex SDK...")
-	var success = await ads.init_async()
-	if not success:
-		push_warning("[Hangar] Yandex SDK init failed")
-		return
-	
-	print("[Hangar] Yandex SDK успешно инициализирован!")
-	
-	# Проверка необработанных покупок (п. 1.13.1)
-	if ads.has_method("payments_init"):
-		var inited = await ads.payments_init()
-		if inited and ads.has_method("check_unconsumed_purchases"):
-			ads.check_unconsumed_purchases()

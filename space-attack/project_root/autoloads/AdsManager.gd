@@ -146,6 +146,8 @@ func _show_internal_interstitial() -> void:
 	var on_off := func() -> void:
 		ad_done = true
 	
+	# Подключаем сигналы ДО вызова show_interstitial,
+	# чтобы не пропустить синхронный эмит сигнала
 	interstitial_closed.connect(on_close)
 	interstitial_error.connect(on_err)
 	interstitial_offline.connect(on_off)
@@ -155,8 +157,13 @@ func _show_internal_interstitial() -> void:
 	# Ожидание закрытия рекламы с таймаутом 15 секунд
 	var timeout := get_tree().create_timer(15.0)
 	while not ad_done:
-		if timeout.timeout:
-			push_warning("[AdsManager] Interstitial wait timeout")
+		if timeout.get_time_left() <= 0.0:
+			push_warning("[AdsManager] Interstitial wait timeout — forcing cleanup")
+			# Принудительный сброс флага показа, чтобы не заблокировать очередь
+			_is_ad_showing = false
+			is_ad_showing = false
+			ad_done = true
+			interstitial_closed.emit(false)
 			break
 		await get_tree().process_frame
 	
@@ -190,6 +197,7 @@ func _show_internal_rewarded() -> bool:
 		print("[AdsManager] REWARDED ERROR SIGNAL: ", _msg)
 		ad_closed = true
 	
+	# Подключаем сигналы ДО вызова show_rewarded
 	rewarded_video_opened.connect(on_opened)
 	rewarded_video_rewarded.connect(on_rewarded)
 	rewarded_video_closed.connect(on_closed)
@@ -200,8 +208,15 @@ func _show_internal_rewarded() -> bool:
 	# Ожидание закрытия rewarded видео с таймаутом 15 секунд
 	var timeout := get_tree().create_timer(15.0)
 	while not ad_closed:
-		if timeout.timeout:
-			push_warning("[AdsManager] Rewarded wait timeout")
+		if timeout.get_time_left() <= 0.0:
+			push_warning("[AdsManager] Rewarded wait timeout — forcing cleanup")
+			# Принудительный сброс флага показа, чтобы не заблокировать очередь
+			_is_ad_showing = false
+			is_ad_showing = false
+			ad_closed = true
+			rewarded_video_closed.emit()
+			# Награду НЕ выдаём при таймауте
+			got_reward = false
 			break
 		await get_tree().process_frame
 	
