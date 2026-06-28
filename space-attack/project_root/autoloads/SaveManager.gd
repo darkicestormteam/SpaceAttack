@@ -29,6 +29,11 @@ var all_modules_purchased: bool = false  # все модули куплены
 # Отложенный счёт для лидерборда (если SDK не был готов при смерти)
 var pending_leaderboard_score: int = 0
 
+# Банк кредитов за всю сессию в Main (не сбрасывается при рестарте)
+var session_credits_bank: int = 0
+# Передаётся в Hangar для предложения удвоения
+var pending_double_credits: int = 0
+
 # Система ачивок
 var achievements: Dictionary = {}
 var credits_earned_total: int = 0  # Общее количество заработанных кредитов
@@ -381,8 +386,6 @@ func save_game() -> void:
 		"difficulty_unlocked": difficulty_unlocked.duplicate(),
 		"difficulty_level": difficulty_level,
 	}
-	print("[SaveManager] Сохраняю difficulty_unlocked = " + str(difficulty_unlocked))
-
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.new().stringify(data))

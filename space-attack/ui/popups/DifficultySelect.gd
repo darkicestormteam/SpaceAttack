@@ -85,15 +85,15 @@ func _ready() -> void:
 
 
 func _on_recruit_pressed() -> void:
-	_start_game(DIFFICULTY_RECRUIT)
+	await _start_game(DIFFICULTY_RECRUIT)
 
 
 func _on_veteran_pressed() -> void:
-	_start_game(DIFFICULTY_VETERAN)
+	await _start_game(DIFFICULTY_VETERAN)
 
 
 func _on_legend_pressed() -> void:
-	_start_game(DIFFICULTY_LEGEND)
+	await _start_game(DIFFICULTY_LEGEND)
 
 
 func _start_game(difficulty: int) -> void:
@@ -109,11 +109,16 @@ func _start_game(difficulty: int) -> void:
 		sm.save_game()
 		print("[DiffSelect] Сохранено difficulty_level = " + str(difficulty))
 	
+	# Если реклама доступна — показываем и ждём закрытия
+	var ads = get_node_or_null("/root/AdsManager")
+	if ads != null and ads.has_method("can_show_interstitial") and ads.can_show_interstitial():
+		ads.queue_interstitial()
+		await ads.queue_completed
+	
+	# Переход в игру после рекламы
 	var tree = get_tree()
 	if tree:
 		tree.change_scene_to_file("res://levels/Main.tscn")
-	else:
-		print("[DiffSelect] ОШИБКА: get_tree() = null")
 
 
 func _setup_buttons() -> void:

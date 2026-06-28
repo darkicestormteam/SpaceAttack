@@ -420,3 +420,11 @@ offset_top = 248.0
 offset_right = 674.0
 offset_bottom = 373.0
 mouse_filter = 2
+
+[node name="Label" type="Label" parent="." unique_id=647132555]
+layout_mode = 0
+offset_left = 344.0
+offset_top = 1232.0
+offset_right = 394.0
+offset_bottom = 1252.0
+text = "0002"

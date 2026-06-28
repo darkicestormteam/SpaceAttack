@@ -1,24 +1,20 @@
 extends CanvasLayer
 
-## Попап: "Вы заработали X кредитов. Удвоить?"
-## Эмитит choice_made. Вызывающий скрипт сам вызывает рекламу.
+## Анимация перетекания: бонус → баланс. Кнопка "Принять" закрывает окно.
+## Начисление кредитов происходит ДО показа анимации.
 
-signal choice_made(choice: String)  # "yes" или "no"
-signal popup_closed
+signal credits_accepted()
 
-var _credits_earned: int = 0
-var _action_chosen: bool = false
+@onready var main_balance_label: Label = %MainBalanceLabel
+@onready var bonus_label: Label = %BonusLabel
+@onready var accept_button: Button = %AcceptButton
 
-@onready var credits_label: Label = %CreditsLabel
-@onready var yes_btn: Button = %YesButton
-@onready var no_btn: Button = %NoButton
+var _amount: int = 0
+var _old_balance: int = 0
 
 
 func _ready() -> void:
-	yes_btn.pressed.connect(_on_yes_pressed)
-	no_btn.pressed.connect(_on_no_pressed)
-	_apply_button_style(yes_btn)
-	_apply_button_style(no_btn)
+	_apply_button_style(accept_button)
 
 
 func _apply_button_style(btn: Button) -> void:
@@ -77,33 +73,37 @@ func _apply_button_style(btn: Button) -> void:
 	btn.add_theme_stylebox_override("pressed", pressed)
 
 
-func setup(credits_earned: int) -> void:
-	_credits_earned = credits_earned
-	credits_label.text = "Вы заработали %d кредитов!" % credits_earned
-
-
-func _on_yes_pressed() -> void:
-	if _action_chosen:
-		return
-	_action_chosen = true
+func setup(amount: int) -> void:
+	_amount = amount
+	_old_balance = SaveManager.credits - amount
+	main_balance_label.text = "Баланс: %d" % _old_balance
+	bonus_label.text = "+%d" % amount
 	
-	choice_made.emit("yes")
-	popup_closed.emit()
-	visible = false
-
-
-func _on_no_pressed() -> void:
-	if _action_chosen:
-		return
-	_action_chosen = true
+	accept_button.visible = true
+	accept_button.pressed.connect(_on_accept_pressed)
 	
-	choice_made.emit("no")
-	popup_closed.emit()
-	visible = false
+	# Запуск анимации сразу
+	start_animation()
 
 
-func reset() -> void:
-	_action_chosen = false
-	yes_btn.disabled = false
-	no_btn.disabled = false
-	yes_btn.text = "Да, удвоить за рекламу"
+func start_animation() -> void:
+	var target_balance = SaveManager.credits
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_method(_update_animation, 0.0, 1.0, 2.0)
+	# Кнопка остаётся видимой всё время
+
+
+func _update_animation(progress: float) -> void:
+	var current_bonus = int(ceil(float(_amount) * (1.0 - progress)))
+	var current_balance = int(_old_balance + float(_amount) * progress)
+	bonus_label.text = "+%d" % max(0, current_bonus)
+	main_balance_label.text = "Баланс: %d" % current_balance
+
+
+func _on_accept_pressed() -> void:
+	accept_button.visible = false
+	accept_button.disabled = true
+	credits_accepted.emit()
+	queue_free()

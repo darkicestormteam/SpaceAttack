@@ -1,198 +1,117 @@
 extends CanvasLayer
 
-## Пауза.
-##
-## При нажатии "Рестарт" или "В ангар" показывает
-## DoubleCreditsPopup (как в GameOver — через instantiate + add_child).
+## Универсальное меню: пауза / game over / победа.
+## Заменяет GameOver.tscn и VictoryScreen.tscn.
+
+enum Mode { PAUSED, GAME_OVER, VICTORY }
 
 signal resumed
 signal restart_requested
 signal hangar_requested
+signal revive_requested
 
-const DOUBLE_CREDITS_POPUP: PackedScene = preload("res://ui/popups/DoubleCreditsPopup.tscn")
+@onready var menu_button: Button = %MenuButton
+@onready var dim: ColorRect = %Dim
+@onready var panel: VBoxContainer = %MenuPanel
+@onready var settings_panel: VBoxContainer = %SettingsPanel
 
-var _is_action_pending: bool = false
+@onready var title_label: Label = %TitleLabel
+@onready var score_label: Label = %ScoreLabel
+@onready var credits_label: Label = %CreditsLabel
+@onready var revive_button: Button = %ReviveButton
+@onready var resume_button: Button = %ResumeButton
+@onready var hangar_button: Button = %HangarButton
+@onready var restart_button: Button = %RestartButton
+@onready var settings_button: Button = %SettingsButton
 
-# UI элементы (создаются в _ready)
-var menu_button: Button
-var dim: ColorRect
-var panel: VBoxContainer
+@onready var music_slider: HSlider = %MusicSlider
+@onready var sfx_slider: HSlider = %SfxSlider
+@onready var music_label: Label = %MusicLabel
+@onready var sfx_label: Label = %SfxLabel
 
-# Подменю настроек
-var settings_panel: VBoxContainer
-var music_slider: HSlider
-var sfx_slider: HSlider
-var music_label: Label
-var sfx_label: Label
-var settings_back_btn: Button
+var _current_mode: Mode = Mode.PAUSED
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
-	_build_ui()
+	_apply_all_button_styles()
+	
+	resume_button.pressed.connect(_on_resume_pressed)
+	hangar_button.pressed.connect(_on_hangar_pressed)
+	restart_button.pressed.connect(_on_restart_pressed)
+	settings_button.pressed.connect(_show_settings)
+	revive_button.pressed.connect(_on_revive_pressed)
+	%SettingsBackButton.pressed.connect(_hide_settings)
+	menu_button.pressed.connect(_on_menu_button_pressed)
+	
+	music_slider.value_changed.connect(_on_music_volume_changed)
+	sfx_slider.value_changed.connect(_on_sfx_volume_changed)
+	
 	hide_menu()
 
 
-func _build_ui() -> void:
-	menu_button = Button.new()
-	menu_button.name = "MenuButton"
-	menu_button.text = "="
-	menu_button.custom_minimum_size = Vector2(64, 64)
-	menu_button.size = Vector2(64, 64)
-	menu_button.position = Vector2(720 - 64 - 16, 16)
-	menu_button.pressed.connect(_on_menu_button_pressed)
-	add_child(menu_button)
+# ============================================================
+# Переключение режимов
+# ============================================================
 
-	dim = ColorRect.new()
-	dim.name = "Dim"
-	dim.color = Color(0, 0, 0, 0.7)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.visible = false
-	add_child(dim)
-
-	panel = VBoxContainer.new()
-	panel.name = "MenuPanel"
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.offset_left = -200
-	panel.offset_top = -200
-	panel.offset_right = 200
-	panel.offset_bottom = 200
-	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
-	panel.add_theme_constant_override("separation", 20)
-	panel.alignment = BoxContainer.ALIGNMENT_CENTER
-	panel.visible = false
-	add_child(panel)
-
-	var title := Label.new()
-	title.text = "ПАУЗА"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 36)
-	title.add_theme_color_override("font_color", Color.WHITE)
-	panel.add_child(title)
-
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 10)
-	panel.add_child(spacer)
-
-	var resume_btn := Button.new()
-	resume_btn.text = "Продолжить"
-	resume_btn.custom_minimum_size = Vector2(400, 70)
-	resume_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	resume_btn.add_theme_font_size_override("font_size", 24)
-	resume_btn.pressed.connect(_on_resume_pressed)
-	panel.add_child(resume_btn)
-
-	var hangar_btn := Button.new()
-	hangar_btn.text = "В ангар"
-	hangar_btn.custom_minimum_size = Vector2(400, 70)
-	hangar_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	hangar_btn.add_theme_font_size_override("font_size", 24)
-	hangar_btn.pressed.connect(_on_hangar_pressed)
-	panel.add_child(hangar_btn)
-
-	var restart_btn := Button.new()
-	restart_btn.text = "Рестарт"
-	restart_btn.custom_minimum_size = Vector2(400, 70)
-	restart_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	restart_btn.add_theme_font_size_override("font_size", 24)
-	restart_btn.pressed.connect(_on_restart_pressed)
-	panel.add_child(restart_btn)
-
-	var settings_btn := Button.new()
-	settings_btn.text = "Настройки"
-	settings_btn.custom_minimum_size = Vector2(400, 70)
-	settings_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	settings_btn.add_theme_font_size_override("font_size", 24)
-	settings_btn.pressed.connect(_show_settings)
-	panel.add_child(settings_btn)
-
-	# --- Подменю настроек ---
-	settings_panel = VBoxContainer.new()
-	settings_panel.name = "SettingsPanel"
-	settings_panel.set_anchors_preset(Control.PRESET_CENTER)
-	settings_panel.offset_left = -250
-	settings_panel.offset_top = -250
-	settings_panel.offset_right = 250
-	settings_panel.offset_bottom = 250
-	settings_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	settings_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
-	settings_panel.add_theme_constant_override("separation", 20)
-	settings_panel.alignment = BoxContainer.ALIGNMENT_CENTER
-	settings_panel.visible = false
-	add_child(settings_panel)
-
-	var settings_title := Label.new()
-	settings_title.text = "НАСТРОЙКИ"
-	settings_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	settings_title.add_theme_font_size_override("font_size", 36)
-	settings_title.add_theme_color_override("font_color", Color.WHITE)
-	settings_panel.add_child(settings_title)
-
-	var music_row := HBoxContainer.new()
-	music_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	music_row.add_theme_constant_override("separation", 15)
-	music_row.custom_minimum_size = Vector2(400, 60)
-	settings_panel.add_child(music_row)
-
-	music_label = Label.new()
-	music_label.text = "Музыка: 50%"
-	music_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	music_label.add_theme_font_size_override("font_size", 22)
-	music_label.add_theme_color_override("font_color", Color.WHITE)
-	music_label.custom_minimum_size = Vector2(180, 0)
-	music_row.add_child(music_label)
-
-	music_slider = HSlider.new()
-	music_slider.custom_minimum_size = Vector2(200, 50)
-	music_slider.min_value = 0.0
-	music_slider.max_value = 1.0
-	music_slider.step = 0.01
-	music_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	music_slider.value_changed.connect(_on_music_volume_changed)
-	music_row.add_child(music_slider)
-
-	var sfx_row := HBoxContainer.new()
-	sfx_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	sfx_row.add_theme_constant_override("separation", 15)
-	sfx_row.custom_minimum_size = Vector2(400, 60)
-	settings_panel.add_child(sfx_row)
-
-	sfx_label = Label.new()
-	sfx_label.text = "Звуки: 50%"
-	sfx_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	sfx_label.add_theme_font_size_override("font_size", 22)
-	sfx_label.add_theme_color_override("font_color", Color.WHITE)
-	sfx_label.custom_minimum_size = Vector2(180, 0)
-	sfx_row.add_child(sfx_label)
-
-	sfx_slider = HSlider.new()
-	sfx_slider.custom_minimum_size = Vector2(200, 50)
-	sfx_slider.min_value = 0.0
-	sfx_slider.max_value = 1.0
-	sfx_slider.step = 0.01
-	sfx_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	sfx_slider.value_changed.connect(_on_sfx_volume_changed)
-	sfx_row.add_child(sfx_slider)
-
-	var settings_spacer := Control.new()
-	settings_spacer.custom_minimum_size = Vector2(0, 10)
-	settings_panel.add_child(settings_spacer)
-
-	settings_back_btn = Button.new()
-	settings_back_btn.text = "Назад"
-	settings_back_btn.custom_minimum_size = Vector2(200, 70)
-	settings_back_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	settings_back_btn.add_theme_font_size_override("font_size", 24)
-	settings_back_btn.pressed.connect(_hide_settings)
-	settings_panel.add_child(settings_back_btn)
-
-
-func show_menu() -> void:
+## Установить режим и показать меню.
+func show_mode(mode: Mode, score: int = 0, credits_earned: int = 0) -> void:
+	_current_mode = mode
 	dim.visible = true
 	panel.visible = true
 	menu_button.visible = false
 	get_tree().paused = true
+	
+	match mode:
+		Mode.PAUSED:
+			title_label.text = "ПАУЗА"
+			score_label.visible = false
+			credits_label.visible = false
+			revive_button.visible = false
+			resume_button.visible = true
+			hangar_button.visible = true
+			restart_button.visible = true
+			settings_button.visible = true
+			
+		Mode.GAME_OVER:
+			title_label.text = "ПОРАЖЕНИЕ"
+			score_label.visible = true
+			score_label.text = "Очки: %d" % score
+			credits_label.visible = true
+			credits_label.text = "Заработано кредитов: %d" % credits_earned
+			revive_button.visible = true
+			resume_button.visible = false
+			hangar_button.visible = true
+			restart_button.visible = true
+			settings_button.visible = false
+			
+		Mode.VICTORY:
+			title_label.text = "ПОБЕДА"
+			score_label.visible = true
+			score_label.text = "Очки: %d" % score
+			credits_label.visible = true
+			credits_label.text = "Кредиты: %d" % credits_earned
+			revive_button.visible = false
+			resume_button.visible = false
+			hangar_button.visible = true
+			restart_button.visible = true
+			settings_button.visible = false
+
+
+func _gameplay_pause() -> void:
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("on_game_paused"):
+		gm.on_game_paused()
+
+
+func _gameplay_resume() -> void:
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("on_game_resumed"):
+		gm.on_game_resumed()
+
+
+func show_menu() -> void:
+	_gameplay_pause()
+	show_mode(Mode.PAUSED)
 
 
 func hide_menu() -> void:
@@ -200,24 +119,124 @@ func hide_menu() -> void:
 	panel.visible = false
 	settings_panel.visible = false
 	menu_button.visible = true
+	get_tree().paused = false
+	_gameplay_resume()
 
+
+# ============================================================
+# Стили кнопок
+# ============================================================
+
+func _apply_button_style(btn: Button) -> void:
+	if btn == null:
+		return
+	
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.0, 0.0, 0.0, 0.7)
+	normal.border_width_left = 2
+	normal.border_width_top = 2
+	normal.border_width_right = 2
+	normal.border_width_bottom = 2
+	normal.border_color = Color(0.3, 0.6, 1, 1)
+	normal.corner_radius_top_left = 10
+	normal.corner_radius_top_right = 10
+	normal.corner_radius_bottom_left = 10
+	normal.corner_radius_bottom_right = 10
+	normal.content_margin_left = 16
+	normal.content_margin_right = 16
+	normal.content_margin_top = 8
+	normal.content_margin_bottom = 8
+	btn.add_theme_stylebox_override("normal", normal)
+	
+	var hover := StyleBoxFlat.new()
+	hover.bg_color = Color(0.15, 0.2, 0.35, 0.85)
+	hover.border_width_left = 2
+	hover.border_width_top = 2
+	hover.border_width_right = 2
+	hover.border_width_bottom = 2
+	hover.border_color = Color(0.5, 0.85, 1, 1)
+	hover.corner_radius_top_left = 10
+	hover.corner_radius_top_right = 10
+	hover.corner_radius_bottom_left = 10
+	hover.corner_radius_bottom_right = 10
+	hover.content_margin_left = 16
+	hover.content_margin_right = 16
+	hover.content_margin_top = 8
+	hover.content_margin_bottom = 8
+	btn.add_theme_stylebox_override("hover", hover)
+	
+	var pressed := StyleBoxFlat.new()
+	pressed.bg_color = Color(0.05, 0.08, 0.15, 0.9)
+	pressed.border_width_left = 2
+	pressed.border_width_top = 2
+	pressed.border_width_right = 2
+	pressed.border_width_bottom = 2
+	pressed.border_color = Color(0.2, 0.4, 0.7, 1)
+	pressed.corner_radius_top_left = 10
+	pressed.corner_radius_top_right = 10
+	pressed.corner_radius_bottom_left = 10
+	pressed.corner_radius_bottom_right = 10
+	pressed.content_margin_left = 16
+	pressed.content_margin_right = 16
+	pressed.content_margin_top = 8
+	pressed.content_margin_bottom = 8
+	btn.add_theme_stylebox_override("pressed", pressed)
+
+
+func _apply_mini_button_style(btn: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.0, 0.0, 0.0, 0.5)
+	normal.border_width_left = 2
+	normal.border_width_top = 2
+	normal.border_width_right = 2
+	normal.border_width_bottom = 2
+	normal.border_color = Color(0.3, 0.6, 1, 0.7)
+	normal.corner_radius_top_left = 8
+	normal.corner_radius_top_right = 8
+	normal.corner_radius_bottom_left = 8
+	normal.corner_radius_bottom_right = 8
+	btn.add_theme_stylebox_override("normal", normal)
+	
+	var hover := StyleBoxFlat.new()
+	hover.bg_color = Color(0.15, 0.2, 0.35, 0.7)
+	hover.border_width_left = 2
+	hover.border_width_top = 2
+	hover.border_width_right = 2
+	hover.border_width_bottom = 2
+	hover.border_color = Color(0.5, 0.85, 1, 0.9)
+	hover.corner_radius_top_left = 8
+	hover.corner_radius_top_right = 8
+	hover.corner_radius_bottom_left = 8
+	hover.corner_radius_bottom_right = 8
+	btn.add_theme_stylebox_override("hover", hover)
+
+
+func _apply_all_button_styles() -> void:
+	_apply_button_style(resume_button)
+	_apply_button_style(hangar_button)
+	_apply_button_style(restart_button)
+	_apply_button_style(settings_button)
+	_apply_button_style(revive_button)
+	_apply_button_style(%SettingsBackButton)
+	_apply_mini_button_style(menu_button)
+
+
+# ============================================================
+# Настройки
+# ============================================================
 
 func _sync_settings_sliders() -> void:
 	var am := get_node_or_null("/root/AudioManager") as Node
 	if am == null:
 		return
-	if music_slider:
-		music_slider.value = am.music_volume
-	if sfx_slider:
-		sfx_slider.value = am.sfx_volume
+	music_slider.value = am.music_volume
+	sfx_slider.value = am.sfx_volume
 	_update_volume_labels()
 	
 	
 func _update_volume_labels() -> void:
-	if music_label and music_slider:
-		music_label.text = "Музыка: %d%%" % int(music_slider.value * 100.0)
-	if sfx_label and sfx_slider:
-		sfx_label.text = "Звуки: %d%%" % int(sfx_slider.value * 100.0)
+	music_label.text = "Музыка: %d%%" % int(music_slider.value * 100.0)
+	sfx_label.text = "Звуки: %d%%" % int(sfx_slider.value * 100.0)
 
 
 func _show_settings() -> void:
@@ -245,88 +264,38 @@ func _on_sfx_volume_changed(value: float) -> void:
 	_update_volume_labels()
 
 
+# ============================================================
+# Обработчики кнопок
+# ============================================================
+
 func _on_menu_button_pressed() -> void:
 	show_menu()
 
 
 func _on_resume_pressed() -> void:
-	get_tree().paused = false
 	hide_menu()
 	resumed.emit()
 
 
-# ============================================================
-# "В ангар" — через очередь AdsManager
-# ============================================================
+func _transfer_credits_to_pending() -> void:
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm:
+		if sm.session_credits_bank > 0:
+			sm.pending_double_credits = sm.session_credits_bank
+			sm.session_credits_bank = 0
+
 
 func _on_hangar_pressed() -> void:
-	if _is_action_pending:
-		return
-	_is_action_pending = true
-	
-	await _show_double_credits_popup_if_earned()
-
-
-# ============================================================
-# "Рестарт" — через очередь AdsManager
-# ============================================================
-
-func _on_restart_pressed() -> void:
-	if _is_action_pending:
-		return
-	_is_action_pending = true
-	
-	await _show_double_credits_popup_if_earned()
-
-
-# ============================================================
-# Показ попапа с очередью AdsManager
-# ============================================================
-
-func _show_double_credits_popup_if_earned() -> void:
-	var main = get_tree().current_scene
-	var credits_earned: int = 0
-	if main:
-		credits_earned = int(main.get("credits_earned_this_run"))
-	
-	if credits_earned <= 0:
-		_go_to_hangar()
-		return
-	
-	# Прячем панель меню на время попапа
-	dim.visible = false
-	panel.visible = false
-	
-	# Создаём попап
-	var popup = DOUBLE_CREDITS_POPUP.instantiate()
-	add_child(popup)
-	popup.setup(credits_earned)
-	
-	# Ждём выбор пользователя
-	var choice = await popup.choice_made
-	
-	# Удаляем попап
-	if is_instance_valid(popup):
-		popup.queue_free()
-	
-	# Возвращаем панель меню (уже не важно — скоро смена сцены)
-	dim.visible = true
-	panel.visible = true
-	
-	var ads = get_node_or_null("/root/AdsManager") as Node
-	if ads != null and ads.has_method("queue_interstitial"):
-		if choice == "yes":
-			ads.queue_rewarded_double(credits_earned)
-		else:
-			ads.queue_interstitial()
-		
-		# Ждём завершения очереди
-		await ads.queue_completed
-	
-	# Переход
-	_go_to_hangar()
-
-
-func _go_to_hangar() -> void:
+	_transfer_credits_to_pending()
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
+
+
+func _on_restart_pressed() -> void:
+	# При рестарте НЕ сбрасываем банк — он копится дальше
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+
+
+func _on_revive_pressed() -> void:
+	revive_requested.emit()

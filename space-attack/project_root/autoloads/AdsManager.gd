@@ -113,9 +113,9 @@ func _process_ad_queue() -> void:
 			var got_reward = await _show_internal_rewarded()
 			if got_reward and item.credits_to_double > 0:
 				if SaveManager:
-					SaveManager.credits += item.credits_to_double
-					SaveManager.save_game()
-					print("[AdsManager] Credits doubled! +%d" % item.credits_to_double)
+					# Начисляем банк + удвоение (банк * 2)
+					SaveManager.add_credits(item.credits_to_double * 2)
+					print("[AdsManager] Credits doubled! +%d" % (item.credits_to_double * 2))
 	
 	_queue_processing = false
 	_queue_in_progress = false
@@ -135,37 +135,26 @@ func _process_ad_queue() -> void:
 func _show_internal_interstitial() -> void:
 	if not can_show_interstitial():
 		print("[AdsManager] Interstitial not available (cooldown)")
+		# Всё равно завершаем очередь, чтобы не блокировать await queue_completed
+		queue_completed.emit()
 		return
 	
-	var ad_done := false
-	
+	# Ожидаем сигнала закрытия рекламы
 	var on_close := func(_was_shown: bool) -> void:
-		ad_done = true
+		pass
 	var on_err := func(_msg: String) -> void:
-		ad_done = true
+		pass
 	var on_off := func() -> void:
-		ad_done = true
+		pass
 	
-	# Подключаем сигналы ДО вызова show_interstitial,
-	# чтобы не пропустить синхронный эмит сигнала
 	interstitial_closed.connect(on_close)
 	interstitial_error.connect(on_err)
 	interstitial_offline.connect(on_off)
 	
 	show_interstitial()
 	
-	# Ожидание закрытия рекламы с таймаутом 15 секунд
-	var timeout := get_tree().create_timer(15.0)
-	while not ad_done:
-		if timeout.get_time_left() <= 0.0:
-			push_warning("[AdsManager] Interstitial wait timeout — forcing cleanup")
-			# Принудительный сброс флага показа, чтобы не заблокировать очередь
-			_is_ad_showing = false
-			is_ad_showing = false
-			ad_done = true
-			interstitial_closed.emit(false)
-			break
-		await get_tree().process_frame
+	# Ждём любой из сигналов закрытия (один await — без цикла)
+	await interstitial_closed
 	
 	interstitial_closed.disconnect(on_close)
 	interstitial_error.disconnect(on_err)
@@ -180,50 +169,31 @@ func _show_internal_rewarded() -> bool:
 	if sdk == null or not sdk.is_inited():
 		return false
 	
-	var ad_opened := false
-	var ad_closed := false
 	var got_reward := false
+	var ad_complete := false
 	
-	var on_opened := func() -> void:
-		print("[AdsManager] REWARDED OPENED SIGNAL")
-		ad_opened = true
 	var on_rewarded := func() -> void:
-		print("[AdsManager] REWARDED SIGNAL RECEIVED")
 		got_reward = true
 	var on_closed := func() -> void:
-		print("[AdsManager] REWARDED CLOSED SIGNAL")
-		ad_closed = true
-	var on_error := func(_msg: String) -> void:
-		print("[AdsManager] REWARDED ERROR SIGNAL: ", _msg)
-		ad_closed = true
+		ad_complete = true
 	
-	# Подключаем сигналы ДО вызова show_rewarded
-	rewarded_video_opened.connect(on_opened)
 	rewarded_video_rewarded.connect(on_rewarded)
 	rewarded_video_closed.connect(on_closed)
-	rewarded_video_error.connect(on_error)
 	
+	print("[AdsManager] Calling show_rewarded...")
 	show_rewarded()
 	
-	# Ожидание закрытия rewarded видео с таймаутом 15 секунд
-	var timeout := get_tree().create_timer(15.0)
-	while not ad_closed:
-		if timeout.get_time_left() <= 0.0:
-			push_warning("[AdsManager] Rewarded wait timeout — forcing cleanup")
-			# Принудительный сброс флага показа, чтобы не заблокировать очередь
-			_is_ad_showing = false
-			is_ad_showing = false
-			ad_closed = true
-			rewarded_video_closed.emit()
-			# Награду НЕ выдаём при таймауте
-			got_reward = false
+	# Используем таймеры для проверки — JS-колбэки не работают во время await
+	var elapsed := 0.0
+	while elapsed < 15.0:
+		if ad_complete:
 			break
-		await get_tree().process_frame
+		# Ждём 200ms чтобы JS успел обработать колбэки
+		await get_tree().create_timer(0.2).timeout
+		elapsed += 0.2
 	
-	rewarded_video_opened.disconnect(on_opened)
 	rewarded_video_rewarded.disconnect(on_rewarded)
 	rewarded_video_closed.disconnect(on_closed)
-	rewarded_video_error.disconnect(on_error)
 	
 	print("[AdsManager] _show_internal_rewarded returning got_reward=", got_reward)
 	return got_reward

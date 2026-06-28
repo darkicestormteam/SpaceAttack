@@ -216,10 +216,106 @@ func _ready() -> void:
 		elif not ads.is_connected("init_completed", _on_ads_ready_for_purchases):
 			ads.init_completed.connect(_on_ads_ready_for_purchases)
 	
-	# Страховочный останов геймплея: гарантируем красную иконку в ангаре
-	var gm = get_node_or_null("/root/GameManager")
-	if gm and gm.has_method("on_battle_end"):
-		gm.on_battle_end()
+	# Запускаем инициализацию Yandex SDK, если ещё не запущена
+	var ads_mgr = get_node_or_null("/root/AdsManager")
+	if ads_mgr != null and ads_mgr.has_method("init_async"):
+		if not ads_mgr.is_sdk_ready:
+			ads_mgr.init_async()
+	
+	# Устанавливаем состояние MENU — гарантируем красную иконку в ангаре
+	var gm_mgr = get_node_or_null("/root/GameManager")
+	if gm_mgr and gm_mgr.has_method("set_state"):
+		gm_mgr.set_state(gm_mgr.GameState.MENU)
+	elif gm_mgr and gm_mgr.has_method("on_battle_end"):
+		gm_mgr.on_battle_end()
+	
+	# Показываем попап удвоения или рекламу при загрузке ангара
+	get_tree().create_timer(0.5).timeout.connect(_on_hangar_loaded)
+
+
+func _on_hangar_loaded() -> void:
+	# Проверяем, есть ли отложенные кредиты для удвоения
+	if SaveManager.pending_double_credits > 0:
+		_show_double_credits_popup()
+	else:
+		_show_interstitial_on_hangar_load()
+
+
+func _hide_hangar_ui() -> void:
+	if hangar_content: hangar_content.visible = false
+	if shop_content: shop_content.visible = false
+	if shop_bg: shop_bg.visible = false
+	if panel: panel.visible = false
+	if panel2: panel2.visible = false
+	if panel3: panel3.visible = false
+
+
+func _show_hangar_ui() -> void:
+	_show_hangar_tab()
+
+
+func _show_double_credits_popup() -> void:
+	var amount = SaveManager.pending_double_credits
+	SaveManager.pending_double_credits = 0
+	
+	# Прячем интерфейс ангара на время всех манипуляций с банком
+	_hide_hangar_ui()
+	
+	var popup_scene = preload("res://ui/popups/DoubleCreditsPopup.tscn")
+	if popup_scene == null:
+		_show_interstitial_on_hangar_load()
+		return
+	
+	var popup = popup_scene.instantiate()
+	add_child(popup)
+	popup.setup(amount)
+	
+	if popup.has_signal("choice_made"):
+		var choice = await popup.choice_made
+		_handle_double_choice(choice, amount)
+	else:
+		_show_interstitial_on_hangar_load()
+
+
+func _handle_double_choice(choice: String, amount: int) -> void:
+	var ads = get_node_or_null("/root/AdsManager")
+	
+	if choice == "yes" and amount > 0 and ads != null:
+		# Показываем rewarded рекламу для удвоения
+		ads.queue_rewarded_double(amount)
+		await ads.queue_completed
+		# AdsManager уже начислил amount*2
+		amount = amount * 2
+	else:
+		# Начисляем обычные кредиты
+		SaveManager.add_credits(amount)
+		# Показываем межстраничную рекламу (если доступна)
+		if ads != null and ads.has_method("can_show_interstitial") and ads.can_show_interstitial():
+			ads.queue_interstitial()
+			await ads.queue_completed
+	
+	# Анимация перетекания с кнопкой "Принять"
+	await _show_credits_animation(amount)
+	
+	# Возвращаем интерфейс ангара
+	_show_hangar_ui()
+	update_ui()
+
+
+func _show_credits_animation(amount: int) -> void:
+	var anim_scene = preload("res://ui/popups/DoubleCreditsAnimation.tscn")
+	if anim_scene:
+		var anim_node = anim_scene.instantiate()
+		add_child(anim_node)
+		anim_node.setup(amount)
+		await anim_node.credits_accepted
+		anim_node.queue_free()
+
+
+func _show_interstitial_on_hangar_load() -> void:
+	var ads = get_node_or_null("/root/AdsManager")
+	if ads != null and ads.has_method("queue_interstitial"):
+		ads.queue_interstitial()
 
 
 func _on_ads_ready_for_purchases(success: bool) -> void:
@@ -265,6 +361,12 @@ func _show_shop_tab() -> void:
 # ============== ОБНОВЛЕНИЕ UI ==============
 
 func update_ui() -> void:
+	# Убеждаемся, что gameplay в stop при любом действии в ангаре
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("set_state") and gm.get_current_state() != gm.GameState.UNKNOWN:
+		if gm.get_current_state() != gm.GameState.MENU:
+			gm.set_state(gm.GameState.MENU)
+	
 	credits_label.text = "Кредиты: %d" % SaveManager.credits
 	high_score_label.text = " Лучший счёт: " + str(SaveManager.high_score)
 	_refresh_ship_buttons()

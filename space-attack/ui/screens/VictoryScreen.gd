@@ -1,13 +1,6 @@
 extends CanvasLayer
 
-## Экран победы после 10 волны.
-##
-## При нажатии "В ангар" или "Рестарт" сначала показывает
-## DoubleCreditsPopup — предложение удвоить кредиты за рекламу.
-
-signal hangar_requested
-
-const DOUBLE_CREDITS_POPUP: PackedScene = preload("res://ui/popups/DoubleCreditsPopup.tscn")
+## Экран победы после 10 волны (без рекламы).
 
 # UI элементы
 var dim: ColorRect
@@ -16,7 +9,6 @@ var panel: VBoxContainer
 var score: int = 0
 var credits: int = 0
 var credits_earned: int = 0
-var _is_action_pending: bool = false
 
 
 func _ready() -> void:
@@ -160,112 +152,18 @@ func _apply_button_style(btn: Button) -> void:
 
 
 # ============================================================
-# "В ангар" — с попапом удвоения
+# "В ангар" — просто переход
 # ============================================================
 
 func _on_hangar_pressed() -> void:
-	if _is_action_pending:
-		return
-	_is_action_pending = true
-	
-	var should_double := false
-	if credits_earned > 0:
-		should_double = await _show_double_credits_popup()
-	
 	get_tree().paused = false
-	await _request_review_and_go_hangar(should_double)
+	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
 
 
 # ============================================================
-# "Рестарт" — с попапом удвоения
+# "Рестарт" — просто рестарт
 # ============================================================
 
 func _on_restart_pressed() -> void:
-	if _is_action_pending:
-		return
-	_is_action_pending = true
-	
-	var should_double := false
-	if credits_earned > 0:
-		should_double = await _show_double_credits_popup()
-	
-	var ads = get_node_or_null("/root/AdsManager") as Node
-	if ads:
-		if should_double:
-			ads.queue_rewarded_double(credits_earned)
-		else:
-			ads.queue_interstitial()
-		
-		# SAFE TIMEOUT: Max 5 seconds wait for ad to start
-		var timeout := get_tree().create_timer(5.0)
-		while not ads.is_ad_showing and timeout.get_time_left() > 0.0:
-			await get_tree().process_frame
-		# If ad started showing, wait for it to close
-		if ads.is_ad_showing:
-			await ads.queue_completed
-	
 	get_tree().paused = false
 	get_tree().reload_current_scene()
-
-
-# ============================================================
-# Показ попапа удвоения кредитов
-# ============================================================
-
-## Возвращает true, если игрок сказал "да" (хочет удвоить).
-func _show_double_credits_popup() -> bool:
-	# Прячем UI на время попапа
-	if dim:
-		dim.visible = false
-	if panel:
-		panel.visible = false
-	
-	var popup = DOUBLE_CREDITS_POPUP.instantiate()
-	add_child(popup)
-	popup.setup(credits_earned)
-	
-	var choice := "no"
-	if popup.has_signal("choice_made"):
-		choice = await popup.choice_made
-	else:
-		await popup.action_completed
-		choice = "yes"
-	
-	if is_instance_valid(popup):
-		popup.queue_free()
-	
-	# Возвращаем UI
-	if dim:
-		dim.visible = true
-	if panel:
-		panel.visible = true
-	
-	return choice == "yes"
-
-
-# ============================================================
-# Feedback + Queue + Hangar
-# ============================================================
-
-func _request_review_and_go_hangar(should_double: bool = false) -> void:
-	var ads = get_node_or_null("/root/AdsManager") as Node
-	if ads == null or not ads.has_method("request_review_if_possible"):
-		get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
-		return
-	
-	# Запрос отзыва (до рекламы)
-	if ads.is_sdk_ready:
-		await ads.request_review_if_possible()
-	
-	# Добавляем rewarded для удвоения
-	if should_double and credits_earned > 0:
-		ads.queue_rewarded_double(credits_earned)
-	else:
-		# Interstitial показываем только если не было rewarded,
-		# чтобы не нагружать игрока двумя рекламами подряд
-		ads.queue_interstitial()
-	
-	# Ждём завершения очереди
-	await ads.queue_completed
-	
-	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")

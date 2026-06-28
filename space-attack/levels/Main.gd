@@ -27,6 +27,7 @@ signal wave_changed(new_wave: int)
 @export var background_speed: float = 200.0  # скорость движения фона (вниз)
 
 var sm: Node  # SaveManager reference
+var _paused_by_gameover: bool = false
 
 var score: int = 0
 var wave_counter: int = 1
@@ -92,6 +93,8 @@ func _ready() -> void:
 		lives_changed.connect(hud.update_lives)
 		wave_changed.connect(hud.update_wave)
 		wave_changed.emit(wave_counter)
+		# Показываем накопленный банк за сессию
+		credits_changed.emit(sm.session_credits_bank)
 	
 	var player = $Player
 	if player:
@@ -105,6 +108,7 @@ func _ready() -> void:
 	if pause_menu:
 		pause_menu.hangar_requested.connect(_on_pause_hangar)
 		pause_menu.restart_requested.connect(_on_pause_restart)
+		pause_menu.revive_requested.connect(revive_player)
 
 	# CarrierTimer — спавнит Carrier каждые 25 сек (запускается после победы над первым боссом)
 	if carrier_timer == null:
@@ -197,15 +201,11 @@ func game_over() -> void:
 	# Чистим лазеры
 	_stop_laser_wave()
 
-	# Ставим игру на паузу, чтобы на фоне не двигались враги/пули/фон.
-	get_tree().paused = true
-
-	var go_scene = preload("res://ui/screens/GameOver.tscn")
-	if go_scene:
-		var go_instance = go_scene.instantiate()
-		add_child(go_instance)
-		if go_instance.has_method("set_stats"):
-			go_instance.set_stats(score, sm.credits, credits_earned_this_run)
+	# Показываем PauseMenu в режиме GAME_OVER
+	var pause_menu = $PauseMenu
+	if pause_menu and pause_menu.has_method("show_mode"):
+		_paused_by_gameover = true
+		pause_menu.show_mode(pause_menu.Mode.GAME_OVER, score, credits_earned_this_run)
 	
 	sm.on_game_over(score)
 	
@@ -213,15 +213,16 @@ func game_over() -> void:
 	_submit_to_leaderboard()
 
 
-## Воскрешает игрока после просмотра rewarded рекламы.
-## Вызывается из GameOver.gd.
+## Воскрешает игрока бесплатно.
+## Вызывается из PauseMenu по сигналу revive_requested.
 func revive_player() -> void:
-	# Удаляем экран GameOver
-	for child in get_children():
-		if child is CanvasLayer and child.has_method("set_stats"):
-			child.queue_free()
+	# Скрываем PauseMenu — hide_menu() сам вызовет _gameplay_resume() → gameplay_start()
+	var pause_menu = $PauseMenu
+	if pause_menu and pause_menu.has_method("hide_menu"):
+		pause_menu.hide_menu()
 	
 	# Снимаем паузу
+	_paused_by_gameover = false
 	get_tree().paused = false
 	
 	# Воскрешаем игрока с 50% HP
@@ -253,10 +254,11 @@ func add_score(amount: int) -> void:
 func add_credits(amount: int) -> void:
 	var mult := Constants.credits_mult()
 	var earned = int(ceil(float(amount) * mult))
-	sm.credits += earned
+	# Кредиты НЕ начисляются на счёт сразу — копятся в банке
 	credits_earned_this_run += earned
+	sm.session_credits_bank += earned  # копим банк за сессию
 	sm.save_game()
-	credits_changed.emit(sm.credits)
+	credits_changed.emit(sm.session_credits_bank)  # показываем банк
 
 
 func shake_camera(duration: float, intensity: float) -> void:
@@ -605,15 +607,11 @@ func _game_won() -> void:
 	# Ждём 2 секунды, чтобы игрок увидел взрыв босса
 	await get_tree().create_timer(2.0).timeout
 	
-	# Показываем экран победы
+	# Показываем PauseMenu в режиме VICTORY
 	get_tree().paused = true
-	
-	var victory_scene = preload("res://ui/screens/VictoryScreen.tscn")
-	if victory_scene:
-		var vi_instance = victory_scene.instantiate()
-		add_child(vi_instance)
-		if vi_instance.has_method("set_stats"):
-			vi_instance.set_stats(score, sm.credits, credits_earned_this_run)
+	var pause_menu = $PauseMenu
+	if pause_menu and pause_menu.has_method("show_mode"):
+		pause_menu.show_mode(pause_menu.Mode.VICTORY, score, credits_earned_this_run)
 
 
 func end_boss_fight() -> void:
@@ -935,7 +933,7 @@ func _on_pause_hangar() -> void:
 	if current_phase != GamePhase.GAME_OVER:
 		_on_game_over_checks()
 	get_tree().paused = false
-	await _show_ad_and_go_hangar()
+	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
 
 
 func _on_pause_restart() -> void:
@@ -949,21 +947,6 @@ func _on_pause_restart() -> void:
 # Вызывается при выходе из игры (смерть, рестарт, выход в ангар) для проверки ачивок
 func _on_game_over_checks() -> void:
 	sm.on_game_over(score)
-
-
-# Запустить очередь рекламы (interstitial), затем перейти в Hangar
-func _show_ad_and_go_hangar() -> void:
-	var ads = get_node_or_null("/root/AdsManager") as Node
-	if ads == null or not ads.has_method("queue_interstitial"):
-		get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
-		return
-	
-	ads.queue_interstitial()
-	
-	# Ждём завершения очереди
-	await ads.queue_completed
-	
-	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
 
 
 # Отправить финальный счёт в лидерборд Yandex Games "BestScore"
