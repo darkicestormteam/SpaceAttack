@@ -58,6 +58,11 @@ func _get_current_state() -> GameState:
 	return _current_state
 
 
+## Публичный геттер для внешнего использования (AdsManager, UI).
+func get_current_state() -> GameState:
+	return _current_state
+
+
 func set_state(new_state: GameState) -> void:
 	var prev = _current_state
 	_current_state = new_state

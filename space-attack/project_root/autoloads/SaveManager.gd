@@ -26,6 +26,8 @@ var ship_skins: Dictionary = {}
 
 # Покупки через Yandex Payments
 var all_modules_purchased: bool = false  # все модули куплены
+# Отложенный счёт для лидерборда (если SDK не был готов при смерти)
+var pending_leaderboard_score: int = 0
 
 # Система ачивок
 var achievements: Dictionary = {}

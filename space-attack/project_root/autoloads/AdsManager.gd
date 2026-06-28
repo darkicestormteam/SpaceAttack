@@ -736,18 +736,27 @@ func _on_game_api_paused() -> void:
 	gameplay_stop()
 
 func _on_game_api_resumed() -> void:
-	# Ждём 1 кадр, чтобы плагин Mist1351 успел сделать свой авто-старт gameplay
-	await get_tree().process_frame
+	print("[AdsManager] Game API Resumed received")
+	
+	# НЕ вызываем gameplay_stop() — плагин Mist1351 сам управляет
+	# стартом/стопом при game_api_resume/pause.
+	# Наша задача — только не дать запуститься gameplay_start() если мы в меню.
+	# Если мы в бою — плагин уже корректно включил gameplay.
+	# Если мы в меню — при следующем переходе GameManager.set_state() вызовет
+	# on_battle_end() который сделает gameplay_stop().
 	
 	var gm = get_node_or_null("/root/GameManager")
+	if gm == null:
+		print("[AdsManager] GameManager not found, skipping gameplay stop")
+		return
+	
 	var is_battle := false
-	if gm != null and "_current_state" in gm:
+	if gm.has_method("get_current_state"):
+		is_battle = (gm.get_current_state() == gm.GameState.BATTLE)
+	elif "_current_state" in gm:
 		is_battle = (gm._current_state == gm.GameState.BATTLE)
 	
 	if is_battle:
-		# Плагин уже вызвал gameplay_start — оставляем как есть
-		print("[AdsManager] Game API resumed — in battle, keeping gameplay active")
+		print("[AdsManager] Gameplay API is correctly active (In Battle)")
 	else:
-		# Плагин зажёг зелёную иконку — принудительно гасим
-		print("[AdsManager] Game API resumed — NOT in battle, stopping gameplay")
-		gameplay_stop()
+		print("[AdsManager] In Menu, gameplay will be stopped on next set_state()")

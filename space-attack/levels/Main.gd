@@ -970,8 +970,19 @@ func _show_ad_and_go_hangar() -> void:
 func _submit_to_leaderboard() -> void:
 	var ads = get_node_or_null("/root/AdsManager") as Node
 	if ads == null or not ads.has_method("leaderboard_set_score"):
+		_save_pending_score()
 		return
 	if not ads.is_leaderboard_ready:
-		push_warning("[Main] Leaderboard not ready, skipping score submission")
+		push_warning("[Main] Leaderboard not ready, saving score for next session")
+		_save_pending_score()
 		return
 	ads.leaderboard_set_score("bestscore", score, "")
+
+
+func _save_pending_score() -> void:
+	# Fallback: сохраняем счёт локально на случай, если SDK ещё не готов
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm:
+		sm.pending_leaderboard_score = score
+		sm.save_game()
+		print("[Main] Score saved locally for later submission: ", score)

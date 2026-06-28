@@ -189,14 +189,20 @@ func _on_restart_pressed() -> void:
 	if credits_earned > 0:
 		should_double = await _show_double_credits_popup()
 	
-	# Обрабатываем выбор игрока через очередь рекламы
 	var ads = get_node_or_null("/root/AdsManager") as Node
-	if ads != null and ads.has_method("queue_interstitial"):
+	if ads:
 		if should_double:
 			ads.queue_rewarded_double(credits_earned)
 		else:
 			ads.queue_interstitial()
-		await ads.queue_completed
+		
+		# SAFE TIMEOUT: Max 5 seconds wait for ad to start
+		var timeout := get_tree().create_timer(5.0)
+		while not ads.is_ad_showing and timeout.get_time_left() > 0.0:
+			await get_tree().process_frame
+		# If ad started showing, wait for it to close
+		if ads.is_ad_showing:
+			await ads.queue_completed
 	
 	get_tree().paused = false
 	get_tree().reload_current_scene()
