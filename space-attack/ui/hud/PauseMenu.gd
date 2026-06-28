@@ -256,7 +256,7 @@ func _on_resume_pressed() -> void:
 
 
 # ============================================================
-# "В ангар" — динамический попап (как в GameOver.gd)
+# "В ангар" — через очередь AdsManager
 # ============================================================
 
 func _on_hangar_pressed() -> void:
@@ -265,15 +265,10 @@ func _on_hangar_pressed() -> void:
 	_is_action_pending = true
 	
 	await _show_double_credits_popup_if_earned()
-	
-	get_tree().paused = false
-	hide_menu()
-	hangar_requested.emit()
-	_is_action_pending = false
 
 
 # ============================================================
-# "Рестарт" — динамический попап (как в GameOver.gd)
+# "Рестарт" — через очередь AdsManager
 # ============================================================
 
 func _on_restart_pressed() -> void:
@@ -282,15 +277,10 @@ func _on_restart_pressed() -> void:
 	_is_action_pending = true
 	
 	await _show_double_credits_popup_if_earned()
-	
-	get_tree().paused = false
-	hide_menu()
-	restart_requested.emit()
-	_is_action_pending = false
 
 
 # ============================================================
-# Показ попапа — ТОЧНО КАК В GameOver.gd
+# Показ попапа с очередью AdsManager
 # ============================================================
 
 func _show_double_credits_popup_if_earned() -> void:
@@ -300,22 +290,43 @@ func _show_double_credits_popup_if_earned() -> void:
 		credits_earned = int(main.get("credits_earned_this_run"))
 	
 	if credits_earned <= 0:
+		_go_to_hangar()
 		return
 	
-	# Прячем панель меню на время попапа (чтобы не перекрывали клики)
+	# Прячем панель меню на время попапа
 	dim.visible = false
 	panel.visible = false
 	
-	# Создаём попап динамически — ТОЧНО КАК В GameOver
+	# Создаём попап
 	var popup = DOUBLE_CREDITS_POPUP.instantiate()
 	add_child(popup)
 	popup.setup(credits_earned)
-	await popup.action_completed
+	
+	# Ждём выбор пользователя
+	var choice = await popup.choice_made
 	
 	# Удаляем попап
 	if is_instance_valid(popup):
 		popup.queue_free()
 	
-	# Возвращаем панель меню
+	# Возвращаем панель меню (уже не важно — скоро смена сцены)
 	dim.visible = true
 	panel.visible = true
+	
+	var ads = get_node_or_null("/root/AdsManager") as Node
+	if ads != null and ads.has_method("queue_interstitial"):
+		if choice == "yes":
+			ads.queue_rewarded_double(credits_earned)
+		else:
+			ads.queue_interstitial()
+		
+		# Ждём завершения очереди
+		await ads.queue_completed
+	
+	# Переход
+	_go_to_hangar()
+
+
+func _go_to_hangar() -> void:
+	get_tree().paused = false
+	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
