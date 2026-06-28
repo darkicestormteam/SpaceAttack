@@ -69,8 +69,18 @@ func _on_restart_pressed() -> void:
 		return
 	_is_action_pending = true
 	
+	var should_double := false
 	if _credits_earned > 0:
-		await _show_double_credits_popup()
+		should_double = await _show_double_credits_popup()
+	
+	# Обрабатываем выбор игрока через очередь рекламы
+	var ads = get_node_or_null("/root/AdsManager") as Node
+	if ads != null and ads.has_method("queue_interstitial"):
+		if should_double:
+			ads.queue_rewarded_double(_credits_earned)
+		else:
+			ads.queue_interstitial()
+		await ads.queue_completed
 	
 	get_tree().paused = false
 	get_tree().reload_current_scene()
@@ -131,7 +141,7 @@ func _on_quit_pressed() -> void:
 # Показ попапа удвоения кредитов (для рестарта — без рекламы)
 # ============================================================
 
-func _show_double_credits_popup() -> void:
+func _show_double_credits_popup() -> bool:
 	# Прячем фон и кнопки GameOver на время попапа
 	if has_node("Background"):
 		$Background.visible = false
@@ -143,7 +153,7 @@ func _show_double_credits_popup() -> void:
 	popup.setup(_credits_earned)
 	
 	# Ждём выбора (choice_made эмитится и при "yes" и при "no")
-	await popup.choice_made
+	var choice = await popup.choice_made
 	
 	if is_instance_valid(popup):
 		popup.queue_free()
@@ -153,3 +163,5 @@ func _show_double_credits_popup() -> void:
 		$Background.visible = true
 	if has_node("VBox"):
 		$VBox.visible = true
+	
+	return choice == "yes"

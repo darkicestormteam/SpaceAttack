@@ -668,18 +668,27 @@ func _on_interstitial_closed(was_shown: bool) -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
 	interstitial_closed.emit(was_shown)
+	# Автозапуск очереди, если есть ожидающие элементы
+	if not _ad_queue.is_empty() and not _queue_processing:
+		_process_ad_queue()
 
 func _on_interstitial_error(error_message: String) -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
 	interstitial_error.emit(error_message)
 	interstitial_closed.emit(false)
+	# Автозапуск очереди, если есть ожидающие элементы
+	if not _ad_queue.is_empty() and not _queue_processing:
+		_process_ad_queue()
 
 func _on_interstitial_offline() -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
 	interstitial_offline.emit()
 	interstitial_closed.emit(false)
+	# Автозапуск очереди, если есть ожидающие элементы
+	if not _ad_queue.is_empty() and not _queue_processing:
+		_process_ad_queue()
 
 
 func _on_rewarded_opened() -> void:
@@ -689,12 +698,18 @@ func _on_rewarded_closed() -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
 	rewarded_video_closed.emit()
+	# Автозапуск очереди, если есть ожидающие элементы
+	if not _ad_queue.is_empty() and not _queue_processing:
+		_process_ad_queue()
 
 func _on_rewarded_error(error_message: String) -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
 	rewarded_video_error.emit(error_message)
 	rewarded_video_closed.emit()
+	# Автозапуск очереди, если есть ожидающие элементы
+	if not _ad_queue.is_empty() and not _queue_processing:
+		_process_ad_queue()
 
 func _on_rewarded_rewarded() -> void:
 	rewarded_video_rewarded.emit()

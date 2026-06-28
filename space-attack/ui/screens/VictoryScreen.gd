@@ -185,8 +185,18 @@ func _on_restart_pressed() -> void:
 		return
 	_is_action_pending = true
 	
+	var should_double := false
 	if credits_earned > 0:
-		await _show_double_credits_popup()
+		should_double = await _show_double_credits_popup()
+	
+	# Обрабатываем выбор игрока через очередь рекламы
+	var ads = get_node_or_null("/root/AdsManager") as Node
+	if ads != null and ads.has_method("queue_interstitial"):
+		if should_double:
+			ads.queue_rewarded_double(credits_earned)
+		else:
+			ads.queue_interstitial()
+		await ads.queue_completed
 	
 	get_tree().paused = false
 	get_tree().reload_current_scene()
