@@ -77,7 +77,7 @@ func _on_restart_pressed() -> void:
 
 
 # ============================================================
-# "Выход" — с попапом удвоения + реклама + ангар
+# "Выход" — с попапом удвоения + реклама через очередь + ангар
 # ============================================================
 
 func _on_quit_pressed() -> void:
@@ -85,20 +85,53 @@ func _on_quit_pressed() -> void:
 		return
 	_is_action_pending = true
 	
-	var should_double := false
-	if _credits_earned > 0:
-		should_double = await _show_double_credits_popup()
+	var ads = get_node_or_null("/root/AdsManager") as Node
+	if ads == null or not ads.has_method("queue_interstitial"):
+		get_tree().paused = false
+		get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
+		return
 	
-	get_tree().paused = false
-	await _show_ad_and_go_hangar(should_double)
+	# Отключаем кнопки, чтобы игрок не нажал повторно
+	quit_btn.disabled = true
+	restart_btn.disabled = true
+	revive_btn.disabled = true
+	
+	var was_paused = get_tree().paused
+	var popup = null
+	
+	if _credits_earned > 0:
+		# Показываем попап удвоения
+		popup = DOUBLE_CREDITS_POPUP.instantiate()
+		add_child(popup)
+		popup.setup(_credits_earned)
+		
+		# Ожидаем выбор игрока
+		var choice = await popup.choice_made
+		
+		if choice == "yes":
+			ads.queue_rewarded_double(_credits_earned)
+		else:
+			ads.queue_interstitial()
+	else:
+		ads.queue_interstitial()
+	
+	# Ждём завершения всей очереди
+	await ads.queue_completed
+	
+	# Закрываем попап, если ещё висит
+	if popup != null and is_instance_valid(popup):
+		popup.queue_free()
+	
+	# Переход в ангар
+	get_tree().paused = was_paused
+	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
 
 
 # ============================================================
-# Показ попапа удвоения кредитов
+# Показ попапа удвоения кредитов (для рестарта — без рекламы)
 # ============================================================
 
-## Возвращает true, если игрок сказал "да" (хочет удвоить).
-func _show_double_credits_popup() -> bool:
+func _show_double_credits_popup() -> void:
 	# Прячем фон и кнопки GameOver на время попапа
 	if has_node("Background"):
 		$Background.visible = false
@@ -109,13 +142,8 @@ func _show_double_credits_popup() -> bool:
 	add_child(popup)
 	popup.setup(_credits_earned)
 	
-	var choice := "no"
-	if popup.has_signal("choice_made"):
-		choice = await popup.choice_made
-	else:
-		# Старая версия сигнала — fallback
-		await popup.action_completed
-		choice = "yes"
+	# Ждём выбора (choice_made эмитится и при "yes" и при "no")
+	await popup.choice_made
 	
 	if is_instance_valid(popup):
 		popup.queue_free()
@@ -125,28 +153,3 @@ func _show_double_credits_popup() -> bool:
 		$Background.visible = true
 	if has_node("VBox"):
 		$VBox.visible = true
-	
-	return choice == "yes"
-
-
-# ============================================================
-# Межстраничная реклама + переход в ангар
-# ============================================================
-
-func _show_ad_and_go_hangar(should_double: bool = false) -> void:
-	var ads = get_node_or_null("/root/AdsManager") as Node
-	if ads == null or not ads.has_method("queue_interstitial"):
-		get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
-		return
-	
-	# Если нужно удвоить — добавляем rewarded в очередь
-	if should_double and _credits_earned > 0:
-		ads.queue_rewarded_double(_credits_earned)
-	
-	# Добавляем interstitial
-	ads.queue_interstitial()
-	
-	# Ждём завершения очереди
-	await ads.queue_completed
-	
-	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")

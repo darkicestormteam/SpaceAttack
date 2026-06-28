@@ -127,14 +127,18 @@ func _process_ad_queue() -> void:
 					print("[AdsManager] Credits doubled! +%d" % item.credits_to_double)
 	
 	_queue_processing = false
+	_queue_in_progress = false
 	
 	# Восстанавливаем паузу (реклама могла снять её)
 	get_tree().paused = _queue_paused_before
 	
-	# Завершаем очередь
-	_queue_in_progress = false
-	queue_completed.emit()
-	_resume_game()
+	# Если в очереди ещё есть элементы — обрабатываем следующий
+	# Иначе завершаем очередь
+	if not _ad_queue.is_empty():
+		_process_ad_queue()
+	else:
+		queue_completed.emit()
+		_resume_game()
 
 
 # ============================================================
