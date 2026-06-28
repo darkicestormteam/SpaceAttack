@@ -72,8 +72,6 @@ var _ad_queue: Array[Dictionary] = []
 var _queue_processing: bool = false
 ## Флаг, что очередь в процессе (для блокировки _resume_game)
 var _queue_in_progress: bool = false
-## Была ли игра на паузе до начала обработки очереди
-var _queue_paused_before: bool = false
 ## Результат последнего rewarded видео
 var _last_rewarded_result: bool = false
 
@@ -101,17 +99,10 @@ func _process_ad_queue() -> void:
 	if _ad_queue.is_empty():
 		_queue_in_progress = false
 		queue_completed.emit()
-		_resume_game()
 		return
 	
 	_queue_processing = true
 	_queue_in_progress = true
-	
-	# Запоминаем состояние паузы ДО начала обработки очереди
-	_queue_paused_before = get_tree().paused
-	
-	# Ставим игру на паузу перед рекламой
-	get_tree().paused = true
 	
 	var item = _ad_queue.pop_front()
 	
@@ -129,16 +120,12 @@ func _process_ad_queue() -> void:
 	_queue_processing = false
 	_queue_in_progress = false
 	
-	# Восстанавливаем паузу (реклама могла снять её)
-	get_tree().paused = _queue_paused_before
-	
 	# Если в очереди ещё есть элементы — обрабатываем следующий
 	# Иначе завершаем очередь
 	if not _ad_queue.is_empty():
 		_process_ad_queue()
 	else:
 		queue_completed.emit()
-		_resume_game()
 
 
 # ============================================================
@@ -165,7 +152,12 @@ func _show_internal_interstitial() -> void:
 	
 	show_interstitial()
 	
+	# Ожидание закрытия рекламы с таймаутом 15 секунд
+	var timeout := get_tree().create_timer(15.0)
 	while not ad_done:
+		if timeout.timeout:
+			push_warning("[AdsManager] Interstitial wait timeout")
+			break
 		await get_tree().process_frame
 	
 	interstitial_closed.disconnect(on_close)
@@ -205,19 +197,18 @@ func _show_internal_rewarded() -> bool:
 	
 	show_rewarded()
 	
+	# Ожидание закрытия rewarded видео с таймаутом 15 секунд
+	var timeout := get_tree().create_timer(15.0)
 	while not ad_closed:
+		if timeout.timeout:
+			push_warning("[AdsManager] Rewarded wait timeout")
+			break
 		await get_tree().process_frame
 	
 	rewarded_video_opened.disconnect(on_opened)
 	rewarded_video_rewarded.disconnect(on_rewarded)
 	rewarded_video_closed.disconnect(on_closed)
 	rewarded_video_error.disconnect(on_error)
-	
-	# Если видео открылось и закрылось, но сигнал награды не пришёл —
-	# всё равно считаем просмотром (Yandex SDK может не слать rewarded)
-	if ad_opened and not got_reward:
-		print("[AdsManager] No reward signal, but video was played — assuming rewarded")
-		got_reward = true
 	
 	print("[AdsManager] _show_internal_rewarded returning got_reward=", got_reward)
 	return got_reward
@@ -230,6 +221,10 @@ func _show_internal_rewarded() -> bool:
 ## Инициализировать Yandex SDK и лидерборд.
 ## Вызывать один раз при старте игры (после загрузки главного меню).
 func init_async() -> bool:
+	if _is_sdk_ready:
+		init_completed.emit(true)
+		return true
+	
 	init_started.emit()
 	
 	# 1. Найти или создать YandexGamesSDK
@@ -388,17 +383,10 @@ func show_rewarded() -> void:
 	sdk.adv.show_rewarded_video()
 
 
-# ============================================================
-# Resume (восстановление паузы)
-# ============================================================
-
-func _resume_game() -> void:
-	# Если очередь ещё не закончила обработку — не трогаем паузу
-	if _queue_in_progress or _queue_processing:
-		return
-	# Если игра была на паузе до очереди — возвращаем паузу
-	if _queue_paused_before:
-		get_tree().paused = true
+## Показать награждаемую рекламу и дождаться результата.
+## Возвращает true, если игрок получил награду.
+func show_rewarded_and_wait() -> bool:
+	return await _show_internal_rewarded()
 
 
 # ============================================================
@@ -534,10 +522,6 @@ func check_unconsumed_purchases() -> void:
 				_apply_all_modules()
 				if not token.is_empty():
 					await sdk.payments.consume_purchase(token)
-			"remove_ads":
-				print("[AdsManager] Processing unconsumed remove_ads")
-				SaveManager.ads_removed = true
-				SaveManager.save_game()
 			_:
 				push_warning("[AdsManager] Unknown unconsumed purchase: ", pid)
 
@@ -613,34 +597,6 @@ func purchase_all_modules() -> void:
 	print("[AdsManager] All modules purchased!")
 
 
-## Купить "Отключение рекламы" — реклама больше не показывается.
-## ID товара в панели Яндекса: "remove_ads"
-func purchase_remove_ads() -> void:
-	var purchase_data: Variant = await purchase("remove_ads")
-	if purchase_data == null:
-		printerr("[AdsManager] Purchase remove_ads failed")
-		return
-	SaveManager.ads_removed = true
-	SaveManager.save_game()
-	print("[AdsManager] Ads removed permanently!")
-
-
-## Проверить, можно ли показывать межстраничную рекламу (с учётом покупки).
-func can_show_interstitial_safe() -> bool:
-	if SaveManager.ads_removed:
-		return false
-	return can_show_interstitial()
-
-
-## Проверить, можно ли показывать rewarded рекламу (с учётом покупки).
-func can_show_rewarded_safe() -> bool:
-	if SaveManager.ads_removed:
-		return false
-	if sdk == null or not sdk.is_inited():
-		return false
-	return true
-
-
 ## Язык интерфейса пользователя (ISO 639-1).
 func get_lang() -> String:
 	var env := get_environment()
@@ -691,14 +647,12 @@ func get_tld() -> String:
 # ============================================================
 
 func _on_interstitial_opened() -> void:
-	gameplay_stop()
 	interstitial_opened.emit()
 
 func _on_interstitial_closed(was_shown: bool) -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
 	interstitial_closed.emit(was_shown)
-	gameplay_start()
 
 func _on_interstitial_error(error_message: String) -> void:
 	_is_ad_showing = false
@@ -714,14 +668,12 @@ func _on_interstitial_offline() -> void:
 
 
 func _on_rewarded_opened() -> void:
-	gameplay_stop()
 	rewarded_video_opened.emit()
 
 func _on_rewarded_closed() -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
 	rewarded_video_closed.emit()
-	gameplay_start()
 
 func _on_rewarded_error(error_message: String) -> void:
 	_is_ad_showing = false

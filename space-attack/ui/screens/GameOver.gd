@@ -122,8 +122,8 @@ func _on_quit_pressed() -> void:
 	if popup != null and is_instance_valid(popup):
 		popup.queue_free()
 	
-	# Переход в ангар
-	get_tree().paused = was_paused
+	# Переход в ангар — всегда снимаем паузу, чтобы Hangar не загрузился замёрзшим
+	get_tree().paused = false
 	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
 
 

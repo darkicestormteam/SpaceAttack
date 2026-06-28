@@ -92,9 +92,7 @@ func notify_game_ready() -> void:
 
 
 func _call_game_ready() -> void:
-	var yandex_sdk = get_node_or_null("/root/YandexGamesSDK")
-	if yandex_sdk != null and yandex_sdk is YandexGamesSDK:
-		yandex_sdk.game_ready()
+	# game_ready() уже вызывается в AdsManager.init_async()
 	is_game_ready = true
 	print("[GameManager] Game ready notified")
 

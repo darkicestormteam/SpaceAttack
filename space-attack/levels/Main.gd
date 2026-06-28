@@ -73,6 +73,11 @@ func _ready() -> void:
 	sm.reset_tmp_counters()
 	sm.tmp_current_ship = sm.current_ship
 	
+	# Уведомляем платформу Yandex о старте игровой сессии (gameplay_start)
+	var gm = get_node_or_null("/root/GameManager")
+	if gm != null and gm.has_method("on_battle_start"):
+		gm.on_battle_start()
+	
 	scout_timer.timeout.connect(_on_scout_timer_timeout)
 	scout_timer.start()
 	
@@ -171,6 +176,11 @@ func game_over() -> void:
 	if current_phase == GamePhase.GAME_OVER:
 		return
 	current_phase = GamePhase.GAME_OVER
+	
+	# Уведомляем платформу Yandex об остановке геймплея
+	var gm = get_node_or_null("/root/GameManager")
+	if gm != null and gm.has_method("on_battle_end"):
+		gm.on_battle_end()
 	
 	scout_timer.stop()
 	fighter_timer.stop()
@@ -563,6 +573,11 @@ const BG_SPEED_DOWN_DURATION: float = 2.0
 # Экран победы при убийстве мегабосса на волне 10
 func _game_won() -> void:
 	current_phase = GamePhase.GAME_OVER
+	
+	# Уведомляем платформу Yandex об остановке геймплея
+	var gm = get_node_or_null("/root/GameManager")
+	if gm != null and gm.has_method("on_battle_end"):
+		gm.on_battle_end()
 	
 	# Останавливаем всё
 	scout_timer.stop()

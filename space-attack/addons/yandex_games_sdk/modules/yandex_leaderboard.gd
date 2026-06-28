@@ -1,7 +1,7 @@
 ## A Module for Managing Leaderboards in Yandex Games.
 ## 
-## [b]@version[/b] 1.0.3 (updated for new Yandex API)
-## [b]@author[/b] Mist1351 (modified)
+## [b]@version[/b] 1.0.3[br]
+## [b]@author[/b] Mist1351[br]
 ## [br]
 ## A Module for managing leaderboard interactions in Yandex Games, including initializing leaderboards, submitting player scores, and retrieving leaderboard data.[br]
 ## [br]
@@ -68,7 +68,7 @@ var crl_get_player_entry:YandexUtils.CallRateLimiter = YandexUtils.CallRateLimit
 var crl_get_entries:YandexUtils.CallRateLimiter = YandexUtils.CallRateLimiter.new(get_entries_timeout, 5 * 60 * 1000, 20)
 
 
-var _leaderboard_available: bool = false   # флаг, что модуль готов (без отдельного объекта)
+var _leaderboard = null
 var _get_player_entry_code = null
 
 
@@ -151,22 +151,49 @@ func _parse_entry_js_object(entry_:JavaScriptObject) -> Dictionary:
 ## [br]
 ## [b]@returns[/b] [code]null[/code] — [YandexGamesSDK] is not initialized.[br]
 ## [b]@returns[/b] [bool] — [code]true[/code] if [YandexLeaderboard] is initialized; otherwise, [code]false[/code].[br]
+## [br]
+## [b]@example[/b]
+## [codeblock lang=gdscript]
+## await YandexSDK.init()
+## var result = await YandexSDK.leaderboard.init()
+## ...
+## if result:
+##     prints("YandexLeaderboard is initialized!")
+## else:
+##     prints("YandexLeaderboard is not initialized!")
+## [/codeblock]
 ## [b]@see[/b] [url]https://yandex.ru/dev/games/doc/en/sdk/sdk-leaderboard#init[/url]
 func init() -> Variant:
-	# Новый API не требует отдельной инициализации через getLeaderboards.
-	# Просто проверяем, что объект ysdk.leaderboards существует.
-	if !_check_availability(["leaderboards"]):
+	_leaderboard = null
+	if !_check_availability(["getLeaderboards"]):
 		return null
-	_leaderboard_available = true
-	init_succeeded.emit()
-	return true
+	
+	var result := await Promise.new(_yandex_sdk._ysdk.getLeaderboards()).wait()
+	if result.status:
+		_leaderboard = result.value[0]
+		init_succeeded.emit()
+	else:
+		init_failed.emit(YandexUtils.js_utils.stringify(result.value[0]))
+	
+	return result.status
 
 
 ## Returns the initialization state of [YandexLeaderboard].[br]
 ## [br]
-## [b]@returns[/b] [bool] — [code]true[/code] if [YandexLeaderboard] is initialized; otherwise, [code]false[/code].
+## [b]@returns[/b] [bool] — [code]true[/code] if [YandexLeaderboard] is initialized; otherwise, [code]false[/code].[br]
+## [br]
+## [b]@example[/b]
+## [codeblock lang=gdscript]
+## await YandexSDK.init()
+## ...
+## var result = YandexSDK.leaderboard.is_inited()
+## if result:
+##     prints("YandexLeaderboard is initialized!")
+## else:
+##     prints("YandexLeaderboard is not initialized!")
+## [/codeblock]
 func is_inited() -> bool:
-	return _is_inited() and _leaderboard_available
+	return _is_inited() && null != _leaderboard
 
 
 ## [b]@async[/b][br]
@@ -178,13 +205,60 @@ func is_inited() -> bool:
 ## [b]@emits[/b] [signal get_description_succeeded] — The request was completed successfully.[br]
 ## [b]@emits[/b] [signal get_description_failed] — The request failed with an error.[br]
 ## [br]
-## [b]@returns[/b] [code]null[/code] — on error.[br]
-## [b]@returns[/b] [Dictionary] — Leaderboard description.
+## [b]@returns[/b] [code]null[/code]:[br]
+## [b]    •[/b] [YandexLeaderboard] is not initialized;[br]
+## [b]    •[/b] The request returned an error.[br]
+## [b]@returns[/b] [Dictionary] — Leaderboard description:
+## [codeblock lang=gdscript]
+## {
+##     # App ID.
+##     app_id:String,
+##     # If true, then it is the primary leaderboard.
+##     dеfault:bool,
+##     description: {
+##         # Sort order:
+##         #   false: Places are sorted in descending order.
+##         #   true: Places are sorted in ascending order.
+##         invert_sort_order:bool,
+##         score_format: {
+##             options: {
+##                 # Score offset. For example, with decimal_offset: 2, the number 1234 is displayed as 12.34.
+##                 decimal_offset:int,
+##             },
+##             # Leaderboard result type. Acceptable parameters: numeric (a number), time (in seconds).
+##             # Use constants:
+##             #   YandexLeaderboard.TYPE_NUMERIC
+##             #   YandexLeaderboard.TYPE_TIME
+##             type:String,
+##         },
+##     },
+##     # Leaderboard name.
+##     name:String,
+##     # Localized names. Possible array parameters: ru, en, be, uk, kk, uz, tr.
+##     title: {
+##         en:String,
+##         ru:String,
+##         be:String,
+##         uk:String,
+##         kk:String,
+##         uz:String,
+##         tr:String,
+##     },
+## }
+## [/codeblock]
+## [b]@example[/b]
+## [codeblock lang=gdscript]
+## await YandexSDK.init()
+## await YandexSDK.leaderboard.init()
+## ...
+## var description = await YandexSDK.leaderboard.get_description("top")
+## [/codeblock]
+## [b]@see[/b] [url]https://yandex.ru/dev/games/doc/en/sdk/sdk-leaderboard#description[/url]
 func get_description(name_:String) -> Variant:
-	if !_check_availability(["leaderboards", "getDescription"]):
+	if !_check_availability(["getLeaderboardDescription"], "leaderboard", _leaderboard):
 		return null
 	
-	var result := await Promise.new(_yandex_sdk._ysdk.leaderboards.getDescription(name_)).wait()
+	var result := await Promise.new(_leaderboard.getLeaderboardDescription(name_)).wait()
 	if !result.status:
 		get_description_failed.emit(YandexUtils.js_utils.stringify(result.value[0]))
 		return null
@@ -200,27 +274,44 @@ func get_description(name_:String) -> Variant:
 ## Set a new score for a player.[br]
 ## [br]
 ## [b]@param[/b] {[String]} [param name_] — Leaderboard name.[br]
-## [b]@param[/b] {[int]} [param score_] — Score.[br]
-## [b]@param[/b] {[String]} [lb][param extra_data_][kbd] = ""[/kbd][rb] — User description.[br]
+## [b]@param[/b] {[int]} [param score_] — Score. Only the integer type is accepted. The value is non-negative, with the maximum limited only by the JavaScript logic. If the leaderboard type is time, the values must be passed in milliseconds.[br]
+## [b]@param[/b] {[String]} [lb][param extra_data_][kbd] = ""[/kbd][rb] — User description. Optional parameter.[br]
 ## [br]
 ## [b]@emits[/b] [signal YandexGamesSDK.sdk_error] — Internal SDK error.[br]
 ## [b]@emits[/b] [signal set_score_succeeded] — The request was completed successfully.[br]
 ## [b]@emits[/b] [signal set_score_failed] — The request failed with an error.[br]
 ## [br]
-## [b]@returns[/b] [code]null[/code] or [bool] — success status.
+## [b]@returns[/b] [code]null[/code]:[br]
+## [b]    •[/b] [YandexLeaderboard] is not initialized;[br]
+## [b]    •[/b] The user is not authorized.[br]
+## [b]@returns[/b] [bool] — [code]true[/code] if the request was completed successfully; otherwise, [code]false[/code].[br]
+## [br]
+## [b]@example[/b]
+## [codeblock lang=gdscript]
+## await YandexSDK.init()
+## await YandexSDK.leaderboard.init()
+## ...
+## await YandexSDK.leaderboard.set_score("top", 1)
+## await YandexSDK.leaderboard.set_score("top", 1000, "Best player!")
+## [/codeblock]
+## [b]@see[/b] [url]https://yandex.ru/dev/games/doc/en/sdk/sdk-leaderboard#set-score[/url]
 func set_score(name_:String, score_:int, extra_data_:String = "") -> Variant:
-	if !_check_availability(["leaderboards", "setScore"]):
+	if !_check_availability(["setLeaderboardScore"], "leaderboard", _leaderboard):
 		return null
 	
-	# Проверка доступности метода для авторизованных пользователей
-	if !(await _is_available_method("leaderboards.setScore")):
-		set_score_failed.emit("User doesn't have permission to call leaderboards.setScore()!")
+	if !(await _is_available_method("leaderboards.setLeaderboardScore")):
+		set_score_failed.emit("User doesn't have permission to call leaderboards.setLeaderboardScore()!")
 		return null
 	
 	crl_set_score.apply()
 	
-	# Вызов напрямую ysdk.leaderboards.setScore
-	var result := await Promise.new(_yandex_sdk._ysdk.leaderboards.setScore(name_, score_, extra_data_)).wait()
+	var params:JavaScriptObject = JavaScriptBridge.create_object("Array")
+	params.push(name_)
+	params.push(score_)
+	if !extra_data_.is_empty():
+		params.push(extra_data_)
+	
+	var result := await Promise.new(_leaderboard.setLeaderboardScore.apply(_leaderboard, params)).wait()
 	if result.status:
 		set_score_succeeded.emit()
 	else:
@@ -232,27 +323,85 @@ func set_score(name_:String, score_:int, extra_data_:String = "") -> Variant:
 ## [b]@async[/b][br]
 ## Get a user's ranking.[br]
 ## [br]
+## [color=deep_sky_blue][b]@note:[/b][/color] If the method returned [code]null[/code], you can retrieve the possible error code using the [method get_player_entry_code] method.[br]
+## [color=gold][b]@warning:[/b][/color] The request is available only for authorized users.[br]
+## [color=deep_sky_blue][b]@note:[/b][/color] The number of requests is limited to [b]60 times[/b] in [b]5 minutes[/b]. Otherwise, they will be rejected with an error.[br]
+## [br]
 ## [b]@param[/b] {[String]} [param name_] — Leaderboard name.[br]
 ## [br]
 ## [b]@emits[/b] [signal YandexGamesSDK.sdk_error] — Internal SDK error.[br]
 ## [b]@emits[/b] [signal get_player_entry_succeeded] — The request was completed successfully.[br]
 ## [b]@emits[/b] [signal get_player_entry_failed] — The request failed with an error.[br]
 ## [br]
-## [b]@returns[/b] [code]null[/code] — on error.[br]
-## [b]@returns[/b] [Dictionary] — User leaderboard entry.
+## [b]@returns[/b] [code]null[/code]:[br]
+## [b]    •[/b] [YandexLeaderboard] is not initialized;[br]
+## [b]    •[/b] The user is not authorized;[br]
+## [b]    •[/b] The request returned an error.[br]
+## [b]@returns[/b] [Dictionary] — User leaderboard entry:
+## [codeblock lang=gdscript]
+## {
+##     # Score. Only the integer type is accepted. The integer must not be a negative number. If the leaderboard type is time, the values must be passed in milliseconds.
+##     score:int,
+##     # User description. Optional parameter.
+##     extra_data:String,
+##     # Leaderboard position.
+##     rank:int,
+##     player: {
+##         # User avatar URL.
+##         avatar_src: {
+##             # User small avatar URL.
+##             small:String,
+##             # User medium avatar URL.
+##             medium:String,
+##             # User large avatar URL.
+##             large:String,
+##         },
+##         # User avatar srcset optimized for Retina displays.
+##         avatar_src_set: {
+##             # User small avatar srcset.
+##             small:String,
+##             # User medium avatar srcset.
+##             medium:String,
+##             # User large avatar srcset.
+##             large:String,
+##         },
+##         # User language.
+##         lang:String,
+##         # User public name.
+##         public_name:String,
+##         # Permissions granted by the user.
+##         scope_permissions: {
+##             # If the value is "allow," the user has granted permission to use their avatar.
+##             avatar:String,
+##             # If the value is "allow," the user has granted permission to use their public name.
+##             public_name:String,
+##         },
+##         unique_id:String,
+##     },
+##     formatted_score:String,
+## }
+## [/codeblock]
+## [b]@example[/b]
+## [codeblock lang=gdscript]
+## await YandexSDK.init()
+## await YandexSDK.leaderboard.init()
+## ...
+## var entry = await YandexSDK.leaderboard.get_player_entry("top")
+## [/codeblock]
+## [b]@see[/b] [url]https://yandex.ru/dev/games/doc/en/sdk/sdk-leaderboard#get-entry[/url]
 func get_player_entry(name_:String) -> Variant:
 	_get_player_entry_code = null
 	
-	if !_check_availability(["leaderboards", "getPlayerEntry"]):
+	if !_check_availability(["getLeaderboardPlayerEntry"], "leaderboard", _leaderboard):
 		return null
 	
-	if !(await _is_available_method("leaderboards.getPlayerEntry")):
-		set_score_failed.emit("User doesn't have permission to call leaderboards.getPlayerEntry()!")
+	if !(await _is_available_method("leaderboards.getLeaderboardPlayerEntry")):
+		set_score_failed.emit("User doesn't have permission to call leaderboards.getLeaderboardPlayerEntry()!")
 		return null
 	
 	crl_get_player_entry.apply()
 	
-	var result := await Promise.new(_yandex_sdk._ysdk.leaderboards.getPlayerEntry(name_)).wait()
+	var result := await Promise.new(_leaderboard.getLeaderboardPlayerEntry(name_)).wait()
 	if !result.status:
 		_get_player_entry_code = YandexUtils.get_property(result.value[0], ["code"])
 		get_player_entry_failed.emit(YandexUtils.js_utils.stringify(result.value[0]), _get_player_entry_code)
@@ -266,15 +415,127 @@ func get_player_entry(name_:String) -> Variant:
 ## [b]@async[/b][br]
 ## Leaderboard entries.[br]
 ## [br]
-## [b]@param[/b] {[String]} [param name_] — Leaderboard name.[br]
-## [b]@param[/b] {[bool]} [lb][param include_user_][kbd] = false[/kbd][rb] — Include logged-in user.[br]
-## [b]@param[/b] {[int]} [lb][param quantity_around_][kbd] = 5[/kbd][rb] — Entries around user.[br]
-## [b]@param[/b] {[int]} [lb][param quantity_top_][kbd] = 5[/kbd][rb] — Top entries.[br]
+## [color=gold][b]@warning:[/b][/color] The request is available only for authorized users.[br]
+## [color=deep_sky_blue][b]@note:[/b][/color] The number of requests is limited to [b]20 times[/b] in [b]5 minutes[/b]. Otherwise, they will be rejected with an error.[br]
 ## [br]
-## [b]@returns[/b] [code]null[/code] — on error.[br]
-## [b]@returns[/b] [Dictionary] — Leaderboard entries data.
+## [b]@param[/b] {[String]} [param name_] — Leaderboard name.[br]
+## [b]@param[/b] {[bool]} [lb][param include_user_][kbd] = false[/kbd][rb] — Defines whether to include the logged-in user in the response:[br]
+## [b]    •[/b] [code]true[/code]: Include in the response;[br]
+## [b]    •[/b] [code]false[/code] (default value): Do not include.[br]
+## [b]@param[/b] {[int]} [lb][param quantity_around_][kbd] = 5[/kbd][rb] — Number of entries to return below and above the user in the leaderboard. The minimum value is 1. The maximum value is 10.[br]
+## [b]@param[/b] {[int]} [lb][param quantity_top_][kbd] = 5[/kbd][rb] — Number of entries from the top of the leaderboard. The minimum value is 1. The maximum value is 20. The default return value is 5.[br]
+## [br]
+## [b]@emits[/b] [signal YandexGamesSDK.sdk_error] — Internal SDK error.[br]
+## [b]@emits[/b] [signal get_entries_succeeded] — The request was completed successfully.[br]
+## [b]@emits[/b] [signal get_entries_failed] — The request failed with an error.[br]
+## [br]
+## [b]@returns[/b] [code]null[/code]:[br]
+## [b]    •[/b] [YandexLeaderboard] is not initialized;[br]
+## [b]    •[/b] The user is not authorized;[br]
+## [b]    •[/b] The request returned an error.[br]
+## [b]@returns[/b] [Dictionary] — User leaderboard entry:
+## [codeblock lang=gdscript]
+## {
+##     # Leaderboard description.
+##     leaderboard: {
+##         # App ID.
+##         app_id:String,
+##         # If true, then it is the primary leaderboard.
+##         dеfault:bool,
+##         description: {
+##             # Sort order:
+##             #   false: Places are sorted in descending order.
+##             #   true: Places are sorted in ascending order.
+##             invert_sort_order:bool,
+##             score_format: {
+##                 options: {
+##                     # Score offset. For example, with decimal_offset: 2, the number 1234 is displayed as 12.34.
+##                     decimal_offset:int,
+##                 },
+##                 # Leaderboard result type. Acceptable parameters: numeric (a number), time (in seconds).
+##                 # Use constants:
+##                 #   YandexLeaderboard.TYPE_NUMERIC
+##                 #   YandexLeaderboard.TYPE_TIME
+##                 type:String,
+##             },
+##         },
+##         # Leaderboard name.
+##         name:String,
+##         # Localized names. Possible array parameters: ru, en, be, uk, kk, uz, tr.
+##         title: {
+##             en:String,
+##             ru:String,
+##             be:String,
+##             uk:String,
+##             kk:String,
+##             uz:String,
+##             tr:String,
+##         },
+##     },
+##     # Ranking ranges in the response.
+##     ranges: [
+##         # Placement in the rankings. Numbering starts from zero, so the first place is considered the 0th element.
+##         start:int,
+##         # Number of entries requested. If there isn't enough data, the number returned may not be the number requested.
+##         size:int,
+##     ],
+##     # User's rank. Returns 0 if the user's score isn't in the rankings or if the request is for the top rankings without including the user.
+##     user_rank:int,
+##     # Requested entries.
+##     entries: {
+##         # Score. Only the integer type is accepted. The integer must not be a negative number. If the leaderboard type is time, the values must be passed in milliseconds.
+##         score:int,
+##         # User description. Optional parameter.
+##         extra_data:String,
+##         # Leaderboard position.
+##         rank:int,
+##         player: {
+##             # User avatar URL.
+##             avatar_src: {
+##                 # User small avatar URL.
+##                 small:String,
+##                 # User medium avatar URL.
+##                 medium:String,
+##                 # User large avatar URL.
+##                 large:String,
+##             },
+##             # User avatar srcset optimized for Retina displays.
+##             avatar_src_set: {
+##                 # User small avatar srcset.
+##                 small:String,
+##                 # User medium avatar srcset.
+##                 medium:String,
+##                 # User large avatar srcset.
+##                 large:String,
+##             },
+##             # User language.
+##             lang:String,
+##             # User public name.
+##             public_name:String,
+##             # Permissions granted by the user.
+##             scope_permissions: {
+##                 # If the value is "allow," the user has granted permission to use their avatar.
+##                 avatar:String,
+##                 # If the value is "allow," the user has granted permission to use their public name.
+##                 public_name:String,
+##             },
+##             unique_id:String,
+##         },
+##         formatted_score:String,
+##     }
+## }
+## [/codeblock]
+## [b]@example[/b]
+## [codeblock lang=gdscript]
+## await YandexSDK.init()
+## await YandexSDK.leaderboard.init()
+## ...
+## var entries = await YandexSDK.leaderboard.get_entries("top")
+## entries = await YandexSDK.leaderboard.get_entries("top", true, 2, 10)
+## [/codeblock]
+## [b]@see[/b] [url]https://yandex.ru/dev/games/doc/en/sdk/sdk-leaderboard#get-entries[/url]
 func get_entries(name_:String, include_user_:bool = false, quantity_around_:int = 5, quantity_top_:int = 5) -> Variant:
-	if !_check_availability(["leaderboards", "getEntries"]):
+	if !_check_availability(["getLeaderboardEntries"], "leaderboard", _leaderboard):
 		return null
 	
 	var params:JavaScriptObject = JavaScriptBridge.create_object("Object")
@@ -282,7 +543,7 @@ func get_entries(name_:String, include_user_:bool = false, quantity_around_:int 
 	params["quantityAround"] = quantity_around_
 	params["quantityTop"] = quantity_top_
 	
-	var result := await Promise.new(_yandex_sdk._ysdk.leaderboards.getEntries(name_, params)).wait()
+	var result := await Promise.new(_leaderboard.getLeaderboardEntries(name_, params)).wait()
 	if !result.status:
 		get_entries_failed.emit(YandexUtils.js_utils.stringify(result.value[0]))
 		return null
@@ -314,6 +575,20 @@ func get_entries(name_:String, include_user_:bool = false, quantity_around_:int 
 	return data
 
 
-## Retrieve the possible error code after calling the [method get_player_entry] method.
+## Retrieve the possible error code after calling the [method get_player_entry] method.[br]
+## [br]
+## [b]@returns[/b] [code]null[/code] — No error code is available.[br]
+## [b]@returns[/b] [constant CODE_LEADERBOARD_PLAYER_NOT_PRESENT] — The user is not present in the leaderboard.[br]
+## [br]
+## [b]@example[/b]
+## [codeblock lang=gdscript]
+## await YandexSDK.init()
+## await YandexSDK.leaderboard.init()
+## ...
+## var entry = await YandexSDK.leaderboard.get_player_entry("top")
+## if null == entry:
+##     if YandexLeaderboard.CODE_LEADERBOARD_PLAYER_NOT_PRESENT == YandexSDK.leaderboard.get_player_entry_code():
+##         pass # The leaderboard doesn't have an entry for the player.
+## [/codeblock]
 func get_player_entry_code() -> Variant:
 	return _get_player_entry_code

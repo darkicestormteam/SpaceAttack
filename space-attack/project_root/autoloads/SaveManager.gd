@@ -25,7 +25,6 @@ var current_ship: String = "vanguard"
 var ship_skins: Dictionary = {}
 
 # Покупки через Yandex Payments
-var ads_removed: bool = false  # реклама отключена навсегда
 var all_modules_purchased: bool = false  # все модули куплены
 
 # Система ачивок
@@ -210,7 +209,6 @@ func load_game() -> Dictionary:
 			persistent_chests_opened = data.get("persistent_chests_opened", 0)
 
 			# Покупки
-			ads_removed = data.get("ads_removed", false)
 			all_modules_purchased = data.get("all_modules_purchased", false)
 
 			# Скины
@@ -377,7 +375,6 @@ func save_game() -> void:
 		"persistent_bosses_killed": persistent_bosses_killed,
 		"persistent_modules_unlocked_count": persistent_modules_unlocked_count,
 		"persistent_chests_opened": persistent_chests_opened,
-		"ads_removed": ads_removed,
 		"all_modules_purchased": all_modules_purchased,
 		"difficulty_unlocked": difficulty_unlocked.duplicate(),
 		"difficulty_level": difficulty_level,

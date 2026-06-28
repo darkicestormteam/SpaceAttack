@@ -681,14 +681,8 @@ func _refresh_iap_buttons() -> void:
 			iap_all_modules_btn.modulate = Color(1, 1, 1, 1)
 	
 	if iap_remove_ads_btn:
-		if SaveManager.ads_removed:
-			iap_remove_ads_btn.text = "Реклама отключена ✓"
-			iap_remove_ads_btn.disabled = true
-			iap_remove_ads_btn.modulate = Color(0.7, 0.7, 0.7, 0.6)
-		else:
-			iap_remove_ads_btn.text = "Отключить рекламу"
-			iap_remove_ads_btn.disabled = false
-			iap_remove_ads_btn.modulate = Color(1, 1, 1, 1)
+		iap_remove_ads_btn.visible = false
+		iap_remove_ads_btn.disabled = true
 
 
 func _on_iap_all_modules_pressed() -> void:
