@@ -37,6 +37,10 @@ signal leaderboard_entries_failed(error_message: String)
 signal leaderboard_player_entry_received(entry: Dictionary)
 signal leaderboard_player_entry_failed(error_message: String)
 
+# --- Reward Flow ---
+## Единый сигнал завершения rewarded потока. Срабатывает один раз при любом исходе.
+signal ad_flow_finished()
+
 # --- Feedback ---
 signal review_possible()
 signal review_not_possible(reason: Variant)
@@ -165,26 +169,64 @@ func _show_internal_interstitial() -> void:
 # Внутренний показ rewarded
 # ============================================================
 
+## Вспомогательные поля для _show_internal_rewarded
+var _reward_got: bool = false
+var _reward_flow_done: bool = false
+
+
 func _show_internal_rewarded() -> bool:
 	if sdk == null or not sdk.is_inited():
 		return false
 	
-	var got_reward := false
+	# Сбрасываем состояние
+	_reward_got = false
+	_reward_flow_done = false
 	
-	var on_rewarded := func() -> void:
-		got_reward = true
-	
-	rewarded_video_rewarded.connect(on_rewarded)
+	# Подписываемся на сигналы Yandex SDK 
+	# _arg = null защищает от Signal Signature Mismatch (JS может слать объект вместо строки)
+	rewarded_video_rewarded.connect(_on_ad_rewarded_internal, CONNECT_ONE_SHOT)
+	rewarded_video_closed.connect(_on_ad_closed_internal, CONNECT_ONE_SHOT)
+	rewarded_video_error.connect(_on_ad_error_internal, CONNECT_ONE_SHOT)
 	
 	show_rewarded()
 	
-	# Ждём закрытия — один await, без циклов
-	await rewarded_video_closed
+	# Ждём единый сигнал завершения — без циклов, без таймеров
+	await ad_flow_finished
 	
-	rewarded_video_rewarded.disconnect(on_rewarded)
+	# Отписка на всякий случай (CONNECT_ONE_SHOT уже отписал, но для надёжности)
+	if rewarded_video_rewarded.is_connected(_on_ad_rewarded_internal):
+		rewarded_video_rewarded.disconnect(_on_ad_rewarded_internal)
+	if rewarded_video_closed.is_connected(_on_ad_closed_internal):
+		rewarded_video_closed.disconnect(_on_ad_closed_internal)
+	if rewarded_video_error.is_connected(_on_ad_error_internal):
+		rewarded_video_error.disconnect(_on_ad_error_internal)
 	
-	print("[AdsManager] _show_internal_rewarded returning got_reward=", got_reward)
-	return got_reward
+	print("[AdsManager] _show_internal_rewarded returning got_reward=", _reward_got)
+	return _reward_got
+
+
+# --- Внутренние обработчики сигналов ---
+
+func _on_ad_rewarded_internal(_arg = null) -> void:
+	print("[AdsManager] Internal: reward received")
+	_reward_got = true
+	_finish_reward_flow()
+
+func _on_ad_closed_internal(_arg = null) -> void:
+	print("[AdsManager] Internal: closed")
+	_finish_reward_flow()
+
+func _on_ad_error_internal(_arg = null) -> void:
+	print("[AdsManager] Internal: error")
+	_finish_reward_flow()
+
+
+func _finish_reward_flow() -> void:
+	# Защита от двойного вызова — если SDK пришлёт и rewarded, и closed
+	if _reward_flow_done:
+		return
+	_reward_flow_done = true
+	ad_flow_finished.emit()
 
 
 # ============================================================
@@ -576,7 +618,16 @@ func purchase_all_modules() -> void:
 		SaveManager.unlock_skin(parts[1], int(parts[2]))
 	
 	SaveManager.on_achievement_progress_check()
-	SaveManager.save_game()
+	# Критическое сохранение с flush=true — IAP покупка должна сохраниться немедленно
+	# Ждём завершения облачного сохранения, иначе при закрытии игры данные потеряются
+	if SaveManager.has_method(&"save_game_critical_async"):
+		var saved = await SaveManager.save_game_critical_async()
+		if not saved:
+			printerr("[AdsManager] CRITICAL: Cloud save failed after IAP purchase!")
+		else:
+			print("[AdsManager] IAP data saved to cloud successfully")
+	else:
+		SaveManager.save_game()
 	
 	# Потребляем покупку (расходный товар)
 	await consume_purchase(purchase_data.purchase_token)

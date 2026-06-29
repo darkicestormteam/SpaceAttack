@@ -54,7 +54,7 @@ func _ready() -> void:
 # ============================================================
 
 ## Установить режим и показать меню.
-func show_mode(mode: Mode, score: int = 0, credits_earned: int = 0) -> void:
+func show_mode(mode: Mode, score: int = 0, credits_earned: int = 0, can_revive: bool = true) -> void:
 	_current_mode = mode
 	dim.visible = true
 	panel.visible = true
@@ -78,7 +78,9 @@ func show_mode(mode: Mode, score: int = 0, credits_earned: int = 0) -> void:
 			score_label.text = "Очки: %d" % score
 			credits_label.visible = true
 			credits_label.text = "Заработано кредитов: %d" % credits_earned
-			revive_button.visible = true
+			revive_button.visible = can_revive
+			revive_button.text = "Воскреснуть за рекламу" if can_revive else "Воскрешение недоступно"
+			revive_button.disabled = not can_revive
 			resume_button.visible = false
 			hangar_button.visible = true
 			restart_button.visible = true
@@ -114,13 +116,17 @@ func show_menu() -> void:
 	show_mode(Mode.PAUSED)
 
 
-func hide_menu() -> void:
+## Скрыть меню.
+## release_pause=true — снять паузу (для кнопки "Продолжить")
+## release_pause=false — пауза остаётся (для воскрешения, Main сам снимет)
+func hide_menu(release_pause: bool = false) -> void:
 	dim.visible = false
 	panel.visible = false
 	settings_panel.visible = false
 	menu_button.visible = true
-	get_tree().paused = false
-	_gameplay_resume()
+	if release_pause:
+		get_tree().paused = false
+		_gameplay_resume()
 
 
 # ============================================================
@@ -273,7 +279,7 @@ func _on_menu_button_pressed() -> void:
 
 
 func _on_resume_pressed() -> void:
-	hide_menu()
+	hide_menu(true)
 	resumed.emit()
 
 
@@ -292,7 +298,6 @@ func _on_hangar_pressed() -> void:
 
 
 func _on_restart_pressed() -> void:
-	# При рестарте НЕ сбрасываем банк — он копится дальше
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 

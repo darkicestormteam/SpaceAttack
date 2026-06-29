@@ -37,6 +37,11 @@ var enemies_to_next_wave: int = 10
 # Количество кредитов, заработанных в этой игровой сессии (для кнопки x2)
 var credits_earned_this_run: int = 0
 
+# Флаг: можно ли воскреснуть за рекламу (сбрасывается при старте/рестарте)
+var _can_revive: bool = true
+# Флаг: уже воскрешался в этом забеге
+var _has_revived_this_run: bool = false
+
 # Единое состояние игры
 var current_phase: int = GamePhase.NORMAL
 
@@ -73,6 +78,10 @@ func _ready() -> void:
 	sm.load_game()
 	sm.reset_tmp_counters()
 	sm.tmp_current_ship = sm.current_ship
+	
+	# Сброс флагов воскрешения при старте/рестарте
+	_can_revive = true
+	_has_revived_this_run = false
 	
 	# Уведомляем платформу Yandex о старте игровой сессии (gameplay_start)
 	var gm = get_node_or_null("/root/GameManager")
@@ -181,6 +190,10 @@ func game_over() -> void:
 		return
 	current_phase = GamePhase.GAME_OVER
 	
+	# Если уже воскрешался — больше нельзя воскреснуть
+	if _has_revived_this_run:
+		_can_revive = false
+	
 	# Уведомляем платформу Yandex об остановке геймплея
 	var gm = get_node_or_null("/root/GameManager")
 	if gm != null and gm.has_method("on_battle_end"):
@@ -205,7 +218,7 @@ func game_over() -> void:
 	var pause_menu = $PauseMenu
 	if pause_menu and pause_menu.has_method("show_mode"):
 		_paused_by_gameover = true
-		pause_menu.show_mode(pause_menu.Mode.GAME_OVER, score, credits_earned_this_run)
+		pause_menu.show_mode(pause_menu.Mode.GAME_OVER, score, credits_earned_this_run, _can_revive)
 	
 	sm.on_game_over(score)
 	
@@ -213,23 +226,53 @@ func game_over() -> void:
 	_submit_to_leaderboard()
 
 
-## Воскрешает игрока бесплатно.
+## Воскрешает игрока за просмотр rewarded рекламы.
 ## Вызывается из PauseMenu по сигналу revive_requested.
+## Можно воскреснуть только один раз за забег.
 func revive_player() -> void:
-	# Скрываем PauseMenu — hide_menu() сам вызовет _gameplay_resume() → gameplay_start()
+	if _has_revived_this_run or not _can_revive:
+		return
+	
+	# Показываем rewarded рекламу и ждём результат
+	var ads = get_node_or_null("/root/AdsManager")
+	var got_reward := false
+	if ads != null and ads.has_method("show_rewarded_and_wait"):
+		got_reward = await ads.show_rewarded_and_wait()
+	
+	if not got_reward:
+		print("[Main] Revive cancelled — no reward from ad")
+		return
+	
+	# Награда получена — воскрешаем
+	_has_revived_this_run = true
+	_can_revive = false
+	
+	# Скрываем PauseMenu (но паузу НЕ снимаем — враги не должны двигаться)
 	var pause_menu = $PauseMenu
 	if pause_menu and pause_menu.has_method("hide_menu"):
 		pause_menu.hide_menu()
 	
-	# Снимаем паузу
-	_paused_by_gameover = false
-	get_tree().paused = false
-	
-	# Воскрешаем игрока с 50% HP
+	# Воскрешаем игрока с 50% HP (пока на паузе)
 	var player = $Player
 	if player and player.has_method("revive_to_half"):
 		player.revive_to_half()
 		current_phase = GamePhase.NORMAL
+		
+		# Показываем обратный отсчёт 3-2-1 (игра на паузе — враги не двигаются)
+		var countdown_scene = preload("res://ui/popups/ReviveCountdown.tscn")
+		if countdown_scene:
+			var cd = countdown_scene.instantiate()
+			add_child(cd)
+			cd.start()
+			await cd.countdown_finished
+		
+		# Снимаем паузу ПОСЛЕ отсчёта
+		_paused_by_gameover = false
+		get_tree().paused = false
+		# Уведомляем GameManager о возобновлении (gameplay_start)
+		var gm = get_node_or_null("/root/GameManager")
+		if gm and gm.has_method("on_game_resumed"):
+			gm.on_game_resumed()
 		
 		# Возобновляем спавн врагов
 		scout_timer.start()
@@ -243,6 +286,11 @@ func revive_player() -> void:
 			scout_cluster_timer.start()
 		
 		print("[Main] Player revived with 50% HP!")
+		print("[Main] Revive used — one revive per run")
+	else:
+		# Если игрока вдруг нет — возвращаем паузу
+		if pause_menu and pause_menu.has_method("show_mode"):
+			pause_menu.show_mode(pause_menu.Mode.GAME_OVER, score, credits_earned_this_run, false)
 
 
 func add_score(amount: int) -> void:
@@ -932,6 +980,8 @@ func _on_pause_hangar() -> void:
 	# Проверяем ачивки, связанные с прогрессом (волны, счёт, корабли), перед выходом
 	if current_phase != GamePhase.GAME_OVER:
 		_on_game_over_checks()
+	# Принудительное облачное сохранение перед сменой сцены
+	_save_cloud_now()
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://ui/screens/Hangar.tscn")
 
@@ -940,8 +990,15 @@ func _on_pause_restart() -> void:
 	# Проверяем ачивки, связанные с прогрессом (волны, счёт, корабли), перед рестартом
 	if current_phase != GamePhase.GAME_OVER:
 		_on_game_over_checks()
+	# Принудительное облачное сохранение перед рестартом
+	_save_cloud_now()
 	get_tree().paused = false
 	get_tree().reload_current_scene()
+
+
+func _save_cloud_now() -> void:
+	if sm and sm.has_method(&"save_game_cloud_now"):
+		sm.save_game_cloud_now()
 
 
 # Вызывается при выходе из игры (смерть, рестарт, выход в ангар) для проверки ачивок

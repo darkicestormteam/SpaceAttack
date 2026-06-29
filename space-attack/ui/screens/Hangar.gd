@@ -281,21 +281,32 @@ func _handle_double_choice(choice: String, amount: int) -> void:
 	var ads = get_node_or_null("/root/AdsManager")
 	
 	if choice == "yes" and amount > 0 and ads != null:
-		# Показываем rewarded рекламу для удвоения
-		ads.queue_rewarded_double(amount)
-		await ads.queue_completed
-		# AdsManager уже начислил amount*2
-		amount = amount * 2
+		# Показываем rewarded рекламу напрямую и ждём результат
+		var got_reward = await ads.show_rewarded_and_wait()
+		
+		if got_reward:
+			# Награда получена — начисляем банк + удвоение
+			SaveManager.add_credits(amount * 2)
+			# Анимация ×2
+			await _show_credits_animation(amount * 2)
+		else:
+			# Награды нет — начисляем обычные кредиты
+			SaveManager.add_credits(amount)
+			# Анимация обычного начисления
+			await _show_credits_animation(amount)
+			# Показываем межстраничную рекламу (если доступна)
+			if ads.has_method("can_show_interstitial") and ads.can_show_interstitial():
+				ads.queue_interstitial()
+				await ads.queue_completed
 	else:
 		# Начисляем обычные кредиты
 		SaveManager.add_credits(amount)
+		# Анимация начисления
+		await _show_credits_animation(amount)
 		# Показываем межстраничную рекламу (если доступна)
 		if ads != null and ads.has_method("can_show_interstitial") and ads.can_show_interstitial():
 			ads.queue_interstitial()
 			await ads.queue_completed
-	
-	# Анимация перетекания с кнопкой "Принять"
-	await _show_credits_animation(amount)
 	
 	# Возвращаем интерфейс ангара
 	_show_hangar_ui()
