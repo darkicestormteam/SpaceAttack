@@ -50,6 +50,10 @@ signal review_failed(error_message: String)
 # --- Queue ---
 signal queue_completed()
 
+# --- Purchase Availability ---
+## Сигнал об изменении доступности покупок (для Hangar и других UI)
+signal purchase_availability_changed(available: bool)
+
 
 ## Ссылка на экземпляр YandexGamesSDK (устанавливается при инициализации)
 var sdk: Variant
@@ -78,6 +82,34 @@ var _queue_processing: bool = false
 var _queue_in_progress: bool = false
 ## Результат последнего rewarded видео
 var _last_rewarded_result: bool = false
+
+# Флаг готовности платежей
+var _is_payments_ready: bool = false
+
+
+# ============================================================
+# API проверки доступности
+# ============================================================
+
+## Можно ли совершать покупки? Возвращает true только если SDK, player и payments готовы.
+## Если false — кнопки покупок должны быть заблокированы.
+func can_purchase() -> bool:
+	if sdk == null or not sdk.is_inited():
+		return false
+	if sdk.player == null:
+		return false
+	if not sdk.player.is_inited():
+		return false
+	if not _is_payments_ready:
+		return false
+	return true
+
+
+## Проверить доступность покупок и вызвать сигнал при изменении.
+func _on_purchase_availability_changed() -> void:
+	var available = can_purchase()
+	purchase_availability_changed.emit(available)
+	print("[AdsManager] Purchase availability changed: ", available)
 
 
 # ============================================================
@@ -278,7 +310,26 @@ func init_async() -> bool:
 	_is_sdk_ready = true
 	is_sdk_ready = true
 	init_completed.emit(true)
+	
+	# Автоматически инициализируем платежи, чтобы can_purchase() мог вернуть true
+	# и кнопка IAP не была заблокирована навсегда.
+	# Не используем await — fire-and-forget, ошибки не критичны.
+	call_deferred("_auto_init_payments")
+	
 	return true
+
+
+## Инициализировать платежи (автоматически, без ожидания).
+func _auto_init_payments() -> void:
+	if _is_payments_ready:
+		return
+	if sdk == null or not sdk.is_inited():
+		return
+	var ok: Variant = await sdk.payments.init()
+	if ok == true:
+		_is_payments_ready = true
+		print("[AdsManager] Auto-payments initialized, purchases available")
+		_on_purchase_availability_changed()
 
 
 func _init_fail(msg: String) -> void:
@@ -508,6 +559,12 @@ func payments_init() -> Variant:
 	if sdk == null or not sdk.is_inited():
 		return false
 	var ok: Variant = await sdk.payments.init()
+	if ok == true:
+		_is_payments_ready = true
+		print("[AdsManager] Payments initialized, purchases available")
+		_on_purchase_availability_changed()
+	else:
+		_is_payments_ready = false
 	return ok == true
 
 
@@ -670,6 +727,12 @@ func reset_player_progress() -> bool:
 		SaveManager.save_game()
 		print("[AdsManager] Local progress reset")
 	
+	# 4. Сброс настроек звука (AudioManager хранит их в отдельном файле)
+	var audio = get_node_or_null("/root/AudioManager")
+	if audio != null and audio.has_method("reset_settings"):
+		audio.reset_settings()
+		print("[AdsManager] Audio settings reset")
+	
 	return data_ok == true and stats_ok == true
 
 
@@ -769,3 +832,11 @@ func _on_game_api_resumed() -> void:
 		print("[AdsManager] Gameplay API is correctly active (In Battle)")
 	else:
 		print("[AdsManager] In Menu, gameplay will be stopped on next set_state()")
+	
+	
+	# При возврате фокуса — перепроверяем доступность платежей
+	_on_purchase_availability_changed()
+	
+	# Если платежи ещё не инициализированы — пробуем
+	if not _is_payments_ready:
+		call_deferred("_auto_init_payments")

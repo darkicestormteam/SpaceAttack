@@ -107,33 +107,27 @@ var homing_salvo_cooldown: float = 0.0
 var nuke_big_shot_cooldown: float = 0.0
 var nuke_shot_counter: int = 0
 
-# Phantom dash
-var last_input_time: Dictionary = {"left": 0.0, "right": 0.0, "up": 0.0, "down": 0.0}
+# Phantom dash — отслеживание последнего нажатия по направлению
+var _dash_last_press: Dictionary = {"left": 0.0, "right": 0.0, "up": 0.0, "down": 0.0}
 var dash_cooldown: float = 0.0
 
 # === Defense — новые модули ===
-# light_armor: +1 max HP
 var has_light_armor: bool = false
-
-# shield (common): выдерживает 5 урона, ломается до конца раунда
 var has_shield_module: bool = false
 var is_shield_ready: bool = true
 var shield_durability: int = 0
 const SHIELD_MAX_DURABILITY: int = 5
 var shield_recharge_timer: Timer
 
-# composite_armor (rare): каждый 4-й удар не наносит урон
 var has_composite_armor: bool = false
 var composite_hit_counter: int = 0
 const COMPOSITE_ARMOR_INTERVAL: int = 3
 
-# forsage (rare): при уроне +50% скорости на 2с
 var has_forsage: bool = false
 var forsage_timer: float = 0.0
 const FORSAGE_DURATION: float = 2.0
 const FORSAGE_SPEED_MULT: float = 1.5
 
-# tactical_accelerator (epic): после урона +30% скорострельность на 3с
 var has_tactical_accelerator: bool = false
 var tactical_accel_timer: float = 0.0
 var tactical_accel_active: bool = false
@@ -141,13 +135,11 @@ const TACTICAL_ACCEL_DURATION: float = 3.0
 const TACTICAL_ACCEL_FIRE_MULT: float = 0.7
 var tactical_accel_original_delay: float = 0.2
 
-# diffusor (epic): 50% шанс нанести 10 урона врагу в радиусе 200px
 var has_diffusor: bool = false
 const DIFFUSOR_RADIUS: float = 200.0
 const DIFFUSOR_DAMAGE: int = 10
 const DIFFUSOR_CHANCE: float = 1.0
 
-# cocoon_shield (legendary): нулевой щит (блок 1 попадание, кд 25с) + возрождение 50% HP
 var has_cocoon_shield: bool = false
 var cocoon_shield_ready: bool = true
 var cocoon_cd_timer: Timer
@@ -172,7 +164,7 @@ var drone_catch_projectiles: bool = false
 const DRONE_SCENE: PackedScene = preload("res://entities/effects/Drone.tscn")
 var _drone_instances: Array[Node] = []
 
-# Shield visuals (используют сцену CocoonShieldVisual с разным цветом)
+# Shield visuals
 const COCOON_SHIELD_SCENE: PackedScene = preload("res://entities/projectiles/CocoonShieldVisual.tscn")
 var _cocoon_shield_instance: Node2D = null
 var _common_shield_instance: Node2D = null
@@ -206,14 +198,12 @@ var shooting_disabled: bool = false
 
 
 func _ready() -> void:
-	# Слои: 1 — обычный, 2 — pickup (для аптечек и т.п.)
 	collision_layer = 3
 	collision_mask = 1
 
 	add_to_group("player")
 	health_changed.emit(health)
 
-	# Инициализация Goliath Charge
 	if goliath_shield:
 		goliath_shield.visible = false
 		goliath_shield.modulate.a = 1.0
@@ -243,13 +233,11 @@ func _ready() -> void:
 	add_child(cocoon_cd_timer)
 	cocoon_cd_timer.timeout.connect(_on_cocoon_ready)
 
-	# Cocoon Shield visual instance
 	if COCOON_SHIELD_SCENE:
 		_cocoon_shield_instance = COCOON_SHIELD_SCENE.instantiate()
 		add_child(_cocoon_shield_instance)
 		_cocoon_shield_instance.visible = false
 
-	# Common Shield visual instance (неоновый голубой)
 	if COCOON_SHIELD_SCENE:
 		_common_shield_instance = COCOON_SHIELD_SCENE.instantiate()
 		add_child(_common_shield_instance)
@@ -310,7 +298,6 @@ func apply_module_effects() -> void:
 	if equipped == null:
 		return
 
-	# Оружие
 	var weapon_id = equipped.get("weapon", "")
 	if weapon_id == null or str(weapon_id).is_empty():
 		weapon_id = "laser"
@@ -349,7 +336,6 @@ func apply_module_effects() -> void:
 		_:
 			shoot_delay = 0.2
 
-	# Защита — новые модули
 	var defense_id = str(equipped.get("defense", ""))
 	match defense_id:
 		"light_armor":
@@ -361,7 +347,6 @@ func apply_module_effects() -> void:
 		"shield":
 			has_shield_module = true
 			shield_durability = SHIELD_MAX_DURABILITY
-			# Показываем визуальный щит (неоновый голубой)
 			if _common_shield_instance and is_instance_valid(_common_shield_instance):
 				_common_shield_instance.is_goliath = is_goliath
 				_common_shield_instance.activate()
@@ -380,12 +365,10 @@ func apply_module_effects() -> void:
 		"cocoon_shield":
 			has_cocoon_shield = true
 			cocoon_shield_ready = true
-			# Показываем визуальный щит и запускаем анимацию
 			if _cocoon_shield_instance and is_instance_valid(_cocoon_shield_instance):
 				_cocoon_shield_instance.is_goliath = is_goliath
 				_cocoon_shield_instance.activate()
 
-	# Утилита
 	var utility_id = str(equipped.get("utility", ""))
 	match utility_id:
 		"turbo":
@@ -413,32 +396,25 @@ func apply_module_effects() -> void:
 			drone_copy_weapon = true
 			drone_catch_projectiles = true
 			_spawn_drones()
-				# Ачивка "Дрон-армия" — 3 активных дрона (временно отключена)
-			# var sm_ach := get_node_or_null("/root/SaveManager")
-			# if sm_ach:
-			# 	sm_ach.unlock_achievement("drone_army")
 	has_shockwave_module = (utility_id == "shockwave")
 	
-	# Проверка ачивки "Эпик крафт" и "Жадина" при загрузке модулей
 	var sm_check := get_node_or_null("/root/SaveManager")
 	if sm_check:
 		sm_check.on_achievement_progress_check()
 
 
 func _apply_vanguard_skin(skin_index: int) -> void:
-	# Скрываем все Vanguard-скины
 	vanguard_sprite.visible = false
 	vanguard_v2_sprite.visible = false
 	vanguard_v3_sprite.visible = false
-	
 	match skin_index:
-		0:  # Базовый Vanguard (Sprite2D)
+		0:
 			vanguard_sprite.visible = true
 			current_ship_sprite = vanguard_sprite
-		1:  # VanguardV2 (AnimatedSprite2D)
+		1:
 			vanguard_v2_sprite.visible = true
 			current_ship_sprite = vanguard_v2_sprite
-		2:  # VanguardV3 (AnimatedSprite2D)
+		2:
 			vanguard_v3_sprite.visible = true
 			current_ship_sprite = vanguard_v3_sprite
 		_:
@@ -447,26 +423,21 @@ func _apply_vanguard_skin(skin_index: int) -> void:
 
 
 func _apply_phantom_skin(skin_index: int) -> void:
-	# Скрываем все Phantom-скины
 	phantom_sprite.visible = false
 	phantom_v2_sprite.visible = false
 	phantom_v3_sprite.visible = false
-	
-	# Если есть инстанс кастомной сцены скина — удаляем
 	if _skin_instance:
 		_skin_instance.queue_free()
 		_skin_instance = null
-	
 	match skin_index:
-		0:  # Базовый Phantom (AnimatedSprite2D)
+		0:
 			phantom_sprite.visible = true
 			current_ship_sprite = phantom_sprite
-		1:  # PhantomV2 (AnimatedSprite2D)
+		1:
 			phantom_v2_sprite.visible = true
 			current_ship_sprite = phantom_v2_sprite
-		2:  # PhantomV3 — пытаемся загрузить кастомную сцену из ресурса визуала
+		2:
 			if not _try_instantiate_skin_scene("skin_phantom_2"):
-				# Если сцены нет — фолбэк на встроенный V3
 				phantom_v3_sprite.visible = true
 				current_ship_sprite = phantom_v3_sprite
 		_:
@@ -474,8 +445,6 @@ func _apply_phantom_skin(skin_index: int) -> void:
 			current_ship_sprite = phantom_sprite
 
 
-# Пытается загрузить сцену скина из ресурса визуала (skin_scene в ModuleVisuals).
-# Если не удалось — возвращает false.
 func _try_instantiate_skin_scene(skin_visuals_id: String) -> bool:
 	var visuals_path := "res://data/visuals/%s_visuals.tres" % skin_visuals_id
 	if not ResourceLoader.exists(visuals_path):
@@ -490,12 +459,10 @@ func _try_instantiate_skin_scene(skin_visuals_id: String) -> bool:
 	if _skin_instance == null:
 		return false
 	add_child(_skin_instance)
-	# Ищем главный спрайт для blink — первый AnimatedSprite2D/Sprite2D
 	current_ship_sprite = _find_sprite_node(_skin_instance)
 	return true
 
 
-# Ищет первый AnimatedSprite2D или Sprite2D в узле для blink-эффекта
 func _find_sprite_node(root: Node) -> Node2D:
 	for child in root.get_children():
 		if child is AnimatedSprite2D or child is Sprite2D:
@@ -504,19 +471,17 @@ func _find_sprite_node(root: Node) -> Node2D:
 
 
 func _apply_goliath_skin(skin_index: int) -> void:
-	# Скрываем все Goliath-скины
 	goliath_sprite.visible = false
 	goliath_v2_sprite.visible = false
 	goliath_v3_sprite.visible = false
-	
 	match skin_index:
-		0:  # Базовый Goliath (AnimatedSprite2D)
+		0:
 			goliath_sprite.visible = true
 			current_ship_sprite = goliath_sprite
-		1:  # GoliathV2 (AnimatedSprite2D)
+		1:
 			goliath_v2_sprite.visible = true
 			current_ship_sprite = goliath_v2_sprite
-		2:  # GoliathV3 (AnimatedSprite2D)
+		2:
 			goliath_v3_sprite.visible = true
 			current_ship_sprite = goliath_v3_sprite
 		_:
@@ -590,13 +555,11 @@ func _spawn_drones() -> void:
 		if d and is_instance_valid(d):
 			d.queue_free()
 	_drone_instances.clear()
-	
 	for i in range(drone_count):
 		var drone = DRONE_SCENE.instantiate()
 		drone.copy_weapon = drone_copy_weapon
 		drone.catch_projectiles = drone_catch_projectiles
 		drone.weapon_module_id = current_weapon_module
-		# Размещаем дронов равномерно по орбите
 		drone.set_meta("orbit_offset", float(i) / float(drone_count) * TAU)
 		add_child(drone)
 		_drone_instances.append(drone)
@@ -617,8 +580,13 @@ func _on_nanobots_heal() -> void:
 		flash.global_position = global_position
 
 
+func _input(event: InputEvent) -> void:
+	# Phantom dash — двойной тап WASD/стрелок (через Input Map, без раскладки)
+	_detect_dash_input(event)
+
+
 func _process(delta: float) -> void:
-	# Плазма — стек скорострельности
+	# Плазма
 	if current_weapon_module == "laser_plasma":
 		if plasma_reset_timer > 0.0:
 			plasma_reset_timer = max(0.0, plasma_reset_timer - delta)
@@ -627,18 +595,15 @@ func _process(delta: float) -> void:
 		var stack_fraction: float = float(plasma_stack) * LASER_PLASMA_STACK_PER_HIT
 		shoot_delay = lerp(LASER_PLASMA_BASE_SHOOT_DELAY, LASER_PLASMA_MIN_SHOOT_DELAY, clamp(stack_fraction / 0.5, 0.0, 1.0))
 
-	# Forsage — таймер скорости
 	if has_forsage and forsage_timer > 0.0:
 		forsage_timer = max(0.0, forsage_timer - delta)
 
-	# Tactical Accelerator — таймер скорострельности
 	if has_tactical_accelerator and tactical_accel_active:
 		tactical_accel_timer = max(0.0, tactical_accel_timer - delta)
 		if tactical_accel_timer <= 0.0:
 			tactical_accel_active = false
 			shoot_delay = tactical_accel_original_delay
 
-	# Goliath Charge — кулдаун
 	if goliath_charge_cooldown > 0.0:
 		goliath_charge_cooldown = max(0.0, goliath_charge_cooldown - delta)
 		if goliath_charge_cooldown <= 0.0:
@@ -664,43 +629,46 @@ func _process(delta: float) -> void:
 	if nuke_big_shot_cooldown > 0.0:
 		nuke_big_shot_cooldown = max(0.0, nuke_big_shot_cooldown - delta)
 
-	# Синхронизируем позицию визуального щита с центром спрайта корабля
 	if _cocoon_shield_instance and is_instance_valid(_cocoon_shield_instance) and _cocoon_shield_instance.visible:
 		if current_ship_sprite and is_instance_valid(current_ship_sprite):
 			_cocoon_shield_instance.global_position = current_ship_sprite.global_position
 	if _common_shield_instance and is_instance_valid(_common_shield_instance) and _common_shield_instance.visible:
 		if current_ship_sprite and is_instance_valid(current_ship_sprite):
 			_common_shield_instance.global_position = current_ship_sprite.global_position
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	# Goliath Charge — рывок со щитом
-	if is_goliath and event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_R:
-			if try_start_goliath_charge():
-				return
-	if has_shockwave_module:
-		if event is InputEventKey and event.pressed and not event.echo:
-			if event.keycode == KEY_F or event.keycode == KEY_SPACE:
-				try_activate_shockwave()
-	if current_weapon_module == "rocket_homing":
-		if event is InputEventKey and event.pressed and not event.echo:
-			if event.keycode == KEY_E:
-				try_activate_homing_salvo()
-	if current_ship == "phantom" and event is InputEventKey and event.pressed and not event.echo:
-		var now := Time.get_ticks_msec() / 1000.0
-		var dir_key: String = ""
-		match event.keycode:
-			KEY_A, KEY_LEFT: dir_key = "left"
-			KEY_D, KEY_RIGHT: dir_key = "right"
-			KEY_W, KEY_UP: dir_key = "up"
-			KEY_S, KEY_DOWN: dir_key = "down"
-		if not dir_key.is_empty():
-			var elapsed = now - last_input_time[dir_key]
-			last_input_time[dir_key] = now
-			if elapsed > 0.0 and elapsed < DOUBLE_TAP_WINDOW and dash_cooldown <= 0.0:
-				_do_dash(dir_key)
 	
+	# Dash теперь обрабатывается в _input(), не здесь
+
+
+# ============================================================
+# Phantom dash — двойное нажатие на WASD/стрелки
+# Работает через Input Map, не зависит от раскладки клавиатуры
+# ============================================================
+func _detect_dash_input(event: InputEvent) -> void:
+	if current_ship != "phantom":
+		return
+	if not event.is_action_pressed("left") and not event.is_action_pressed("right") \
+		and not event.is_action_pressed("up") and not event.is_action_pressed("down"):
+		return
+	
+	var now := Time.get_ticks_msec() / 1000.0
+	var dir_key: String = ""
+	
+	if event.is_action_pressed("left"):
+		dir_key = "left"
+	elif event.is_action_pressed("right"):
+		dir_key = "right"
+	elif event.is_action_pressed("up"):
+		dir_key = "up"
+	elif event.is_action_pressed("down"):
+		dir_key = "down"
+	
+	if not dir_key.is_empty():
+		var elapsed = now - _dash_last_press[dir_key]
+		_dash_last_press[dir_key] = now
+		if elapsed > 0.0 and elapsed < DOUBLE_TAP_WINDOW and dash_cooldown <= 0.0:
+			_do_dash(dir_key)
+
+
 func _do_dash(dir_key: String) -> void:
 	var dash_dir: Vector2 = Vector2.ZERO
 	match dir_key:
@@ -712,20 +680,16 @@ func _do_dash(dir_key: String) -> void:
 	_finish_dash()
 
 
-## Выполняет рывок на DASH_DISTANCE (150px) в сторону указанной цели.
-## target_global_pos — мировая позиция цели (например MarkerPhantomDash).
 func dash_to_target(target_global_pos: Vector2) -> void:
 	if dash_cooldown > 0.0:
 		return
 	if current_ship != "phantom":
 		return
-	
 	var dir_to_target: Vector2 = (target_global_pos - global_position).normalized()
 	global_position += dir_to_target * DASH_DISTANCE
 	_finish_dash()
 
 
-## Общая часть для всех дашей (invuln, blink, cooldown).
 func _finish_dash() -> void:
 	var vps = get_viewport_rect().size
 	global_position.x = clamp(global_position.x, MARGIN, vps.x - MARGIN)
@@ -738,7 +702,6 @@ func _finish_dash() -> void:
 	var blink_target := _get_blink_target()
 	blink_target.modulate = Color(0.6, 0.6, 1, 0.8)
 	
-	# Ачивка: призрачный рывок (только для Phantom)
 	if current_ship == "phantom":
 		var sm := get_node_or_null("/root/SaveManager")
 		if sm:
@@ -766,7 +729,6 @@ func try_activate_shockwave() -> bool:
 	wave.global_position = global_position
 	shockwave_cooldown = SHOCKWAVE_COOLDOWN
 	shockwave_used.emit()
-	# Ачивка: шок и трепет
 	var sm := get_node_or_null("/root/SaveManager")
 	if sm:
 		sm.tmp_shockwave_used += 1
@@ -819,10 +781,6 @@ func _shoot() -> void:
 		if want_big:
 			nuke_big_shot_cooldown = NUKE_BIG_COOLDOWN
 			nuke_shot_counter = 0
-			# Ачивка: ядерный залп (временно отключена)
-			# var sm := get_node_or_null("/root/SaveManager")
-			# if sm:
-			# 	sm.on_nuke_big_shot_used()
 		else:
 			nuke_shot_counter += 1
 		var start_angle := -NUKE_SPREAD * (count - 1) / 2.0
@@ -909,7 +867,6 @@ func _shoot() -> void:
 		if shoot_sound: shoot_sound.play()
 		_spawn_plasma_bullet()
 		return
-	# Laser (default)
 	if shoot_sound: shoot_sound.play()
 	var bullet = bullet_scene.instantiate()
 	bullet.global_position = muzzle.global_position
@@ -986,8 +943,6 @@ func _spawn_plasma_bullet() -> void:
 func notify_plasma_hit() -> void:
 	plasma_stack = min(25, plasma_stack + 1)
 	plasma_reset_timer = LASER_PLASMA_STACK_RESET_TIME
-	
-	# Ачивка: Плазма-мастер — достичь 25 стаков за одну игру
 	if plasma_stack >= 25:
 		var sm := get_node_or_null("/root/SaveManager")
 		if sm:
@@ -997,13 +952,11 @@ func notify_plasma_hit() -> void:
 func take_heal(amount: int) -> void:
 	self.health = min(max_health, self.health + amount)
 	health_changed.emit(health)
-	# Ачивка: сбор аптечек
 	var sm := get_node_or_null("/root/SaveManager")
 	if sm:
 		sm.tmp_health_packs_collected += amount
 		if sm.tmp_health_packs_collected >= 35:
 			sm.unlock_achievement("magnet")
-	# Визуальный фидбек лечения
 	var flash := Node2D.new()
 	flash.set_script(preload("res://entities/player/HealFlash.gd"))
 	get_tree().current_scene.add_child(flash)
@@ -1014,61 +967,49 @@ func take_damage(amount: int) -> void:
 	if invulnerable:
 		return
 
-	# === Cocoon Shield: нулевой щит (блокирует 1 попадание) ===
 	if has_cocoon_shield and cocoon_shield_ready:
 		cocoon_shield_ready = false
 		cocoon_cd_timer.start()
-		# Ачивка: Cocoon Shield
 		var sm := get_node_or_null("/root/SaveManager")
 		if sm:
 			sm.on_cocoon_shield_blocked()
-		# Жёлтая вспышка для кокона
 		var flash_node := Node2D.new()
 		flash_node.set_script(preload("res://entities/player/ShieldFlash.gd"))
 		get_tree().current_scene.add_child(flash_node)
 		flash_node.global_position = global_position
 		flash_node.flash_color(0.2, Color(1.0, 0.85, 0.1), Color(1.0, 0.85, 0.1))
-		# Прячем визуальный щит
 		if _cocoon_shield_instance and is_instance_valid(_cocoon_shield_instance):
 			_cocoon_shield_instance.deactivate()
 		shield_activated.emit()
 		return
 
-	# === Shield (common): выдерживает 5 урона ===
 	if has_shield_module and shield_durability > 0:
 		shield_durability -= amount
 		if shield_durability <= 0:
 			shield_durability = 0
-			# Щит сломан до конца раунда, не перезаряжается
 			if _common_shield_instance and is_instance_valid(_common_shield_instance):
 				_common_shield_instance.deactivate()
 			_spawn_shield_flash()
 			shield_activated.emit()
 		else:
-			# Частичное поглощение — лёгкая вспышка
 			_spawn_shield_flash()
 		return
 
-	# === Composite Armor: каждый 4-й удар не наносит урон ===
 	if has_composite_armor:
 		composite_hit_counter += 1
 		if composite_hit_counter >= COMPOSITE_ARMOR_INTERVAL:
 			composite_hit_counter = 0
-			# Неоновый голубой вспышка
 			var flash_node := Node2D.new()
 			flash_node.set_script(preload("res://entities/player/ShieldFlash.gd"))
 			get_tree().current_scene.add_child(flash_node)
 			flash_node.global_position = global_position
 			flash_node.flash_color(0.2, Color(0.2, 0.9, 1.0), Color(0.3, 0.95, 1.0))
-			return  # Удар проигнорирован
+			return
 
-	# === Diffusor: 50% шанс нанести 10 урона врагу в радиусе ===
 	if has_diffusor and randf() < DIFFUSOR_CHANCE:
-		# Фиолетовая волна
 		var wave := preload("res://entities/effects/DiffusorWave.tscn").instantiate()
 		get_tree().current_scene.add_child(wave)
 		wave.global_position = global_position
-		# Урон
 		var main = get_tree().current_scene
 		if main:
 			var targets: Array[Node] = []
@@ -1079,37 +1020,29 @@ func take_damage(amount: int) -> void:
 			if targets.size() > 0:
 				targets[randi() % targets.size()].take_damage(DIFFUSOR_DAMAGE)
 
-	# === Урон проходит ===
 	self.health -= amount
 	health_changed.emit(health)
 
-	# === Forsage: +50% скорости на 2с ===
 	if has_forsage:
 		forsage_timer = FORSAGE_DURATION
-		# Ачивка: Ускорение
 		var sm := get_node_or_null("/root/SaveManager")
 		if sm:
 			sm.tmp_forsage_procs += 1
 			if sm.tmp_forsage_procs >= 20:
 				sm.unlock_achievement("forsage_user")
 
-	# === Tactical Accelerator: +30% скорострельность на 3с ===
 	if has_tactical_accelerator and not tactical_accel_active:
 		tactical_accel_original_delay = shoot_delay
 		tactical_accel_active = true
 		tactical_accel_timer = TACTICAL_ACCEL_DURATION
-		# Уменьшаем задержку выстрела (x0.7 = на 30% быстрее)
 		shoot_delay = shoot_delay * TACTICAL_ACCEL_FIRE_MULT
-		# Ачивка: Тактик
 		var sm := get_node_or_null("/root/SaveManager")
 		if sm:
 			sm.tmp_tactical_accelerator_procs += 1
 			if sm.tmp_tactical_accelerator_procs >= 20:
 				sm.unlock_achievement("tactician")
 	elif has_tactical_accelerator and tactical_accel_active:
-		# Баф уже активен — только продлеваем таймер, не меняем shoot_delay повторно
 		tactical_accel_timer = TACTICAL_ACCEL_DURATION
-		# Всё равно считаем как активацию для ачивки
 		var sm := get_node_or_null("/root/SaveManager")
 		if sm:
 			sm.tmp_tactical_accelerator_procs += 1
@@ -1117,21 +1050,18 @@ func take_damage(amount: int) -> void:
 				sm.unlock_achievement("tactician")
 
 	invulnerable = true
-	# Отключаем слой 1 (враги не задевают), оставляем слой 2 (pickup)
 	collision_layer = 2
 	collision_mask = 0
 	_start_blinking()
-	var main = get_tree().current_scene
-	if main and main.has_method("shake_camera"):
-		main.shake_camera(0.2, 5.0)
+	var main_s = get_tree().current_scene
+	if main_s and main_s.has_method("shake_camera"):
+		main_s.shake_camera(0.2, 5.0)
 	
-	# Уведомляем SaveManager о получении урона (для ачивок по избеганию урона)
 	var sm_main := get_node_or_null("/root/SaveManager")
 	if sm_main:
 		sm_main.on_player_damage_taken(current_weapon_module)
 	
 	if health <= 0:
-		# === Cocoon Shield: возрождение ===
 		if has_cocoon_shield and not cocoon_revive_used:
 			cocoon_revive_used = true
 			health = ceil(float(max_health) * 0.5)
@@ -1140,12 +1070,10 @@ func take_damage(amount: int) -> void:
 			collision_layer = 3
 			collision_mask = 1
 			_stop_blinking()
-			# Жёлтая волна возрождения
 			var revive_wave := preload("res://entities/effects/CocoonReviveWave.tscn").instantiate()
 			get_tree().current_scene.add_child(revive_wave)
 			revive_wave.global_position = global_position
 			return
-		# Настоящая смерть
 		die()
 		return
 	await get_tree().create_timer(INVULN_DURATION).timeout
@@ -1162,7 +1090,6 @@ func _on_shield_recharged() -> void:
 func _on_cocoon_ready() -> void:
 	cocoon_shield_ready = true
 	shield_recharged.emit()
-	# Показываем визуальный щит снова после кулдауна
 	if _cocoon_shield_instance and is_instance_valid(_cocoon_shield_instance):
 		_cocoon_shield_instance.is_goliath = is_goliath
 		_cocoon_shield_instance.activate()
@@ -1176,8 +1103,6 @@ func _spawn_shield_flash() -> void:
 	flash.flash(0.2)
 
 
-## Воскрешает игрока с 50% HP (округление вверх).
-## Вызывается из GameOver.gd после просмотра rewarded рекламы.
 func revive_to_half() -> void:
 	health = ceil(float(max_health) * 0.5)
 	if health <= 0:
@@ -1187,7 +1112,6 @@ func revive_to_half() -> void:
 	collision_layer = 3
 	collision_mask = 1
 	_stop_blinking()
-	# Визуальный эффект воскрешения — жёлтая волна
 	var revive_wave := preload("res://entities/effects/CocoonReviveWave.tscn").instantiate()
 	get_tree().current_scene.add_child(revive_wave)
 	revive_wave.global_position = global_position
@@ -1220,7 +1144,7 @@ func _stop_blinking() -> void:
 
 
 # ============================================================
-# Goliath — рывок со щитом (Tween, 300px за 0.5с)
+# Goliath — рывок со щитом
 # ============================================================
 
 func try_start_goliath_charge() -> bool:
@@ -1239,27 +1163,22 @@ func _do_goliath_charge() -> void:
 	goliath_charge_active = true
 	goliath_charge_cooldown = GOLIATH_CHARGE_COOLDOWN
 
-	# Визуал — щит
 	if goliath_shield:
 		goliath_shield.visible = true
 		goliath_shield.play("default")
 
-	# Включаем Area2D щита
 	if goliath_shield_area:
 		goliath_shield_area.monitoring = true
 		goliath_shield_area.monitorable = true
 
-	# Неуязвимость
 	invulnerable = true
 	collision_layer = 2
 	collision_mask = 0
 
-	# Тряска камеры
 	var main = get_tree().current_scene
 	if main and main.has_method("shake_camera"):
 		main.shake_camera(0.15, 8.0)
 
-	# Принудительное перемещение на 300px вверх за 0.5с
 	var target_pos = global_position + Vector2.UP * GOLIATH_CHARGE_DISTANCE
 	var vps = get_viewport_rect().size
 	target_pos.x = clamp(target_pos.x, MARGIN, vps.x - MARGIN)
@@ -1275,17 +1194,14 @@ func _do_goliath_charge() -> void:
 func _end_goliath_charge() -> void:
 	goliath_charge_active = false
 
-	# Прячем щит
 	if goliath_shield:
 		goliath_shield.visible = false
 		goliath_shield.stop()
 
-	# Выключаем Area2D
 	if goliath_shield_area:
 		goliath_shield_area.monitoring = false
 		goliath_shield_area.monitorable = false
 
-	# Снимаем неуязвимость
 	invulnerable = false
 	collision_layer = 3
 	collision_mask = 1
@@ -1299,7 +1215,6 @@ func _on_goliath_shield_body_entered(body: Node) -> void:
 	if body is CharacterBody2D and body.is_in_group("enemy"):
 		if body.has_method("take_damage"):
 			body.take_damage(GOLIATH_CHARGE_DAMAGE)
-		# Ачивка: счётчик таранных убийств
 		var sm := get_node_or_null("/root/SaveManager")
 		if sm:
 			sm.tmp_goliath_charge_kills += 1
@@ -1315,7 +1230,7 @@ func _on_goliath_shield_area_entered(area: Area2D) -> void:
 
 
 # ============================================================
-# Бонусы скинов — читаются из .tres файла текущего скина
+# Бонусы скинов
 # ============================================================
 
 func _apply_skin_bonuses() -> void:
@@ -1334,7 +1249,6 @@ func _apply_skin_bonuses() -> void:
 	if module_data == null:
 		return
 	
-	# Применяем бонусы только если это type = "Скин" и поля существуют
 	if "damage_bonus" in module_data:
 		bullet_damage += int(module_data.damage_bonus)
 	

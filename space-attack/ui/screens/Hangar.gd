@@ -118,7 +118,6 @@ const DIFFICULTY_SELECT_SCENE: PackedScene = preload("res://ui/popups/Difficulty
 
 # Покупки за реальные деньги (из сцены)
 @onready var iap_all_modules_btn: Button = %IapAllModulesButton
-@onready var iap_remove_ads_btn: Button = %IapRemoveAdsButton
 
 @onready var music: AudioStreamPlayer = %Music
 
@@ -142,8 +141,6 @@ var settings_btn: Button
 var music_toggle_btn: TextureButton
 var sfx_toggle_btn: TextureButton
 
-var _prev_music_volume: float = 0.5
-var _prev_sfx_volume: float = 0.5
 
 # ModuleButton'ы для превью скинов
 var _vanguard_skin_btn: ModuleButton = null
@@ -196,8 +193,15 @@ func _ready() -> void:
 	# Магазин — покупки за реальные деньги
 	if iap_all_modules_btn:
 		iap_all_modules_btn.pressed.connect(_on_iap_all_modules_pressed)
-	if iap_remove_ads_btn:
-		iap_remove_ads_btn.pressed.connect(_on_iap_remove_ads_pressed)
+	# Подписываемся на сигнал доступности покупок (блокировка при офлайне)
+	var ads_iap = get_node_or_null("/root/AdsManager")
+	if ads_iap != null and ads_iap.has_signal("purchase_availability_changed"):
+		if not ads_iap.is_connected("purchase_availability_changed", _on_purchase_availability_changed):
+			ads_iap.purchase_availability_changed.connect(_on_purchase_availability_changed)
+		# НЕ вызываем _on_purchase_availability_changed принудительно!
+		# На старте SDK ещё не инициализирован, can_purchase() вернёт false,
+		# что заблокирует кнопку. Сигнал сработает сам, когда payments_init()
+		# выполнится успешно — тогда и обновим состояние.
 	
 	# Магазин — кнопка "Назад"
 	var back_btn: Button = %BackButton if has_node("%BackButton") else null
@@ -215,6 +219,11 @@ func _ready() -> void:
 			ads.check_unconsumed_purchases()
 		elif not ads.is_connected("init_completed", _on_ads_ready_for_purchases):
 			ads.init_completed.connect(_on_ads_ready_for_purchases)
+	
+	# Подписываемся на обновления данных (из облака после синхронизации)
+	if SaveManager.has_signal("data_loaded"):
+		if not SaveManager.is_connected("data_loaded", update_ui):
+			SaveManager.data_loaded.connect(update_ui)
 	
 	# Запускаем инициализацию Yandex SDK, если ещё не запущена
 	var ads_mgr = get_node_or_null("/root/AdsManager")
@@ -801,20 +810,30 @@ func _on_popup_closed() -> void:
 
 # ============== REAL MONEY SHOP (Yandex Payments) ==============
 
-func _refresh_iap_buttons() -> void:
+## Обработчик изменения доступности покупок.
+## Блокирует/разблокирует кнопки IAP в зависимости от наличия сети/SDK.
+func _on_purchase_availability_changed(available: bool) -> void:
 	if iap_all_modules_btn:
 		if SaveManager.all_modules_purchased:
 			iap_all_modules_btn.text = "Все модули ✓ Куплено"
 			iap_all_modules_btn.disabled = true
 			iap_all_modules_btn.modulate = Color(0.7, 0.7, 0.7, 0.6)
+		elif not available:
+			iap_all_modules_btn.text = "Подключение к магазину..."
+			iap_all_modules_btn.disabled = true
+			iap_all_modules_btn.modulate = Color(0.7, 0.7, 0.7, 0.8)
 		else:
 			iap_all_modules_btn.text = "Купить все модули + скины"
 			iap_all_modules_btn.disabled = false
 			iap_all_modules_btn.modulate = Color(1, 1, 1, 1)
 	
-	if iap_remove_ads_btn:
-		iap_remove_ads_btn.visible = false
-		iap_remove_ads_btn.disabled = true
+
+
+func _refresh_iap_buttons() -> void:
+	# Просто вызываем обработчик с текущим состоянием
+	var ads = get_node_or_null("/root/AdsManager")
+	var available = ads.can_purchase() if ads != null and ads.has_method("can_purchase") else false
+	_on_purchase_availability_changed(available)
 
 
 func _on_iap_all_modules_pressed() -> void:
@@ -838,25 +857,6 @@ func _on_iap_all_modules_pressed() -> void:
 	update_ui()
 
 
-func _on_iap_remove_ads_pressed() -> void:
-	var ads = get_node_or_null("/root/AdsManager") as Node
-	if ads == null or not ads.has_method("purchase_remove_ads"):
-		return
-	
-	iap_remove_ads_btn.disabled = true
-	iap_remove_ads_btn.text = "Подключение к магазину..."
-	
-	var inited = await ads.payments_init()
-	if not inited:
-		iap_remove_ads_btn.text = "Ошибка подключения"
-		iap_remove_ads_btn.disabled = false
-		return
-	
-	iap_remove_ads_btn.text = "Покупка..."
-	await ads.purchase_remove_ads()
-	
-	_refresh_iap_buttons()
-	update_ui()
 
 
 # ============== ОТКРЫТИЕ СУНДУКА (ВИЗУАЛ) ==============
@@ -1205,15 +1205,6 @@ func _setup_audio_buttons() -> void:
 	add_child(sfx_toggle_btn)
 
 	_apply_button_style(settings_btn, 64)
-	_sync_audio_buttons()
-
-
-func _sync_audio_buttons() -> void:
-	var am := get_node_or_null("/root/AudioManager") as Node
-	if am == null:
-		return
-	_prev_music_volume = am.music_volume
-	_prev_sfx_volume = am.sfx_volume
 	_update_audio_button_texts()
 
 
@@ -1229,23 +1220,15 @@ func _update_audio_button_texts() -> void:
 
 func _on_music_toggle() -> void:
 	var am := get_node_or_null("/root/AudioManager") as Node
-	if am:
-		if am.music_volume > 0.0:
-			_prev_music_volume = am.music_volume
-			am.set_music_volume(0.0)
-		else:
-			am.set_music_volume(_prev_music_volume)
+	if am and am.has_method("toggle_music"):
+		am.toggle_music()
 		_update_audio_button_texts()
 
 
 func _on_sfx_toggle() -> void:
 	var am := get_node_or_null("/root/AudioManager") as Node
-	if am:
-		if am.sfx_volume > 0.0:
-			_prev_sfx_volume = am.sfx_volume
-			am.set_sfx_volume(0.0)
-		else:
-			am.set_sfx_volume(_prev_sfx_volume)
+	if am and am.has_method("toggle_sfx"):
+		am.toggle_sfx()
 		_update_audio_button_texts()
 
 
@@ -1263,4 +1246,4 @@ func _on_settings_pressed() -> void:
 
 
 func _on_audio_settings_closed() -> void:
-	_sync_audio_buttons()
+	_update_audio_button_texts()

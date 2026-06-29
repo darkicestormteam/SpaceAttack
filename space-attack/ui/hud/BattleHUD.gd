@@ -37,8 +37,6 @@ extends CanvasLayer
 
 var _player: Node = null
 
-var _prev_music_volume: float = 0.5
-var _prev_sfx_volume: float = 0.5
 
 
 func _ready() -> void:
@@ -183,23 +181,15 @@ func _on_dash_used() -> void:
 
 func _on_music_toggle() -> void:
 	var am = get_node("/root/AudioManager")
-	if am:
-		if am.music_volume > 0.0:
-			_prev_music_volume = am.music_volume
-			am.set_music_volume(0.0)
-		else:
-			am.set_music_volume(_prev_music_volume)
+	if am and am.has_method("toggle_music"):
+		am.toggle_music()
 		_update_music_button()
 
 
 func _on_sfx_toggle() -> void:
 	var am = get_node("/root/AudioManager")
-	if am:
-		if am.sfx_volume > 0.0:
-			_prev_sfx_volume = am.sfx_volume
-			am.set_sfx_volume(0.0)
-		else:
-			am.set_sfx_volume(_prev_sfx_volume)
+	if am and am.has_method("toggle_sfx"):
+		am.toggle_sfx()
 		_update_sfx_button()
 
 

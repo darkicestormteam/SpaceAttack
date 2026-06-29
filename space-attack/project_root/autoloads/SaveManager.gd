@@ -1,6 +1,8 @@
 extends Node
 
 signal achievement_unlocked(achievement_id: String, achievement_data: Dictionary)
+## Сигнал — данные загружены (из локального файла или из облака)
+signal data_loaded()
 
 var credits: int = 0
 var health_upgrade_level: int = 0
@@ -99,6 +101,28 @@ const SKIN_CHEST_POOL: Array = [
 
 const DEFAULT_MODULE_IDS: Array = ["laser"]
 
+# ============================================================
+# Версия сохранения
+# ============================================================
+## Версия формата. Старые файлы с меньшей версией игнорируются.
+const SAVE_VERSION: int = 2
+
+# ============================================================
+# Константы облачного сохранения
+# ============================================================
+## Минимальный интервал между вызовами set_data (лимит API Яндекса)
+const MIN_CLOUD_INTERVAL: float = 10.0
+## Интервал автосохранения в облако
+const AUTO_CLOUD_INTERVAL: float = 15.0
+
+## Время последнего сохранения в облако
+var _last_cloud_save_time: float = 0.0
+## Таймер для автосохранения
+var _auto_save_timer: float = 0.0
+## Флаг — облако было успешно синхронизировано хотя бы раз
+## Хранится в локальном savegame.json как "_cloud_was_synced"
+var _cloud_was_synced: bool = false
+
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -120,53 +144,113 @@ func _on_ads_init(_success: bool = false) -> void:
 			load_game()
 			return
 	
-	# SDK инициализирован — загружаем из облака
+	# Сначала грузим локально (мгновенно, UI увидит актуальный кеш)
+	load_game()
+	emit_signal("data_loaded")
+	
+	# SDK инициализирован — загружаем из облака.
+	# После синхронизации ещё раз вызовем data_loaded, чтобы UI обновился
 	call_deferred("_load_from_cloud")
 
+
+# ============================================================
+# Валидация версии сохранения
+# ============================================================
+
+## Проверить версию сохранения. Если устаревшая — вернуть null.
+func _validate_save_data(data: Variant) -> Variant:
+	if data is Dictionary:
+		var ver = data.get("save_version", 0)
+		if ver < SAVE_VERSION:
+			print("[SaveManager] Save version mismatch: v", ver, " < v", SAVE_VERSION, " — ignoring old data")
+			return null
+	return data
+
+
+# ============================================================
+# Новая стратегия загрузки: "Облако — источник истины"
+# ============================================================
+# Сценарии:
+# 1. Облако ДОСТУПНО + данные есть → облако главное, пишем в локал
+# 2. Облако ДОСТУПНО + пусто + _cloud_was_synced == true → намеренный сброс → дефолт
+# 3. Облако ДОСТУПНО + пусто + синхронизации не было → первый вход
+#    - локальные есть → отправляем в облако
+#    - локальных нет → дефолт
+# 4. Облако НЕДОСТУПНО → офлайн с локальным кешем
+# ============================================================
 
 func _load_from_cloud() -> void:
 	var ads = get_node_or_null("/root/AdsManager")
 	if ads == null or ads.sdk == null or not ads.sdk.is_inited() or ads.sdk.player == null:
+		# Сценарий 4: облако недоступно — играем офлайн
+		print("[SaveManager] Cloud not available, loading local...")
 		load_game()
 		return
 	
-	# 1. Загружаем локальный файл во временную переменную (не применяем сразу)
+	# 1. Загружаем локальный файл (может быть null)
 	var local_data = _load_local_raw_data()
-	var local_time = 0
-	if local_data is Dictionary:
-		local_time = local_data.get("last_saved_at", 0)
 	
-	# 2. Загружаем из облака
+	if local_data is Dictionary:
+		_cloud_was_synced = local_data.get("_cloud_was_synced", false)
+		# Проверяем версию — если старая, игнорируем локальные данные
+		local_data = _validate_save_data(local_data)
+	
+	# 2. Убеждаемся, что player проинициализирован
+	if not ads.sdk.player.is_inited():
+		print("[SaveManager] Player not inited, initializing before cloud load...")
+		var player_init = await ads.sdk.player.init()
+		if player_init != true:
+			print("[SaveManager] Player init failed, loading local...")
+			load_game()
+			return
+	
+	# 3. Загружаем из облака
 	print("[SaveManager] Loading from cloud...")
 	var cloud_data = await ads.sdk.player.get_data()
 	
-	# 3. Выбираем самые свежие данные
-	var cloud_has_data = cloud_data is Dictionary and not cloud_data.is_empty()
-	var cloud_time = cloud_data.get("last_saved_at", 0) if cloud_has_data else 0
+	# Проверяем версию облачных данных
+	if cloud_data is Dictionary:
+		cloud_data = _validate_save_data(cloud_data)
 	
-	if cloud_has_data and cloud_time >= local_time:
-		# Облачные данные новее или равны — применяем облачные
-		print("[SaveManager] Cloud data (t=" + str(cloud_time) + ") >= local (t=" + str(local_time) + "), applying cloud...")
-		_apply_data(cloud_data)
-		save_game_async()
-	elif local_data is Dictionary:
-		# Локальные данные новее или облако пусто
-		print("[SaveManager] Local data (t=" + str(local_time) + ") > cloud (t=" + str(cloud_time) + "), keeping local and pushing to cloud immediately...")
-		_apply_data(local_data)
-		# Немедленно отправляем локальные данные в облако,
-		# чтобы при входе с другого устройства прогресс не был потерян.
-		# _mark_cloud_pending() с задержкой 6с ненадёжен при быстром закрытии игры.
-		await _save_to_cloud_impl(true)
+	var cloud_has_data = cloud_data is Dictionary and not cloud_data.is_empty()
+	var cloud_is_empty = not cloud_has_data
+	
+	if cloud_is_empty:
+		if _cloud_was_synced:
+			# Сценарий 2: облако очистили намеренно (Clear Cloud Data)
+			print("[SaveManager] Cloud empty but sync flag exists -> data was cleared, resetting to defaults...")
+			set_defaults()
+			_cloud_was_synced = false
+			save_game()
+			await _save_to_cloud_impl(true)
+		elif local_data is Dictionary:
+			# Сценарий 3a: первый вход, есть локальные данные
+			print("[SaveManager] Cloud empty, first sync - uploading local data...")
+			_apply_data(local_data)
+			_cloud_was_synced = true
+			save_game()
+			await _save_to_cloud_impl(true)
+		else:
+			# Сценарий 3b: первый вход, нет данных
+			print("[SaveManager] No data anywhere, setting defaults...")
+			set_defaults()
+			_cloud_was_synced = true
+			save_game()
+			await _save_to_cloud_impl(true)
 	else:
-		# Нет ни облачных, ни локальных данных — дефолт
-		print("[SaveManager] No data found, setting defaults...")
-		set_defaults()
-		# Сохраняем дефолты в облако сразу, чтобы на другом устройстве не было пустой игры
-		await _save_to_cloud_impl(true)
+		# Сценарий 1: облачные данные есть — облако главное
+		print("[SaveManager] Cloud data found - applying cloud (truth source)...")
+		_apply_data(cloud_data)
+		_cloud_was_synced = true
+		save_game()
+	
+	# В любом случае (сценарии 1, 2, 3) после синхронизации с облаком
+	# обновляем UI. Исключение — сценарий 4 (облако недоступно), но там
+	# data_loaded уже был вызван при локальной загрузке.
+	emit_signal("data_loaded")
 
 
 ## Прочитать данные из локального файла без применения их в переменные.
-## Возвращает Dictionary или null.
 func _load_local_raw_data() -> Variant:
 	if not FileAccess.file_exists(SAVE_PATH):
 		return null
@@ -187,6 +271,7 @@ func _load_local_raw_data() -> Variant:
 
 func _get_save_data() -> Dictionary:
 	return {
+		"save_version": SAVE_VERSION,
 		"credits": credits,
 		"last_saved_at": Time.get_unix_time_from_system(),
 		"health_upgrade_level": health_upgrade_level,
@@ -206,7 +291,7 @@ func _get_save_data() -> Dictionary:
 		"all_modules_purchased": all_modules_purchased,
 		"difficulty_unlocked": difficulty_unlocked.duplicate(),
 		"difficulty_level": difficulty_level,
-		"session_credits_bank": session_credits_bank,
+		"_cloud_was_synced": _cloud_was_synced,
 	}
 
 
@@ -248,7 +333,7 @@ func _apply_data(data: Dictionary) -> void:
 	persistent_modules_unlocked_count = data.get("persistent_modules_unlocked_count", 0)
 	persistent_chests_opened = data.get("persistent_chests_opened", 0)
 	all_modules_purchased = data.get("all_modules_purchased", false)
-	session_credits_bank = data.get("session_credits_bank", 0)
+	session_credits_bank = 0  # не сохраняется — только для сессии между битвой и ангаром
 
 	var loaded_skins = data.get("ship_skins", {})
 	ship_skins = (loaded_skins as Dictionary).duplicate(true) if loaded_skins is Dictionary else {}
@@ -287,7 +372,14 @@ func load_game() -> Dictionary:
 		var parse_result = json.parse(json_str)
 		if parse_result == OK:
 			var data = json.data as Dictionary
-			_apply_data(data)
+			# Проверяем версию — старая = игнорируем
+			var valid_data = _validate_save_data(data)
+			if valid_data is Dictionary:
+				_cloud_was_synced = valid_data.get("_cloud_was_synced", false)
+				_apply_data(valid_data)
+			else:
+				print("[SaveManager] Local save outdated, resetting...")
+				set_defaults()
 			return _to_dict()
 		else:
 			set_defaults()
@@ -318,6 +410,7 @@ func _to_dict() -> Dictionary:
 		"persistent_bosses_killed": persistent_bosses_killed,
 		"persistent_modules_unlocked_count": persistent_modules_unlocked_count,
 		"persistent_chests_opened": persistent_chests_opened,
+		"_cloud_was_synced": _cloud_was_synced,
 	}
 
 
@@ -338,34 +431,31 @@ func _init_default_skins() -> void:
 			owned_modules[mid] = 1
 
 
-# ---- Буферизация облачного сохранения ----
-## Минимальный интервал между облачными сохранениями (секунды)
-const CLOUD_SAVE_INTERVAL: float = 6.0
-
-## Таймер с последнего облачного сохранения
-var _cloud_timer: float = 0.0
-## Флаг — есть несохранённые изменения для облака
+# ============================================================
+# Автосохранение: раз в 15 секунд, с проверкой лимита API (10 сек)
+# ============================================================
 var _cloud_pending: bool = false
 
 
 func _process(delta: float) -> void:
 	if not _cloud_pending:
 		return
-	_cloud_timer += delta
-	if _cloud_timer >= CLOUD_SAVE_INTERVAL:
-		_cloud_timer = 0.0
+	_auto_save_timer += delta
+	if _auto_save_timer >= AUTO_CLOUD_INTERVAL:
+		_auto_save_timer = 0.0
 		_cloud_pending = false
-		# Сохраняем в облако (fire-and-forget, без ожидания)
 		_save_to_cloud_impl(false)
 
 
 func _mark_cloud_pending() -> void:
 	if not _cloud_pending:
 		_cloud_pending = true
-		_cloud_timer = 0.0
+		_auto_save_timer = 0.0
 
 
-# ---- Сохранение ----
+# ============================================================
+# Сохранение
+# ============================================================
 
 func save_game() -> void:
 	var data = _get_save_data()
@@ -375,34 +465,42 @@ func save_game() -> void:
 		file.close()
 
 
-## Сохранить локально и запланировать облачное сохранение (раз в 6 сек).
 func save_game_async() -> void:
 	save_game()
 	_mark_cloud_pending()
 
 
-## Принудительное сохранение в облако (для переходов между сценами).
-## Не блокирует игру.
 func save_game_cloud_now() -> void:
 	save_game()
 	_cloud_pending = false
-	_cloud_timer = 0.0
+	_auto_save_timer = 0.0
 	_save_to_cloud_impl(false)
 
 
-## async версия критического сохранения — дожидается завершения записи в облако.
-## Использовать в IAP: await SaveManager.save_game_critical_async()
-## Возвращает true, если сохранение выполнено успешно.
+func force_save_to_cloud() -> void:
+	save_game()
+	_cloud_pending = false
+	_auto_save_timer = 0.0
+	_last_cloud_save_time = 0.0
+	_save_to_cloud_impl(false)
+
+
 func save_game_critical_async() -> bool:
 	save_game()
 	_cloud_pending = false
-	_cloud_timer = 0.0
+	_auto_save_timer = 0.0
+	_last_cloud_save_time = 0.0
 	var success = await _save_to_cloud_impl(true)
 	return success
 
 
-## Сохранить в облако (без буферизации). Возвращает true при успехе.
 func _save_to_cloud_impl(flush: bool) -> bool:
+	var now = Time.get_ticks_msec() / 1000.0
+	
+	if not flush and (now - _last_cloud_save_time) < MIN_CLOUD_INTERVAL:
+		print("[SaveManager] Cloud save skipped: too soon (", str(now - _last_cloud_save_time), "s < ", str(MIN_CLOUD_INTERVAL), "s)")
+		return false
+	
 	var ads = get_node_or_null("/root/AdsManager")
 	if ads == null or not ads.is_sdk_ready or ads.sdk == null:
 		print("[SaveManager] Cloud save skipped: AdsManager not ready")
@@ -414,7 +512,6 @@ func _save_to_cloud_impl(flush: bool) -> bool:
 		print("[SaveManager] Cloud save skipped: player is null")
 		return false
 	
-	# Если player не инициализирован — пробуем инициализировать
 	if not ads.sdk.player.is_inited():
 		print("[SaveManager] Player not inited, initializing...")
 		var player_init = await ads.sdk.player.init()
@@ -422,10 +519,13 @@ func _save_to_cloud_impl(flush: bool) -> bool:
 			print("[SaveManager] Player init failed")
 			return false
 	
+	_last_cloud_save_time = now
+	
 	var cloud_data = _get_save_data()
 	var result = await ads.sdk.player.set_data(cloud_data, flush)
 	if result == true:
 		print("[SaveManager] Cloud save completed (flush=" + str(flush) + ")")
+		_cloud_was_synced = true
 		return true
 	else:
 		print("[SaveManager] Cloud save returned: " + str(result))
@@ -457,7 +557,12 @@ func set_defaults() -> void:
 	persistent_chests_opened = 0
 	difficulty_level = 0
 	difficulty_unlocked = [0]
+	_cloud_was_synced = false
 
+
+# ============================================================
+# Остальные методы (без изменений)
+# ============================================================
 
 func get_current_skin(ship_id: String) -> int:
 	_init_default_skins()
@@ -820,13 +925,20 @@ func on_enemy_killed(weapon_id: String, enemy_name: String, is_boss: bool = fals
 		unlock_achievement("goliath_crusher")
 	
 	var now: float = Time.get_ticks_msec() / 1000.0
-	if now - tmp_last_kill_time <= 3.0:
-		tmp_kill_count_fast += 1
-	else:
+	# "Мясорубка": 10 убийств за 3 секунды от ПЕРВОГО убийства в серии
+	if tmp_kill_count_fast == 0:
+		# Начало новой серии
+		tmp_last_kill_time = now
 		tmp_kill_count_fast = 1
-	tmp_last_kill_time = now
-	if tmp_kill_count_fast >= 10:
-		unlock_achievement("meat_grinder")
+	elif now - tmp_last_kill_time <= 3.0:
+		# Всё ещё в окне 3 секунд
+		tmp_kill_count_fast += 1
+		if tmp_kill_count_fast >= 10:
+			unlock_achievement("meat_grinder")
+	else:
+		# Окно истекло — сбрасываем, начинаем новое с текущим убийством
+		tmp_last_kill_time = now
+		tmp_kill_count_fast = 1
 	
 	if now - tmp_last_kill_fast_time <= 2.0:
 		if not enemy_name in tmp_kill_types_fast:

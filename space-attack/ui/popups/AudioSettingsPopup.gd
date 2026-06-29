@@ -27,7 +27,7 @@ func _ready() -> void:
 func _build_ui() -> void:
 	dim = ColorRect.new()
 	dim.name = "AudioSettingsDim"
-	dim.color = Color(0, 0, 0, 0.7)
+	dim.color = Color(0.0, 0.0, 0.0, 0.882)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(dim)

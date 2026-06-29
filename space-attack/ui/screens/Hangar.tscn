@@ -23,18 +23,6 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p6hve"]
-bg_color = Color(0, 0, 0, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 0.6627451, 0, 1)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
 [node name="Hangar" type="Control" unique_id=1768064296]
 unique_name_in_owner = true
 layout_mode = 3
@@ -368,15 +356,6 @@ theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("StyleBoxFlat_12i1o")
 text = "Купить все модули + скины"
 
-[node name="IapRemoveAdsButton" type="Button" parent="ScrollContainer/VBox/ShopBg/ShopContent" unique_id=1793232606]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 80)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.6627451, 0, 1)
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_p6hve")
-text = "Отключить рекламу"
-
 [node name="BackButton" type="Button" parent="ScrollContainer/VBox/ShopBg/ShopContent" unique_id=507890478]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(640, 60)
@@ -427,4 +406,4 @@ offset_left = 344.0
 offset_top = 1232.0
 offset_right = 394.0
 offset_bottom = 1252.0
-text = "0013"
+text = "0019"

@@ -257,17 +257,31 @@ func _hide_settings() -> void:
 
 
 func _on_music_volume_changed(value: float) -> void:
-	var am := get_node_or_null("/root/AudioManager") as Node
-	if am and am.has_method(&"set_music_volume"):
-		am.set_music_volume(value)
+	var am := get_node_or_null("/root/AudioManager")
+	if am and am.has_method(&"set_music_volume_direct"):
+		am.set_music_volume_direct(value)
 	_update_volume_labels()
 
 
 func _on_sfx_volume_changed(value: float) -> void:
-	var am := get_node_or_null("/root/AudioManager") as Node
-	if am and am.has_method(&"set_sfx_volume"):
-		am.set_sfx_volume(value)
+	var am := get_node_or_null("/root/AudioManager")
+	if am and am.has_method(&"set_sfx_volume_direct"):
+		am.set_sfx_volume_direct(value)
 	_update_volume_labels()
+
+
+func _on_music_toggle_pressed() -> void:
+	var am := get_node_or_null("/root/AudioManager") as Node
+	if am and am.has_method(&"toggle_music"):
+		am.toggle_music()
+	_sync_settings_sliders()
+
+
+func _on_sfx_toggle_pressed() -> void:
+	var am := get_node_or_null("/root/AudioManager") as Node
+	if am and am.has_method(&"toggle_sfx"):
+		am.toggle_sfx()
+	_sync_settings_sliders()
 
 
 # ============================================================
