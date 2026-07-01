@@ -36,10 +36,42 @@ extends CanvasLayer
 @onready var sfx_toggle: TextureButton = $TopBar/SfxToggle
 
 var _player: Node = null
+var _last_score: int = 0
+var _last_credits: int = 0
+var _last_wave: int = 0
 
+
+func _setup_localization() -> void:
+	score_label.text = tr("battle_score_text")
+	credits_label.text = tr("battle_credits_text")
+	wave_label.text = tr("battle_wave_text")
+	_update_score_value()
+	_update_credits_value()
+	_update_wave_value()
+
+
+func _update_score_value() -> void:
+	score_label.text = tr("battle_score_text") + " " + str(_last_score)
+
+
+func _update_credits_value() -> void:
+	credits_label.text = tr("battle_credits_text") + " "  + str(_last_credits)
+
+
+func _update_wave_value() -> void:
+	wave_label.text = tr("battle_wave_text") + " "  + str(_last_wave)
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
 
 
 func _ready() -> void:
+	_setup_localization()
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
+	
 	if shockwave_button:
 		shockwave_button.texture_normal = load("res://assets/icons/skils/Shockwave.png")
 		shockwave_button.pressed.connect(_on_shockwave_pressed)
@@ -130,11 +162,11 @@ func _update_single_label(label: Label, button: TextureButton, cooldown: float) 
 	if not label.visible:
 		return
 	if cooldown <= 0.0:
-		label.text = "Готово"
+		label.text = tr("battle_ready")
 		label.modulate = Color(0.5, 1, 0.5, 1)
 		button.modulate = Color(1, 1, 1, 1)
 	else:
-		label.text = "%.0fс" % cooldown
+		label.text = tr("battle_cooldown_sec") % cooldown
 		label.modulate = Color(1, 0.6, 0.4, 1)
 		button.modulate = Color(0.3, 0.3, 0.3, 0.5)
 
@@ -210,11 +242,13 @@ func _update_sfx_button() -> void:
 
 
 func update_score(value: int) -> void:
-	score_label.text = "Очки: " + str(value)
+	_last_score = value
+	_update_score_value()
 
 
 func update_credits(value: int) -> void:
-	credits_label.text = "Кредиты: " + str(value)
+	_last_credits = value
+	_update_credits_value()
 
 
 func update_lives(value: int) -> void:
@@ -223,4 +257,5 @@ func update_lives(value: int) -> void:
 
 
 func update_wave(value: int) -> void:
-	wave_label.text = "Волна: " + str(value)
+	_last_wave = value
+	_update_wave_value()

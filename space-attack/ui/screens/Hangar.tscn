@@ -66,6 +66,7 @@ alignment = 1
 
 [node name="HangarContent" type="VBoxContainer" parent="ScrollContainer/VBox" unique_id=289227654]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 12
@@ -102,36 +103,6 @@ theme_override_font_sizes/font_size = 32
 text = "Корабли"
 horizontal_alignment = 1
 
-[node name="ShipRow2" type="HBoxContainer" parent="ScrollContainer/VBox/HangarContent" unique_id=724700021]
-layout_mode = 2
-size_flags_horizontal = 8
-theme_override_constants/separation = 12
-
-[node name="VanguardSkinPreview" type="Control" parent="ScrollContainer/VBox/HangarContent/ShipRow2" unique_id=1371654228]
-unique_name_in_owner = true
-z_index = 2
-custom_minimum_size = Vector2(200, 120)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-mouse_filter = 2
-
-[node name="PhantomSkinPreview" type="Control" parent="ScrollContainer/VBox/HangarContent/ShipRow2" unique_id=1234307177]
-unique_name_in_owner = true
-z_index = 2
-custom_minimum_size = Vector2(200, 120)
-layout_mode = 2
-size_flags_horizontal = 4
-mouse_filter = 2
-
-[node name="GoliathSkinPreview" type="Control" parent="ScrollContainer/VBox/HangarContent/ShipRow2" unique_id=517934515]
-unique_name_in_owner = true
-z_index = 2
-custom_minimum_size = Vector2(170, 120)
-layout_mode = 2
-size_flags_horizontal = 8
-mouse_filter = 2
-
 [node name="ShipRow" type="HBoxContainer" parent="ScrollContainer/VBox/HangarContent" unique_id=836026308]
 layout_mode = 2
 theme_override_constants/separation = 12
@@ -139,27 +110,91 @@ alignment = 1
 
 [node name="VanguardButton" type="Button" parent="ScrollContainer/VBox/HangarContent/ShipRow" unique_id=1611360213]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 140)
+custom_minimum_size = Vector2(200, 260)
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Вангвард
 Базовый"
 
+[node name="Vanguard" type="Label" parent="ScrollContainer/VBox/HangarContent/ShipRow/VanguardButton" unique_id=268902643]
+custom_minimum_size = Vector2(200, 140)
+layout_mode = 0
+offset_top = 120.0
+offset_right = 200.0
+offset_bottom = 260.0
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VanguardSkinPreview" type="Control" parent="ScrollContainer/VBox/HangarContent/ShipRow/VanguardButton" unique_id=1371654228]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 120)
+anchors_preset = 0
+offset_left = 37.0
+offset_top = 2.0
+offset_right = 239.0
+offset_bottom = 122.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+
 [node name="PhantomButton" type="Button" parent="ScrollContainer/VBox/HangarContent/ShipRow" unique_id=947047099]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 140)
+custom_minimum_size = Vector2(200, 260)
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Фантом
 2000"
 
+[node name="Phantom" type="Label" parent="ScrollContainer/VBox/HangarContent/ShipRow/PhantomButton" unique_id=727240430]
+custom_minimum_size = Vector2(200, 140)
+layout_mode = 0
+offset_top = 120.0
+offset_right = 200.0
+offset_bottom = 260.0
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PhantomSkinPreview" type="Control" parent="ScrollContainer/VBox/HangarContent/ShipRow/PhantomButton" unique_id=1234307177]
+unique_name_in_owner = true
+z_index = 2
+custom_minimum_size = Vector2(120, 120)
+anchors_preset = 0
+offset_left = 41.0
+offset_right = 217.0
+offset_bottom = 120.0
+size_flags_horizontal = 4
+mouse_filter = 2
+
 [node name="GoliathButton" type="Button" parent="ScrollContainer/VBox/HangarContent/ShipRow" unique_id=1267909326]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 140)
+custom_minimum_size = Vector2(200, 260)
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Голиаф
 5000"
+
+[node name="Goliath" type="Label" parent="ScrollContainer/VBox/HangarContent/ShipRow/GoliathButton" unique_id=1867785379]
+custom_minimum_size = Vector2(200, 140)
+layout_mode = 0
+offset_top = 120.0
+offset_right = 200.0
+offset_bottom = 260.0
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GoliathSkinPreview" type="Control" parent="ScrollContainer/VBox/HangarContent/ShipRow/GoliathButton" unique_id=517934515]
+unique_name_in_owner = true
+z_index = 2
+custom_minimum_size = Vector2(170, 120)
+anchors_preset = 0
+offset_left = 37.0
+offset_right = 237.0
+offset_bottom = 120.0
+size_flags_horizontal = 8
+mouse_filter = 2
 
 [node name="MenuButtons" type="HBoxContainer" parent="ScrollContainer/VBox/HangarContent" unique_id=1556198380]
 custom_minimum_size = Vector2(204, 0)
@@ -246,7 +281,6 @@ text = "Открыть сундук (500)"
 
 [node name="ShopBg" type="Panel" parent="ScrollContainer/VBox" unique_id=1559008836]
 unique_name_in_owner = true
-visible = false
 custom_minimum_size = Vector2(680, 1200)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -337,7 +371,7 @@ custom_minimum_size = Vector2(640, 80)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
-text = "Сундук модулей (500)"
+text = "chest_modules"
 
 [node name="SkinChestButton" type="Button" parent="ScrollContainer/VBox/ShopBg/ShopContent" unique_id=806295138]
 unique_name_in_owner = true
@@ -345,7 +379,7 @@ custom_minimum_size = Vector2(640, 80)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
-text = "Сундук скинов (500)"
+text = "chest_skins"
 
 [node name="IapAllModulesButton" type="Button" parent="ScrollContainer/VBox/ShopBg/ShopContent" unique_id=872670312]
 unique_name_in_owner = true
@@ -370,40 +404,20 @@ stream = ExtResource("3_12i1o")
 autoplay = true
 bus = &"Music"
 
-[node name="Panel" type="Panel" parent="." unique_id=336365386]
-modulate = Color(0, 0, 0, 1)
-custom_minimum_size = Vector2(202, 125)
-layout_mode = 0
-offset_left = 46.0
-offset_top = 248.0
-offset_right = 250.0
-offset_bottom = 373.0
-mouse_filter = 2
-
-[node name="Panel2" type="Panel" parent="." unique_id=2139993962]
-modulate = Color(0, 0, 0, 1)
-custom_minimum_size = Vector2(202, 125)
-layout_mode = 0
-offset_left = 262.0
-offset_top = 248.0
-offset_right = 464.0
-offset_bottom = 373.0
-mouse_filter = 2
-
-[node name="Panel3" type="Panel" parent="." unique_id=712703434]
-modulate = Color(0, 0, 0, 1)
-custom_minimum_size = Vector2(202, 125)
-layout_mode = 0
-offset_left = 470.0
-offset_top = 248.0
-offset_right = 674.0
-offset_bottom = 373.0
-mouse_filter = 2
-
 [node name="Label" type="Label" parent="." unique_id=647132555]
 layout_mode = 0
 offset_left = 344.0
 offset_top = 1232.0
 offset_right = 394.0
 offset_bottom = 1252.0
-text = "0019"
+text = "0020"
+
+[node name="ShipRow2" type="HBoxContainer" parent="." unique_id=724700021]
+visible = false
+layout_mode = 0
+offset_left = 81.0
+offset_top = 246.0
+offset_right = 675.0
+offset_bottom = 366.0
+size_flags_horizontal = 8
+theme_override_constants/separation = 12

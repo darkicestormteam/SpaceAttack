@@ -6,30 +6,29 @@
 process_mode = 3
 script = ExtResource("1")
 
-[node name="MenuButton" type="Button" parent="."]
+[node name="MenuButton" type="Button" parent="." unique_id=285406445]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(64, 64)
-position = Vector2(640, 16)
-size = Vector2(64, 64)
+offset_left = 640.0
+offset_top = 16.0
+offset_right = 704.0
+offset_bottom = 80.0
 text = "="
 
-[node name="Dim" type="ColorRect" parent="."]
+[node name="Dim" type="ColorRect" parent="." unique_id=1733119604]
 unique_name_in_owner = true
 visible = false
-mouse_filter = 2
-color = Color(0, 0, 0, 0.7)
 anchors_preset = 15
-anchor_left = 0.0
-anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.7)
 
-[node name="MenuPanel" type="VBoxContainer" parent="."]
+[node name="MenuPanel" type="VBoxContainer" parent="." unique_id=218651947]
 unique_name_in_owner = true
 visible = false
-mouse_filter = 2
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -41,91 +40,101 @@ offset_right = 200.0
 offset_bottom = 240.0
 grow_horizontal = 2
 grow_vertical = 2
-alignment = 1
+mouse_filter = 2
 theme_override_constants/separation = 12
+alignment = 1
 
-[node name="TitleLabel" type="Label" parent="./MenuPanel"]
+[node name="TitleLabel" type="Label" parent="MenuPanel" unique_id=1207727679]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 0)
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 36
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
+theme_override_font_sizes/font_size = 36
 text = "ПАУЗА"
+horizontal_alignment = 1
 
-[node name="Spacer1" type="Control" parent="./MenuPanel"]
+[node name="Spacer1" type="Control" parent="MenuPanel" unique_id=35353973]
 custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
 
-[node name="ScoreLabel" type="Label" parent="./MenuPanel"]
+[node name="ScoreLabel" type="Label" parent="MenuPanel" unique_id=1530615104]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(400, 0)
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 22
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
 text = "Очки: 0"
+horizontal_alignment = 1
 
-[node name="CreditsLabel" type="Label" parent="./MenuPanel"]
+[node name="CreditsLabel" type="Label" parent="MenuPanel" unique_id=738849320]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(400, 0)
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 22
+layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 22
 text = "Кредиты: 0"
+horizontal_alignment = 1
 
-[node name="Spacer2" type="Control" parent="./MenuPanel"]
+[node name="Spacer2" type="Control" parent="MenuPanel" unique_id=97644830]
 custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
 
-[node name="ResumeButton" type="Button" parent="./MenuPanel"]
+[node name="ResumeButton" type="Button" parent="MenuPanel" unique_id=162380849]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 65)
+layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 24
 text = "Продолжить"
 
-[node name="ReviveButton" type="Button" parent="./MenuPanel"]
+[node name="ReviveButton" type="Button" parent="MenuPanel" unique_id=503918874]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(400, 65)
+layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 24
 text = "Воскреснуть"
 
-[node name="HangarButton" type="Button" parent="./MenuPanel"]
+[node name="HangarButton" type="Button" parent="MenuPanel" unique_id=785281403]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 65)
+layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 24
 text = "В ангар"
 
-[node name="RestartButton" type="Button" parent="./MenuPanel"]
+[node name="RestartButton" type="Button" parent="MenuPanel" unique_id=1161368177]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 65)
+layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 24
 text = "Рестарт"
 
-[node name="SettingsButton" type="Button" parent="./MenuPanel"]
+[node name="SettingsButton" type="Button" parent="MenuPanel" unique_id=622595403]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 65)
+layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 24
 text = "Настройки"
 
-[node name="SettingsPanel" type="VBoxContainer" parent="."]
+[node name="SettingsPanel" type="VBoxContainer" parent="." unique_id=1803568744]
 unique_name_in_owner = true
 visible = false
-mouse_filter = 2
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -137,68 +146,74 @@ offset_right = 250.0
 offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
-alignment = 1
+mouse_filter = 2
 theme_override_constants/separation = 20
-
-[node name="SettingsTitle" type="Label" parent="./SettingsPanel"]
-custom_minimum_size = Vector2(500, 0)
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 36
-theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
-text = "НАСТРОЙКИ"
-
-[node name="MusicRow" type="HBoxContainer" parent="./SettingsPanel"]
-custom_minimum_size = Vector2(400, 60)
 alignment = 1
-theme_override_constants/separation = 15
 
-[node name="MusicLabel" type="Label" parent="./SettingsPanel/MusicRow"]
+[node name="SettingsTitle" type="Label" parent="SettingsPanel" unique_id=1559748540]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.2, 1)
+theme_override_font_sizes/font_size = 36
+text = "НАСТРОЙКИ"
+horizontal_alignment = 1
+
+[node name="MusicRow" type="HBoxContainer" parent="SettingsPanel" unique_id=1640033503]
+custom_minimum_size = Vector2(400, 60)
+layout_mode = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="MusicLabel" type="Label" parent="SettingsPanel/MusicRow" unique_id=536785818]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 0)
-theme_override_font_sizes/font_size = 22
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-horizontal_alignment = 0
+theme_override_font_sizes/font_size = 22
 text = "Музыка: 50%"
 
-[node name="MusicSlider" type="HSlider" parent="./SettingsPanel/MusicRow"]
+[node name="MusicSlider" type="HSlider" parent="SettingsPanel/MusicRow" unique_id=2086371944]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
 size_flags_horizontal = 3
-min_value = 0.0
 max_value = 1.0
 step = 0.01
 value = 0.5
 
-[node name="SfxRow" type="HBoxContainer" parent="./SettingsPanel"]
+[node name="SfxRow" type="HBoxContainer" parent="SettingsPanel" unique_id=920942953]
 custom_minimum_size = Vector2(400, 60)
-alignment = 1
+layout_mode = 2
 theme_override_constants/separation = 15
+alignment = 1
 
-[node name="SfxLabel" type="Label" parent="./SettingsPanel/SfxRow"]
+[node name="SfxLabel" type="Label" parent="SettingsPanel/SfxRow" unique_id=1566162909]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 0)
-theme_override_font_sizes/font_size = 22
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-horizontal_alignment = 0
+theme_override_font_sizes/font_size = 22
 text = "Звуки: 50%"
 
-[node name="SfxSlider" type="HSlider" parent="./SettingsPanel/SfxRow"]
+[node name="SfxSlider" type="HSlider" parent="SettingsPanel/SfxRow" unique_id=2056663768]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
 size_flags_horizontal = 3
-min_value = 0.0
 max_value = 1.0
 step = 0.01
 value = 0.5
 
-[node name="SettingsSpacer" type="Control" parent="./SettingsPanel"]
+[node name="SettingsSpacer" type="Control" parent="SettingsPanel" unique_id=1977270694]
 custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
 
-[node name="SettingsBackButton" type="Button" parent="./SettingsPanel"]
+[node name="SettingsBackButton" type="Button" parent="SettingsPanel" unique_id=1346714275]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 65)
+layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 24
 text = "Назад"

@@ -16,15 +16,28 @@ func _ready() -> void:
 	yes_button.pressed.connect(_on_yes_pressed)
 	no_button.pressed.connect(_on_no_pressed)
 	ok_button.pressed.connect(_on_ok_pressed)
+	_setup_localization()
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
+
+
+func _setup_localization() -> void:
+	ok_button.text = tr("buy_ok")
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
+
 
 func setup(ship_id: String, ship_name: String, cost: int, can_afford: bool) -> void:
 	_ship_id = ship_id
 	
 	if can_afford:
-		title_label.text = ship_name
+		title_label.text = tr("ship_name_" + ship_id)
 		title_label.show()
 		
-		cost_label.text = "Цена: %d кредитов" % cost
+		cost_label.text = tr("buy_cost") % cost
 		cost_label.show()
 		
 		msg_label.text = ""
@@ -34,7 +47,7 @@ func setup(ship_id: String, ship_name: String, cost: int, can_afford: bool) -> v
 		no_button.show()
 		ok_button.hide()
 	else:
-		title_label.text = "Не хватает кредитов!"
+		title_label.text = tr("buy_no_credits")
 		title_label.show()
 		
 		cost_label.hide()

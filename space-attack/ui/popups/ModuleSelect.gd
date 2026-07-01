@@ -66,11 +66,25 @@ var _module_cache: Dictionary = {}
 func _ready() -> void:
 	close_button.pressed.connect(_on_close_pressed)
 	unequip_button.pressed.connect(_on_unequip_pressed)
+	_setup_localization()
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
+
+
+func _setup_localization() -> void:
+	title_label.text = tr("select_title") % tr("select_slot_" + _target_slot)
+	unequip_button.text = tr("select_unequip")
+	close_button.text = tr("select_close")
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
 
 
 func setup(slot: String) -> void:
 	_target_slot = slot
-	title_label.text = "Выберите модуль: %s" % _slot_display_name(slot)
+	title_label.text = tr("select_title") % tr("select_slot_" + slot)
 	_refresh_list()
 
 
@@ -120,7 +134,7 @@ func _refresh_list() -> void:
 
 	if not has_any_for_slot:
 		var empty_label := Label.new()
-		empty_label.text = "Нет доступных модулей для этого слота.\nОткройте сундук!"
+		empty_label.text = tr("select_empty")
 		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		list_container.add_child(empty_label)
 
@@ -148,10 +162,7 @@ func _load_visuals_for(module_id: String) -> Resource:
 
 
 func _get_module_name_safe(module_id: String) -> String:
-	var module_resource: Resource = _load_module(module_id)
-	if module_resource != null and "name" in module_resource:
-		return str(module_resource.name)
-	return module_id
+	return tr("mod_" + module_id + "_name")
 
 
 func _load_module(module_id: String) -> Resource:

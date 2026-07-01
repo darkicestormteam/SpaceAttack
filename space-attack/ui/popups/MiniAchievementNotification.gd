@@ -25,7 +25,7 @@ const RARITY_COLORS: Dictionary = {
 func setup(ach_id: String, ach_data: Dictionary) -> void:
 	var rarity: String = ach_data.get("rarity", "bronze")
 	var reward: int = ach_data.get("reward", 0)
-	var name_text: String = ach_data.get("name", ach_id)
+	var name_text: String = tr("ach_" + ach_id + "_name")
 	
 	name_label.text = name_text
 	name_label.add_theme_font_size_override("font_size", 24)

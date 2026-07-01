@@ -272,13 +272,6 @@ const RARITY_COLORS: Dictionary = {
 	"legendary": Color(1, 0.7, 0.1, 1)
 }
 
-const RARITY_NAMES: Dictionary = {
-	"common": "Обычный",
-	"rare": "Редкий",
-	"epic": "Эпический",
-	"legendary": "Легендарный"
-}
-
 var FONT_SIZE: int = 20
 
 
@@ -299,6 +292,7 @@ func _enable_smart_wrap(lbl: Label) -> void:
 @onready var description_label: Label = $Panel/MarginContainer/VBoxContainer/DescriptionLabel
 @onready var stats_container: VBoxContainer = $Panel/MarginContainer/VBoxContainer/StatsContainer
 @onready var special_label: Label = $Panel/MarginContainer/VBoxContainer/SpecialLabel
+@onready var stats_title: Label = $Panel/MarginContainer/VBoxContainer/StatsTitle
 @onready var select_button: Button = $Panel/MarginContainer/VBoxContainer/ButtonHBox/SelectButton
 @onready var cancel_button: Button = $Panel/MarginContainer/VBoxContainer/ButtonHBox/CancelButton
 
@@ -311,6 +305,20 @@ func _ready() -> void:
 	_disable_wrap(type_label)
 	_enable_smart_wrap(description_label)
 	_enable_smart_wrap(special_label)
+	_setup_localization()
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
+
+
+func _setup_localization() -> void:
+	select_button.text = tr("detail_select")
+	cancel_button.text = tr("detail_back")
+	stats_title.text = tr("detail_stats_title")
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
 
 
 func setup(module_id: String, slot: String) -> void:
@@ -375,31 +383,35 @@ func _update_ui() -> void:
 	if stats.is_empty():
 		return
 
-	var display_name: String = _get_dict_val(stats, "name", _module_id)
+	var display_name: String = tr("mod_" + _module_id + "_name")
 	name_label.text = display_name
 	name_label.add_theme_font_size_override("font_size", FONT_SIZE)
 
 	var rarity: String = _get_dict_val(stats, "rarity", "common")
 	var rarity_color: Color = _get_dict_val(RARITY_COLORS, rarity, Color.WHITE)
-	var rarity_name: String = _get_dict_val(RARITY_NAMES, rarity, rarity)
+	var rarity_name: String = tr("rarity_" + rarity)
 	rarity_label.text = rarity_name
 	rarity_label.add_theme_color_override("font_color", rarity_color)
 	rarity_label.add_theme_font_size_override("font_size", FONT_SIZE)
 
-	var type_map: Dictionary = {"weapon": "Оружие", "defense": "Защита", "utility": "Утилита"}
+	var type_map: Dictionary = {"weapon": "type_weapon", "defense": "type_defense", "utility": "type_utility"}
 	var type_str: String = _get_dict_val(stats, "type", "")
-	type_label.text = _get_dict_val(type_map, type_str, "")
+	type_label.text = tr(_get_dict_val(type_map, type_str, ""))
 	type_label.add_theme_font_size_override("font_size", FONT_SIZE)
 
-	description_label.text = _get_dict_val(stats, "description", "")
+	description_label.text = tr("mod_" + _module_id + "_desc")
 	description_label.add_theme_font_size_override("font_size", FONT_SIZE)
 
 	_build_stats(stats)
 
-	var special: String = _get_dict_val(stats, "special", "")
-	special_label.text = special
-	special_label.visible = not special.is_empty()
-	special_label.add_theme_font_size_override("font_size", FONT_SIZE)
+	var orig_special: String = _get_dict_val(stats, "special", "")
+	if orig_special.is_empty():
+		special_label.visible = false
+	else:
+		var special: String = tr("mod_" + _module_id + "_spec")
+		special_label.text = special
+		special_label.visible = not special.is_empty() and special != "mod_" + _module_id + "_spec"
+		special_label.add_theme_font_size_override("font_size", FONT_SIZE)
 
 
 func _build_stats(stats: Dictionary) -> void:
@@ -410,55 +422,55 @@ func _build_stats(stats: Dictionary) -> void:
 
 	if type == "weapon":
 		var dmg = stats.get("damage")
-		_add_stat("Урон", str(dmg) if dmg != null else "?")
-		_add_stat("Задержка", _get_dict_val(stats, "fire_rate", "?"))
+		_add_stat("stat_damage", str(dmg) if dmg != null else "?")
+		_add_stat("stat_fire_rate", tr("mod_" + _module_id + "_rate"))
 		var pellets = _get_dict_val(stats, "pellets", 1)
-		_add_stat("Снарядов", str(pellets))
+		_add_stat("stat_pellets", str(pellets))
 
 	elif type == "defense":
 		match _module_id:
-			"light_armor": _add_stat("Эффект", "+1 HP")
-			"shield": _add_stat("Эффект", "Поглощение 5 ед.")
-			"shield_new": _add_stat("Эффект", "Поглощение 10 ед.")
-			"energy_shield": _add_stat("Эффект", "Конвертация в кредиты")
-			"composite_armor": _add_stat("Эффект", "Блок каждый 4-й удар")
+			"light_armor": _add_stat("stat_effect", "+1 HP")
+			"shield": _add_stat("stat_effect", "5 " + tr("stat_absorb"))
+			"shield_new": _add_stat("stat_effect", "10 " + tr("stat_absorb"))
+			"energy_shield": _add_stat("stat_effect", tr("stat_convert_credits"))
+			"composite_armor": _add_stat("stat_effect", tr("stat_block_every_4"))
 			"forsage":
-				_add_stat("Скорость", "+50%")
-				_add_stat("Длительность", "2 сек")
+				_add_stat("stat_speed", "+50%")
+				_add_stat("stat_duration", "2 " + tr("stat_sec"))
 			"tactical_accelerator":
-				_add_stat("Скорострельность", "+30%")
-				_add_stat("Длительность", "3 сек")
+				_add_stat("stat_fire_rate_bonus", "+30%")
+				_add_stat("stat_duration", "3 " + tr("stat_sec"))
 			"diffusor":
-				_add_stat("Шанс", "50%")
-				_add_stat("Урон контратаки", "10")
+				_add_stat("stat_chance", "50%")
+				_add_stat("stat_counter_damage", "10")
 			"cocoon_shield":
-				_add_stat("Блок", "1 попадание")
-				_add_stat("КД", "25 сек")
-				_add_stat("Возрождение", "50% HP")
+				_add_stat("stat_block", "1 " + tr("stat_hit"))
+				_add_stat("stat_cd", "25 " + tr("stat_sec"))
+				_add_stat("stat_revive", "50% HP")
 
 	elif type == "utility":
 		match _module_id:
-			"turbo": _add_stat("Скорость", "+30%")
-			"nanobots": _add_stat("Регенерация", "1 HP / 15 сек")
-			"shockwave": _add_stat("КД", "8 сек")
-			"magnet": _add_stat("Радиус", "Большой")
-			"drone": _add_stat("Дронов", "1")
-			"drone_rare": _add_stat("Дронов", "2")
+			"turbo": _add_stat("stat_speed", "+30%")
+			"nanobots": _add_stat("stat_regen", "1 HP / 20 " + tr("stat_sec"))
+			"shockwave": _add_stat("stat_cd", "8 " + tr("stat_sec"))
+			"magnet": _add_stat("stat_radius", tr("stat_large"))
+			"drone": _add_stat("stat_drones", "1")
+			"drone_rare": _add_stat("stat_drones", "2")
 			"drone_epic":
-				_add_stat("Дронов", "2")
-				_add_stat("Копирует оружие", "Да")
+				_add_stat("stat_drones", "2")
+				_add_stat("stat_copies_weapon", tr("stat_yes"))
 			"drone_legendary":
-				_add_stat("Дронов", "3")
-				_add_stat("Копирует оружие", "Да")
-				_add_stat("Перехват", "Да")
+				_add_stat("stat_drones", "3")
+				_add_stat("stat_copies_weapon", tr("stat_yes"))
+				_add_stat("stat_intercept", tr("stat_yes"))
 
 
-func _add_stat(label_text: String, value: String) -> void:
+func _add_stat(key: String, value: String) -> void:
 	var hbox := HBoxContainer.new()
 	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	var lbl := Label.new()
-	lbl.text = label_text
+	lbl.text = tr(key)
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8, 1))
 	lbl.add_theme_font_size_override("font_size", FONT_SIZE)

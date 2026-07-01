@@ -14,12 +14,12 @@ const RARITY_COLORS: Dictionary = {
 }
 
 const CATEGORY_NAMES: Dictionary = {
-	"progress": "Прогрессия",
-	"ships": "Корабли",
-	"weapons": "Оружие и модули",
-	"mastery": "Мастерство",
-	"economy": "Экономика",
-	"special": "Особые"
+	"progress": "cat_progress",
+	"ships": "cat_ships",
+	"weapons": "cat_weapons",
+	"mastery": "cat_mastery",
+	"economy": "cat_economy",
+	"special": "cat_special"
 }
 
 const CATEGORY_ICONS: Dictionary = {
@@ -75,7 +75,7 @@ func setup(ach_id: String, ach_data: Dictionary, unlocked: bool) -> void:
 	
 	# --- Категория ---
 	var cat: String = ach_data.get("category", "")
-	category_label.text = CATEGORY_ICONS.get(cat, "") + " " + CATEGORY_NAMES.get(cat, "")
+	category_label.text = CATEGORY_ICONS.get(cat, "") + " " + tr(CATEGORY_NAMES.get(cat, ""))
 	category_label.add_theme_font_size_override("font_size", 18)
 	category_label.modulate = Color(0.5, 0.5, 0.5, 0.7)
 

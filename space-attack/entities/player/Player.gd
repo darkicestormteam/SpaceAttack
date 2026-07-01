@@ -584,6 +584,18 @@ func _input(event: InputEvent) -> void:
 	# Phantom dash — двойной тап WASD/стрелок (через Input Map, без раскладки)
 	_detect_dash_input(event)
 
+	# Goliath Charge — R
+	if event.is_action_pressed("goliath_charge"):
+		try_start_goliath_charge()
+
+	# Homing Salvo — E
+	if event.is_action_pressed("homing_salvo"):
+		try_activate_homing_salvo()
+
+	# Shockwave — F
+	if event.is_action_pressed("shockwave"):
+		try_activate_shockwave()
+
 
 func _process(delta: float) -> void:
 	# Плазма

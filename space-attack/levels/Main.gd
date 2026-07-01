@@ -73,6 +73,9 @@ var _last_tap_time: float = 0.0
 var _last_tap_pos: Vector2 = Vector2.ZERO
 
 
+var _focus_paused: bool = false
+var _focus_audio_snapshot: Dictionary = {}
+
 func _ready() -> void:
 	sm = get_node("/root/SaveManager")
 	sm.load_game()
@@ -151,6 +154,80 @@ func _ready() -> void:
 	# MegaBossV1 на волне 1 — для теста
 	if wave_counter == mega_boss_wave:
 		get_tree().create_timer(2.0).timeout.connect(func(): start_boss_fight(true))
+	
+	# Подписываемся на сигналы Яндекс SDK для паузы/фокуса (важно для Web/HTML)
+	# В браузере NOTIFICATION_WM_WINDOW_FOCUS_OUT/IN может не срабатывать,
+	# поэтому дублируем через game_api_paused/resumed от YandexSDK
+	var yandex_sdk = get_node_or_null("/root/YandexSDK")
+	if yandex_sdk:
+		if not yandex_sdk.is_connected("game_api_paused", _on_focus_lost):
+			yandex_sdk.game_api_paused.connect(_on_focus_lost)
+		if not yandex_sdk.is_connected("game_api_resumed", _on_focus_gained):
+			yandex_sdk.game_api_resumed.connect(_on_focus_gained)
+		print("[Main] Subscribed to YandexSDK game_api_paused/resumed")
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+		_on_focus_lost()
+	elif what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		_on_focus_gained()
+
+
+func _on_focus_lost() -> void:
+	if current_phase == GamePhase.GAME_OVER:
+		return
+	if _paused_by_gameover:
+		return
+	
+	_focus_paused = true
+	
+	# Сохраняем громкость и выключаем звук
+	var am := get_node_or_null("/root/AudioManager")
+	if am:
+		_focus_audio_snapshot["music"] = am.music_volume
+		_focus_audio_snapshot["sfx"] = am.sfx_volume
+		am.set_music_volume_direct(0.0)
+		am.set_sfx_volume_direct(0.0)
+	
+	# Ставим на паузу (через call_deferred для надёжности в Web)
+	call_deferred(&"_set_paused_deferred", true)
+	
+	# Уведомляем Yandex SDK
+	var gm := get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("on_game_paused"):
+		gm.on_game_paused()
+	
+	print("[Main] Focus lost — game paused, audio muted")
+
+
+func _on_focus_gained() -> void:
+	if not _focus_paused:
+		return
+	_focus_paused = false
+	
+	# Восстанавливаем громкость
+	var am := get_node_or_null("/root/AudioManager")
+	if am and _focus_audio_snapshot.has("music"):
+		am.set_music_volume_direct(_focus_audio_snapshot["music"])
+		am.set_sfx_volume_direct(_focus_audio_snapshot["sfx"])
+	_focus_audio_snapshot.clear()
+	
+	# НЕ снимаем паузу, если активно меню паузы (PauseMenu открыт)
+	var pause_menu := $PauseMenu
+	if pause_menu and pause_menu.panel and pause_menu.panel.visible:
+		print("[Main] Focus gained — but pause menu is open, keeping pause")
+		return
+	
+	# Снимаем паузу (через call_deferred для надёжности в Web)
+	call_deferred(&"_set_paused_deferred", false)
+	
+	# Уведомляем Yandex SDK
+	var gm := get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("on_game_resumed"):
+		gm.on_game_resumed()
+	
+	print("[Main] Focus gained — game resumed, audio restored")
 
 
 func _process(_delta: float) -> void:
@@ -660,6 +737,9 @@ func _game_won() -> void:
 	var pause_menu = $PauseMenu
 	if pause_menu and pause_menu.has_method("show_mode"):
 		pause_menu.show_mode(pause_menu.Mode.VICTORY, score, credits_earned_this_run)
+	
+	# Запрос отзыва об игре (Yandex Feedback) — фоновый, не блокирует UI
+	_request_review_after_victory()
 
 
 func end_boss_fight() -> void:
@@ -996,9 +1076,27 @@ func _on_pause_restart() -> void:
 	get_tree().reload_current_scene()
 
 
+func _set_paused_deferred(paused: bool) -> void:
+	get_tree().paused = paused
+
+
 func _save_cloud_now() -> void:
 	if sm and sm.has_method(&"save_game_cloud_now"):
 		sm.save_game_cloud_now()
+
+
+# Запрос отзыва об игре через Yandex SDK (вызывается после победы)
+func _request_review_after_victory() -> void:
+	var ads = get_node_or_null("/root/AdsManager")
+	if ads == null or not ads.has_method("request_review_if_possible"):
+		return
+	
+	# Отзыв запрашивается в фоне, не блокируя UI победы
+	var sent = await ads.request_review_if_possible()
+	if sent == true:
+		print("[Main] Review submitted after victory")
+	else:
+		print("[Main] Review not possible right now")
 
 
 # Вызывается при выходе из игры (смерть, рестарт, выход в ангар) для проверки ачивок
@@ -1006,23 +1104,14 @@ func _on_game_over_checks() -> void:
 	sm.on_game_over(score)
 
 
-# Отправить финальный счёт в лидерборд Yandex Games "BestScore"
+# Отправить финальный счёт в лидерборд Yandex Games "bestscore"
 func _submit_to_leaderboard() -> void:
 	var ads = get_node_or_null("/root/AdsManager") as Node
 	if ads == null or not ads.has_method("leaderboard_set_score"):
-		_save_pending_score()
+		push_warning("[Main] AdsManager not available for leaderboard")
 		return
-	if not ads.is_leaderboard_ready:
-		push_warning("[Main] Leaderboard not ready, saving score for next session")
-		_save_pending_score()
-		return
+	
+	# Отправляем счёт. Если лидерборд не готов — Yandex SDK сам обработает
+	# и отправит при следующей инициализации.
+	print("[Main] Submitting score to leaderboard: ", score)
 	ads.leaderboard_set_score("bestscore", score, "")
-
-
-func _save_pending_score() -> void:
-	# Fallback: сохраняем счёт локально на случай, если SDK ещё не готов
-	var sm = get_node_or_null("/root/SaveManager")
-	if sm:
-		sm.pending_leaderboard_score = score
-		sm.save_game()
-		print("[Main] Score saved locally for later submission: ", score)

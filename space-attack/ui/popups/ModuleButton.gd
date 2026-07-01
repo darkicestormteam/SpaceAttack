@@ -184,8 +184,23 @@ func _apply_visuals() -> void:
 				_skin_instance = inst
 				_skin_preview.add_child(inst)
 				_skin_preview.visible = true
+				# Отключаем ввод на всех нодах инстанса
+				_ignore_input_recursive(inst)
 
 	_refresh_visual_state()
+
+
+func _ignore_input_recursive(node: Node) -> void:
+	if node is Area2D:
+		node.monitoring = false
+		node.monitorable = false
+	if node is CollisionObject2D:
+		node.collision_layer = 0
+		node.collision_mask = 0
+	if node is Control:
+		node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child in node.get_children():
+		_ignore_input_recursive(child)
 
 
 func _refresh_visual_state() -> void:

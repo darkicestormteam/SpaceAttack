@@ -8,18 +8,6 @@ const DIFFICULTY_RECRUIT: int = 0
 const DIFFICULTY_VETERAN: int = 1
 const DIFFICULTY_LEGEND: int = 2
 
-const DIFFICULTY_NAMES: Dictionary = {
-	DIFFICULTY_RECRUIT: "Рекрут",
-	DIFFICULTY_VETERAN: "Ветеран",
-	DIFFICULTY_LEGEND: "Легенда"
-}
-
-const DIFFICULTY_DESCRIPTIONS: Dictionary = {
-	DIFFICULTY_RECRUIT: "Стандартные волны. Идеально для начала!",
-	DIFFICULTY_VETERAN: "Повышенная сложность. Враги быстрее и сильнее.",
-	DIFFICULTY_LEGEND: "Максимальный вызов. Сможешь ли ты выжить?"
-}
-
 # Цвета рамок для кнопок
 const COLOR_RECRUIT: Color = Color(0.2, 0.7, 1.0, 1.0)
 const COLOR_VETERAN: Color = Color(0.7, 0.2, 1.0, 1.0)
@@ -33,7 +21,21 @@ const COLOR_LOCKED: Color = Color(0.3, 0.3, 0.3, 0.6)
 @onready var title_label: Label = $Panel/TitleLabel
 @onready var description_label: Label = $Panel/DescriptionLabel
 
+@onready var panel: Panel = $Panel
+@onready var panel_settings: Panel = $Panelsettings
+@onready var setting_button: Button = $Panel/VBox/VBoxContainer/SettingButton
+@onready var panel_settings_close: Button = $Panelsettings/CloseButton
+
 var _difficulty_unlocked: Array = [0]
+
+@onready var panel_settings_title: Label = $Panelsettings/Label
+@onready var panel_settings_phantom: Label = $Panelsettings/Label2
+@onready var panel_settings_shockwave: Label = $Panelsettings/Label3
+@onready var panel_settings_shockwave_act: Label = $Panelsettings/Label4
+@onready var panel_settings_homing: Label = $Panelsettings/Label5
+@onready var panel_settings_homing_act: Label = $Panelsettings/Label6
+@onready var panel_settings_goliath: Label = $Panelsettings/Label7
+@onready var panel_settings_goliath_act: Label = $Panelsettings/Label8
 
 
 func _ready() -> void:
@@ -68,6 +70,7 @@ func _ready() -> void:
 	
 	print("[DiffSelect] _difficulty_unlocked = " + str(_difficulty_unlocked))
 	
+	_setup_localization()
 	_setup_buttons()
 	_setup_styles()
 	
@@ -76,12 +79,50 @@ func _ready() -> void:
 	veteran_button.pressed.connect(_on_veteran_pressed)
 	legend_button.pressed.connect(_on_legend_pressed)
 	close_button.pressed.connect(_on_close_pressed)
+
+	# === Настройки ===
+	panel_settings.visible = false
+	panel.visible = true
+	setting_button.pressed.connect(_on_setting_button_pressed)
+	panel_settings_close.pressed.connect(_on_panel_settings_close_pressed)
+	
+	# Подписываемся на смену языка
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
 	
 	_on_button_hover(DIFFICULTY_RECRUIT)
 	
 	recruit_button.mouse_entered.connect(_on_button_hover.bind(DIFFICULTY_RECRUIT))
 	veteran_button.mouse_entered.connect(_on_button_hover.bind(DIFFICULTY_VETERAN))
 	legend_button.mouse_entered.connect(_on_button_hover.bind(DIFFICULTY_LEGEND))
+
+
+func _setup_localization() -> void:
+	title_label.text = tr("diff_title")
+	setting_button.text = tr("diff_setting")
+	if panel_settings_title:
+		panel_settings_title.text = tr("diff_controls_title")
+	if panel_settings_phantom:
+		panel_settings_phantom.text = tr("diff_phantom_desc")
+	if panel_settings_shockwave:
+		panel_settings_shockwave.text = tr("diff_shockwave_desc")
+	if panel_settings_shockwave_act:
+		panel_settings_shockwave_act.text = tr("diff_shockwave_act")
+	if panel_settings_homing:
+		panel_settings_homing.text = tr("diff_homing_desc")
+	if panel_settings_homing_act:
+		panel_settings_homing_act.text = tr("diff_homing_act")
+	if panel_settings_goliath:
+		panel_settings_goliath.text = tr("diff_goliath_desc")
+	if panel_settings_goliath_act:
+		panel_settings_goliath_act.text = tr("diff_goliath_act")
+	_setup_buttons()
+	_on_button_hover(DIFFICULTY_RECRUIT)
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
 
 
 func _on_recruit_pressed() -> void:
@@ -122,17 +163,17 @@ func _start_game(difficulty: int) -> void:
 
 
 func _setup_buttons() -> void:
-	recruit_button.text = DIFFICULTY_NAMES[DIFFICULTY_RECRUIT]
+	recruit_button.text = tr("diff_recruit")
 	
 	if DIFFICULTY_VETERAN in _difficulty_unlocked:
-		veteran_button.text = DIFFICULTY_NAMES[DIFFICULTY_VETERAN]
+		veteran_button.text = tr("diff_veteran")
 		veteran_button.disabled = false
 	else:
 		veteran_button.text = "???"
 		veteran_button.disabled = true
 	
 	if DIFFICULTY_LEGEND in _difficulty_unlocked:
-		legend_button.text = DIFFICULTY_NAMES[DIFFICULTY_LEGEND]
+		legend_button.text = tr("diff_legend")
 		legend_button.disabled = false
 	else:
 		legend_button.text = "???"
@@ -143,6 +184,7 @@ func _setup_styles() -> void:
 	_apply_difficulty_style(recruit_button, COLOR_RECRUIT, true)
 	_apply_difficulty_style(veteran_button, COLOR_VETERAN, DIFFICULTY_VETERAN in _difficulty_unlocked)
 	_apply_difficulty_style(legend_button, COLOR_LEGEND, DIFFICULTY_LEGEND in _difficulty_unlocked)
+	_apply_difficulty_style(setting_button, COLOR_RECRUIT, true)
 
 
 func _apply_difficulty_style(btn: Button, border_color: Color, unlocked: bool) -> void:
@@ -245,13 +287,29 @@ func _apply_difficulty_style(btn: Button, border_color: Color, unlocked: bool) -
 func _on_button_hover(difficulty: int) -> void:
 	var is_unlocked := difficulty in _difficulty_unlocked
 	if is_unlocked:
-		description_label.text = DIFFICULTY_DESCRIPTIONS.get(difficulty, "")
+		match difficulty:
+			DIFFICULTY_RECRUIT:
+				description_label.text = tr("diff_recruit_desc")
+			DIFFICULTY_VETERAN:
+				description_label.text = tr("diff_veteran_desc")
+			DIFFICULTY_LEGEND:
+				description_label.text = tr("diff_legend_desc")
 	else:
 		match difficulty:
 			DIFFICULTY_VETERAN:
-				description_label.text = "Пройдите игру на «Рекруте» (победите босса 10-й волны), чтобы открыть этот уровень сложности."
+				description_label.text = tr("diff_veteran_locked")
 			DIFFICULTY_LEGEND:
-				description_label.text = "Пройдите игру на «Ветеране» (победите босса 10-й волны), чтобы открыть этот уровень сложности."
+				description_label.text = tr("diff_legend_locked")
+
+
+func _on_setting_button_pressed() -> void:
+	panel.visible = false
+	panel_settings.visible = true
+
+
+func _on_panel_settings_close_pressed() -> void:
+	panel_settings.visible = false
+	panel.visible = true
 
 
 func _on_close_pressed() -> void:

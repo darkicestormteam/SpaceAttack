@@ -90,6 +90,10 @@ const DIFFICULTY_SELECT_SCENE: PackedScene = preload("res://ui/popups/Difficulty
 @onready var vanguard_button: Button = %VanguardButton
 @onready var phantom_button: Button = %PhantomButton
 @onready var goliath_button: Button = %GoliathButton
+
+@onready var vanguard_label: Label = $ScrollContainer/VBox/HangarContent/ShipRow/VanguardButton/Vanguard
+@onready var phantom_label: Label = $ScrollContainer/VBox/HangarContent/ShipRow/PhantomButton/Phantom
+@onready var goliath_label: Label = $ScrollContainer/VBox/HangarContent/ShipRow/GoliathButton/Goliath
 @onready var weapon_slot: Button = %WeaponSlot
 @onready var defense_slot: Button = %DefenseSlot
 @onready var utility_slot: Button = %UtilitySlot
@@ -122,9 +126,17 @@ const DIFFICULTY_SELECT_SCENE: PackedScene = preload("res://ui/popups/Difficulty
 @onready var music: AudioStreamPlayer = %Music
 
 # Панели подложки (скрываются в магазине)
-@onready var panel: Panel = $Panel
-@onready var panel2: Panel = $Panel2
-@onready var panel3: Panel = $Panel3
+@onready var panel: Panel = get_node_or_null("Panel")
+@onready var panel2: Panel = get_node_or_null("Panel2")
+@onready var panel3: Panel = get_node_or_null("Panel3")
+@onready var ship_row2: HBoxContainer = $ShipRow2
+
+@onready var ship_title: Label = $ScrollContainer/VBox/HangarContent/ShipTitle
+@onready var slots_title: Label = $ScrollContainer/VBox/HangarContent/SlotsVBox/SlotsTitle
+@onready var shop_title_label: Label = $ScrollContainer/VBox/ShopBg/ShopContent/ShopTitleLabel
+@onready var shop_ship_title_label: Label = $ScrollContainer/VBox/ShopBg/ShopContent/ShopShipTitle
+@onready var shop_hp_title_label: Label = $ScrollContainer/VBox/ShopBg/ShopContent/ShopHPTitle
+@onready var shop_chests_title_label: Label = $ScrollContainer/VBox/ShopBg/ShopContent/ShopChestsTitle
 
 const MODULE_BUTTON_SCENE: PackedScene = preload("res://ui/popups/ModuleButton.tscn")
 
@@ -151,6 +163,8 @@ var _goliath_skin_btn: ModuleButton = null
 
 func _ready() -> void:
 	_setup_audio_buttons()
+	_setup_lang_button()
+	_setup_localization()
 	_apply_styles_to_all_buttons()
 	SaveManager.load_game()
 	
@@ -208,6 +222,17 @@ func _ready() -> void:
 	if back_btn:
 		back_btn.pressed.connect(_show_hangar_tab)
 	
+	# Пропускаем клики сквозь весь ряд превью скинов
+	if ship_row2:
+		ship_row2.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ship_row2.mouse_force_pass_scroll_events = true
+	if vanguard_skin_preview:
+		vanguard_skin_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if phantom_skin_preview:
+		phantom_skin_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if goliath_skin_preview:
+		goliath_skin_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 	# Показываем ангар по умолчанию
 	_show_hangar_tab()
 	
@@ -257,6 +282,7 @@ func _hide_hangar_ui() -> void:
 	if panel: panel.visible = false
 	if panel2: panel2.visible = false
 	if panel3: panel3.visible = false
+	if ship_row2: ship_row2.visible = false
 
 
 func _show_hangar_ui() -> void:
@@ -350,6 +376,68 @@ func _process(delta: float) -> void:
 	pass
 
 
+func _setup_localization() -> void:
+	play_button.text = tr("play_button")
+	shop_button.text = tr("shop_button_title")
+	if rewards_button:
+		rewards_button.text = tr("rewards_button_title")
+	chest_button.text = tr("chest_button") if chest_button else ""
+	if module_chest_button:
+		module_chest_button.text = tr("chest_modules")
+	if skin_chest_button:
+		skin_chest_button.text = tr("chest_skins")
+	var back_btn: Button = %BackButton if has_node("%BackButton") else null
+	if back_btn:
+		back_btn.text = tr("back_button")
+	if ship_title:
+		ship_title.text = tr("ship_title")
+	if slots_title:
+		slots_title.text = tr("slots_title")
+	if shop_title_label:
+		shop_title_label.text = tr("shop_title")
+	if shop_ship_title_label:
+		shop_ship_title_label.text = tr("shop_ship_title")
+	if shop_hp_title_label:
+		shop_hp_title_label.text = tr("shop_hp_title")
+	if shop_chests_title_label:
+		shop_chests_title_label.text = tr("shop_chests_title")
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
+
+
+func _on_language_changed(_locale: String) -> void:
+	play_button.text = tr("play_button")
+	shop_button.text = tr("shop_button_title")
+	if rewards_button:
+		rewards_button.text = tr("rewards_button_title")
+	chest_button.text = tr("chest_button") if chest_button else ""
+	if module_chest_button:
+		module_chest_button.text = tr("chest_modules")
+	if skin_chest_button:
+		skin_chest_button.text = tr("chest_skins")
+	var back_btn: Button = %BackButton if has_node("%BackButton") else null
+	if back_btn:
+		back_btn.text = tr("back_button")
+	if ship_title:
+		ship_title.text = tr("ship_title")
+	if slots_title:
+		slots_title.text = tr("slots_title")
+	if shop_title_label:
+		shop_title_label.text = tr("shop_title")
+	if shop_ship_title_label:
+		shop_ship_title_label.text = tr("shop_ship_title")
+	if shop_hp_title_label:
+		shop_hp_title_label.text = tr("shop_hp_title")
+	if shop_chests_title_label:
+		shop_chests_title_label.text = tr("shop_chests_title")
+	credits_label.text = tr("credits_label") % SaveManager.credits
+	high_score_label.text = tr("high_score_label") % SaveManager.high_score
+	_refresh_ship_buttons()
+	_refresh_slot_buttons()
+	_refresh_shop_ui()
+
+
 func _on_music_finished() -> void:
 	if music:
 		music.play()
@@ -364,6 +452,7 @@ func _show_hangar_tab() -> void:
 	if panel: panel.visible = true
 	if panel2: panel2.visible = true
 	if panel3: panel3.visible = true
+	if ship_row2: ship_row2.visible = true
 	update_ui()
 
 
@@ -374,6 +463,7 @@ func _show_shop_tab() -> void:
 	if panel: panel.visible = false
 	if panel2: panel2.visible = false
 	if panel3: panel3.visible = false
+	if ship_row2: ship_row2.visible = false
 	_refresh_iap_buttons()
 	update_ui()
 
@@ -387,8 +477,8 @@ func update_ui() -> void:
 		if gm.get_current_state() != gm.GameState.MENU:
 			gm.set_state(gm.GameState.MENU)
 	
-	credits_label.text = "Кредиты: %d" % SaveManager.credits
-	high_score_label.text = " Лучший счёт: " + str(SaveManager.high_score)
+	credits_label.text = tr("credits_label") % SaveManager.credits
+	high_score_label.text = tr("high_score_label") % SaveManager.high_score
 	_refresh_ship_buttons()
 	_refresh_slot_buttons()
 	_refresh_shop_ui()
@@ -401,16 +491,16 @@ func _refresh_shop_ui() -> void:
 	
 	# HP улучшение
 	if SaveManager.health_upgrade_level >= HEALTH_MAX_LEVEL:
-		health_level_label.text = "Уровень: MAX"
-		health_cost_label.text = "Максимум"
+		health_level_label.text = tr("health_level_max")
+		health_cost_label.text = tr("health_max")
 		health_buy_button.disabled = true
-		health_buy_button.text = "MAX"
+		health_buy_button.text = tr("health_button_max")
 	else:
 		var health_cost: int = HEALTH_BASE_COST * int(pow(HEALTH_COST_MULTIPLIER, SaveManager.health_upgrade_level))
-		health_level_label.text = "Уровень: %d" % SaveManager.health_upgrade_level
-		health_cost_label.text = "Цена: %d" % health_cost
+		health_level_label.text = tr("health_level") % SaveManager.health_upgrade_level
+		health_cost_label.text = tr("health_cost") % health_cost
 		health_buy_button.disabled = SaveManager.credits < health_cost
-		health_buy_button.text = "Улучшить HP"
+		health_buy_button.text = tr("health_button")
 	
 	# Сундуки
 	var can_afford_modules := SaveManager.credits >= MODULE_CHEST_COST
@@ -425,15 +515,16 @@ func _refresh_shop_ui() -> void:
 func _update_ship_buy_button(button: Button, ship_id: String, cost: int) -> void:
 	if not button:
 		return
+	var name_label := tr("ship_name_" + ship_id)
 	if SaveManager.is_ship_unlocked(ship_id):
-		button.text = SaveManager.get_ship_name(ship_id) + " — Куплен"
+		button.text = name_label + tr("shop_bought")
 		button.disabled = true
 		return
 	if SaveManager.credits < cost:
-		button.text = SaveManager.get_ship_name(ship_id) + " — " + str(cost) + " (нет средств)"
+		button.text = name_label + " — " + str(cost) + tr("shop_no_funds")
 		button.disabled = true
 		return
-	button.text = SaveManager.get_ship_name(ship_id) + " — " + str(cost) + ""
+	button.text = name_label + " — " + str(cost) + ""
 	button.disabled = false
 
 
@@ -444,17 +535,17 @@ func _on_skin_slot_pressed() -> void:
 
 
 func _refresh_slot_buttons() -> void:
-	weapon_slot.text = "Оружие\n%s" % _slot_text("weapon")
-	defense_slot.text = "Защита\n%s" % _slot_text("defense")
-	utility_slot.text = "Утилита\n%s" % _slot_text("utility")
+	weapon_slot.text = tr("slot_weapon") % _slot_text("weapon")
+	defense_slot.text = tr("slot_defense") % _slot_text("defense")
+	utility_slot.text = tr("slot_utility") % _slot_text("utility")
 	weapon_slot.add_theme_color_override("font_color", _slot_color("weapon"))
 	defense_slot.add_theme_color_override("font_color", _slot_color("defense"))
 	utility_slot.add_theme_color_override("font_color", _slot_color("utility"))
 	
 	var current_skin_idx := SaveManager.get_current_skin(SaveManager.current_ship)
-	var skin_name := SaveManager.get_skin_name(SaveManager.current_ship, current_skin_idx)
-	skin_slot_button.text = "Скин\n%s" % skin_name
 	var skin_module_id := "skin_%s_%d" % [SaveManager.current_ship, current_skin_idx]
+	var skin_name := tr("mod_" + skin_module_id + "_name")
+	skin_slot_button.text = tr("slot_skin") % skin_name
 	skin_slot_button.add_theme_color_override("font_color", _slot_color_by_id(skin_module_id))
 	
 	var can_afford := SaveManager.credits >= MODULE_CHEST_COST
@@ -465,22 +556,12 @@ func _refresh_slot_buttons() -> void:
 func _slot_text(slot: String) -> String:
 	var module_id: String = SaveManager.get_equipped_in_slot(slot)
 	if module_id.is_empty():
-		return "[пусто]"
+		return tr("slot_empty")
 	return _module_display_name(module_id)
 
 
 func _module_display_name(module_id: String) -> String:
-	if not MODULE_PATHS.has(module_id):
-		return module_id
-	var path: String = MODULE_PATHS[module_id]
-	if not ResourceLoader.exists(path):
-		return module_id
-	var res: Resource = load(path)
-	if res == null:
-		return module_id
-	if "name" in res:
-		return str(res.name)
-	return module_id
+	return tr("mod_" + module_id + "_name")
 
 
 func _slot_color(slot: String) -> Color:
@@ -513,7 +594,8 @@ func _refresh_ship_buttons() -> void:
 
 
 func _vanguard_button_text(current: String) -> void:
-	vanguard_button.text = "Вангвард\nБазовый"
+	vanguard_button.text = ""
+	vanguard_label.text = tr("ship_vanguard")
 	vanguard_button.disabled = false
 	if current == "vanguard":
 		vanguard_button.modulate = Color(1, 1, 1, 1)
@@ -524,8 +606,9 @@ func _vanguard_button_text(current: String) -> void:
 
 
 func _phantom_button_text(current: String) -> void:
+	phantom_button.text = ""
 	if SaveManager.is_ship_unlocked("phantom"):
-		phantom_button.text = "Фантом\nРывок"
+		phantom_label.text = tr("ship_phantom")
 		phantom_button.disabled = false
 		if current == "phantom":
 			phantom_button.modulate = Color(1, 1, 1, 1)
@@ -534,15 +617,16 @@ func _phantom_button_text(current: String) -> void:
 			phantom_button.modulate = Color(0.7, 0.7, 0.7, 0.8)
 			_set_button_active(phantom_button, false)
 	else:
-		phantom_button.text = "Фантом\n2000"
+		phantom_label.text = tr("ship_phantom_locked")
 		phantom_button.disabled = false
 		phantom_button.modulate = Color(0.7, 0.7, 0.7, 0.8)
 		_set_button_active(phantom_button, false)
 
 
 func _goliath_button_text(current: String) -> void:
+	goliath_button.text = ""
 	if SaveManager.is_ship_unlocked("goliath"):
-		goliath_button.text = "Голиаф\nТаран"
+		goliath_label.text = tr("ship_goliath")
 		goliath_button.disabled = false
 		if current == "goliath":
 			goliath_button.modulate = Color(1, 1, 1, 1)
@@ -551,7 +635,7 @@ func _goliath_button_text(current: String) -> void:
 			goliath_button.modulate = Color(0.7, 0.7, 0.7, 0.8)
 			_set_button_active(goliath_button, false)
 	else:
-		goliath_button.text = "Голиаф\n5000"
+		goliath_label.text = tr("ship_goliath_locked")
 		goliath_button.disabled = false
 		goliath_button.modulate = Color(0.7, 0.7, 0.7, 0.8)
 		_set_button_active(goliath_button, false)
@@ -594,7 +678,7 @@ func _on_buy_confirmed(ship_id: String) -> void:
 	if not SaveManager.spend_credits(cost):
 		return
 	SaveManager.unlock_ship(ship_id)
-	_show_info("Куплено!", SaveManager.get_ship_name(ship_id) + " теперь доступен!")
+	_show_info(tr("info_bought_title"), tr("info_bought_msg") % tr("ship_name_" + ship_id))
 	update_ui()
 
 
@@ -614,7 +698,7 @@ func _buy_ship(ship_id: String, cost: int) -> void:
 	if not SaveManager.spend_credits(cost):
 		return
 	SaveManager.unlock_ship(ship_id)
-	_show_info("Куплено!", "%s теперь доступен!" % SaveManager.get_ship_name(ship_id))
+	_show_info(tr("info_bought_title"), tr("info_bought_msg") % tr("ship_name_" + ship_id))
 	update_ui()
 
 
@@ -622,15 +706,15 @@ func _buy_ship(ship_id: String, cost: int) -> void:
 
 func _on_health_buy_pressed() -> void:
 	if SaveManager.health_upgrade_level >= HEALTH_MAX_LEVEL:
-		_show_info("Максимум", "HP уже максимального уровня!")
+		_show_info(tr("info_hp_max_title"), tr("info_hp_max_msg"))
 		return
 	var cost: int = HEALTH_BASE_COST * int(pow(HEALTH_COST_MULTIPLIER, SaveManager.health_upgrade_level))
 	if not SaveManager.spend_credits(cost):
-		_show_info("Недостаточно кредитов", "Нужно %d для улучшения HP." % cost)
+		_show_info(tr("info_no_credits_title"), tr("info_no_credits_msg") % cost)
 		return
 	SaveManager.health_upgrade_level += 1
 	SaveManager.save_game()
-	_show_info("Улучшено!", "HP увеличен до уровня %d" % SaveManager.health_upgrade_level)
+	_show_info(tr("info_upgraded_title"), tr("info_upgraded_msg") % SaveManager.health_upgrade_level)
 	update_ui()
 
 
@@ -706,7 +790,7 @@ func _roll_weighted_module() -> String:
 func _open_module_chest() -> void:
 	_last_chest_type = "module"
 	if not SaveManager.spend_credits(MODULE_CHEST_COST):
-		_show_info("Недостаточно кредитов", "Нужно %d для открытия сундука модулей." % MODULE_CHEST_COST)
+		_show_info(tr("chest_no_credits_title"), tr("chest_no_credits_modules_msg") % MODULE_CHEST_COST)
 		return
 	var rolled_module: String = _roll_weighted_module()
 	var is_new := SaveManager.add_module(rolled_module)
@@ -741,7 +825,7 @@ func _on_skin_chest_pressed() -> void:
 		return
 	_is_opening_again = false
 	if not SaveManager.spend_credits(SKIN_CHEST_COST):
-		_show_info("Недостаточно кредитов", "Нужно %d для открытия сундука скинов." % SKIN_CHEST_COST)
+		_show_info(tr("chest_no_credits_title"), tr("chest_no_credits_skins_msg") % SKIN_CHEST_COST)
 		return
 	# Выбираем случайный скин из пула
 	var all_skins: Array = SaveManager.SKIN_CHEST_POOL.duplicate()
@@ -815,15 +899,15 @@ func _on_popup_closed() -> void:
 func _on_purchase_availability_changed(available: bool) -> void:
 	if iap_all_modules_btn:
 		if SaveManager.all_modules_purchased:
-			iap_all_modules_btn.text = "Все модули ✓ Куплено"
+			iap_all_modules_btn.text = tr("IAP_all_bought")
 			iap_all_modules_btn.disabled = true
 			iap_all_modules_btn.modulate = Color(0.7, 0.7, 0.7, 0.6)
 		elif not available:
-			iap_all_modules_btn.text = "Подключение к магазину..."
+			iap_all_modules_btn.text = tr("IAP_connecting")
 			iap_all_modules_btn.disabled = true
 			iap_all_modules_btn.modulate = Color(0.7, 0.7, 0.7, 0.8)
 		else:
-			iap_all_modules_btn.text = "Купить все модули + скины"
+			iap_all_modules_btn.text = tr("IAP_all_modules")
 			iap_all_modules_btn.disabled = false
 			iap_all_modules_btn.modulate = Color(1, 1, 1, 1)
 	
@@ -842,15 +926,15 @@ func _on_iap_all_modules_pressed() -> void:
 		return
 	
 	iap_all_modules_btn.disabled = true
-	iap_all_modules_btn.text = "Подключение к магазину..."
+	iap_all_modules_btn.text = tr("IAP_connecting")
 	
 	var inited = await ads.payments_init()
 	if not inited:
-		iap_all_modules_btn.text = "Ошибка подключения"
+		iap_all_modules_btn.text = tr("IAP_error")
 		iap_all_modules_btn.disabled = false
 		return
 	
-	iap_all_modules_btn.text = "Покупка..."
+	iap_all_modules_btn.text = tr("IAP_purchasing")
 	await ads.purchase_all_modules()
 	
 	_refresh_iap_buttons()
@@ -1022,6 +1106,8 @@ func _update_skin_icons() -> void:
 		var skin_idx: int = SaveManager.get_current_skin(ship_id)
 		btn.setup("skin_%s_%d" % [ship_id, skin_idx])
 		btn.custom_minimum_size = Vector2(70, 70)
+		# Превью не блокирует клики
+		btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 # ============== СТИЛИЗАЦИЯ ==============
@@ -1176,10 +1262,38 @@ func _apply_button_style(btn: Button, custom_height: int = 64) -> void:
 
 # ============== АУДИО ==============
 
+func _setup_lang_button() -> void:
+	var lang_btn := Button.new()
+	lang_btn.name = "LangBtn"
+	lang_btn.text = "RU" if LocalizationManager.get_locale() == "ru" else "EN"
+	lang_btn.custom_minimum_size = Vector2(64, 64)
+	lang_btn.size = Vector2(64, 64)
+	lang_btn.position = Vector2(720 - 64 - 16 - 160, 16)
+	lang_btn.pressed.connect(_on_lang_toggle)
+	add_child(lang_btn)
+	_apply_button_style(lang_btn, 64)
+	
+	if LocalizationManager.language_changed.is_connected(_update_lang_btn_text):
+		LocalizationManager.language_changed.disconnect(_update_lang_btn_text)
+	LocalizationManager.language_changed.connect(_update_lang_btn_text)
+
+
+func _on_lang_toggle() -> void:
+	var current := LocalizationManager.get_locale()
+	var new_locale := "en" if current == "ru" else "ru"
+	LocalizationManager.set_locale(new_locale)
+
+
+func _update_lang_btn_text(_locale: String) -> void:
+	var lang_btn := get_node_or_null("LangBtn") as Button
+	if lang_btn:
+		lang_btn.text = "RU" if LocalizationManager.get_locale() == "ru" else "EN"
+
+
 func _setup_audio_buttons() -> void:
 	settings_btn = Button.new()
 	settings_btn.name = "SettingsBtn"
-	settings_btn.text = "="
+	settings_btn.text = tr("settings_btn")
 	settings_btn.custom_minimum_size = Vector2(64, 64)
 	settings_btn.size = Vector2(64, 64)
 	settings_btn.position = Vector2(16, 16)
@@ -1216,6 +1330,8 @@ func _update_audio_button_texts() -> void:
 		music_toggle_btn.modulate = Color(1, 1, 1, 1) if am.music_volume > 0.0 else Color(0.3, 0.3, 0.3, 0.5)
 	if sfx_toggle_btn:
 		sfx_toggle_btn.modulate = Color(1, 1, 1, 1) if am.sfx_volume > 0.0 else Color(0.3, 0.3, 0.3, 0.5)
+	if settings_btn:
+		settings_btn.text = tr("settings_btn")
 
 
 func _on_music_toggle() -> void:

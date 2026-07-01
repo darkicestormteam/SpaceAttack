@@ -77,6 +77,10 @@ func _process(delta: float) -> void:
 	_shoot_timer += delta
 	if _shoot_timer >= interval:
 		_shoot_timer = 0.0
+		# Проверка: если у родителя (Player) стрельба заблокирована — дрон не стреляет
+		var parent = get_parent()
+		if parent and "shooting_disabled" in parent and parent.shooting_disabled:
+			return
 		_shoot()
 
 

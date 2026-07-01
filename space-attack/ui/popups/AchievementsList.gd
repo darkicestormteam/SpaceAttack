@@ -21,12 +21,12 @@ const LOCKED_ICON_BG: Color = Color(0.12, 0.12, 0.14, 1)
 const LOCKED_ICON_FG: Color = Color(0.3, 0.3, 0.35, 0.8)
 
 const CATEGORY_NAMES: Dictionary = {
-	"progress": "Прогрессия",
-	"ships": "Корабли",
-	"weapons": "Оружие и модули",
-	"mastery": "Мастерство",
-	"economy": "Экономика",
-	"special": "Особые"
+	"progress": "cat_progress",
+	"ships": "cat_ships",
+	"weapons": "cat_weapons",
+	"mastery": "cat_mastery",
+	"economy": "cat_economy",
+	"special": "cat_special"
 }
 
 const CATEGORY_ICONS: Dictionary = {
@@ -51,14 +51,20 @@ var _sm: Node
 
 func _ready() -> void:
 	_sm = get_node("/root/SaveManager")
-	setup_ui()
+	_setup_localization()
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
 
 
-func setup_ui() -> void:
+func _setup_localization() -> void:
+	for child in achievement_list.get_children():
+		child.queue_free()
+	
 	var unlocked_count: int = _sm.get_achievement_count()
 	var total: int = SaveManager.ACHIEVEMENTS_TOTAL
 	stats_label.text = "%d / %d • %.0f%%" % [unlocked_count, total, float(unlocked_count) / float(max(total, 1)) * 100.0]
-	title_label.text = "Достижения"
+	title_label.text = tr("ach_title")
 	
 	var ach_ids: Array = _sm.get_all_achievement_ids()
 	
@@ -79,7 +85,7 @@ func setup_ui() -> void:
 	achievement_list.add_child(sep)
 	
 	var locked_label: Label = Label.new()
-	locked_label.text = "--- Не получено ---"
+	locked_label.text = tr("ach_locked_header")
 	locked_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	locked_label.modulate = Color(0.6, 0.6, 0.6, 0.6)
 	locked_label.add_theme_font_size_override("font_size", 14)
@@ -89,7 +95,13 @@ func setup_ui() -> void:
 		var data: Dictionary = _sm.get_achievement_data(ach_id)
 		_add_achievement_row(ach_id, data, false)
 	
-	close_button.pressed.connect(_on_close)
+	# Подписываемся один раз
+	if not close_button.pressed.is_connected(_on_close):
+		close_button.pressed.connect(_on_close)
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
 
 
 func _add_achievement_row(ach_id: String, ach_data: Dictionary, unlocked: bool) -> void:

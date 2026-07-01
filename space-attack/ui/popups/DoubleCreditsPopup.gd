@@ -19,6 +19,28 @@ func _ready() -> void:
 	no_btn.pressed.connect(_on_no_pressed)
 	_apply_button_style(yes_btn)
 	_apply_button_style(no_btn)
+	_setup_localization()
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
+
+
+func _setup_localization() -> void:
+	if _credits_earned > 0:
+		credits_label.text = tr("double_earned") % _credits_earned
+	yes_btn.text = tr("double_yes")
+	no_btn.text = tr("double_no")
+	# Обновляем заголовок и подпись
+	var title_label: Label = get_node_or_null("PopupVBox/TitleLabel")
+	if title_label:
+		title_label.text = tr("double_title")
+	var sub_label: Label = get_node_or_null("PopupVBox/SubLabel")
+	if sub_label:
+		sub_label.text = tr("double_sub")
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
 
 
 func _apply_button_style(btn: Button) -> void:
@@ -79,7 +101,7 @@ func _apply_button_style(btn: Button) -> void:
 
 func setup(credits_earned: int) -> void:
 	_credits_earned = credits_earned
-	credits_label.text = "Вы заработали %d кредитов!" % credits_earned
+	credits_label.text = tr("double_earned") % credits_earned
 
 
 func _on_yes_pressed() -> void:
@@ -106,4 +128,4 @@ func reset() -> void:
 	_action_chosen = false
 	yes_btn.disabled = false
 	no_btn.disabled = false
-	yes_btn.text = "Да, удвоить за рекламу"
+	yes_btn.text = tr("double_yes_ad")

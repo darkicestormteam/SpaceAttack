@@ -13,13 +13,6 @@ const RARITY_COLORS: Dictionary = {
 	"legendary": Color("#ffb31a")
 }
 
-const RARITY_NAMES: Dictionary = {
-	"common": "Обычный",
-	"rare": "Редкий",
-	"epic": "Эпический",
-	"legendary": "Легендарный"
-}
-
 const MODULE_PATHS: Dictionary = {
 	"laser": "res://data/modules/Laser_Common.tres",
 	"laser_mk2": "res://data/modules/Laser_MkII.tres",
@@ -62,6 +55,7 @@ var _module_id: String = ""
 var _module_name: String = ""
 var _module_rarity: String = "common"
 var _is_duplicate: bool = false
+var _compensation: int = 0
 var _obtained_count: int = 0
 var _total_count: int = 0
 
@@ -83,6 +77,19 @@ func _ready() -> void:
 	duplicate_label.visible = false
 	accept_btn.pressed.connect(_on_accept_pressed)
 	again_btn.pressed.connect(_on_again_pressed)
+	_setup_localization()
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
+
+
+func _setup_localization() -> void:
+	accept_btn.text = tr("chest_accept")
+	again_btn.text = tr("chest_open_again")
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
 
 
 func _input(event: InputEvent) -> void:
@@ -97,6 +104,7 @@ func _input(event: InputEvent) -> void:
 func setup(module_id: String, is_new: bool, compensation: int, obtained_count: int = 0, total_count: int = 0) -> void:
 	_module_id = module_id
 	_is_duplicate = not is_new
+	_compensation = compensation
 	_obtained_count = obtained_count
 	_total_count = total_count
 
@@ -227,7 +235,7 @@ func _show_module_result(btn: ModuleButton = null) -> void:
 
 	# === Раритет ===
 	var rarity_color: Color = RARITY_COLORS.get(_module_rarity, Color.WHITE)
-	var rarity_text: String = RARITY_NAMES.get(_module_rarity, _module_rarity)
+	var rarity_text: String = tr("rarity_" + _module_rarity)
 	rarity_label.text = rarity_text
 	rarity_label.add_theme_color_override("font_color", rarity_color)
 	rarity_label.modulate = Color(1, 1, 1, 0)
@@ -238,7 +246,7 @@ func _show_module_result(btn: ModuleButton = null) -> void:
 	# === Прогресс счётчик: получено / всего ===
 	if _total_count > 0:
 		progress_label.visible = true
-		progress_label.text = "Получено: %d / %d" % [_obtained_count, _total_count]
+		progress_label.text = tr("chest_progress") % [_obtained_count, _total_count]
 		progress_label.modulate = Color(1, 1, 1, 0)
 		var tw_prog := create_tween()
 		tw_prog.tween_property(progress_label, "modulate", Color(1, 1, 1, 1), 0.3)
@@ -248,13 +256,14 @@ func _show_module_result(btn: ModuleButton = null) -> void:
 	# === Текст дубликата ===
 	if _is_duplicate:
 		duplicate_label.visible = true
+		duplicate_label.text = tr("chest_duplicate") % _compensation
 		duplicate_label.modulate = Color(1, 1, 1, 0)
 		var tw_c := create_tween()
 		tw_c.tween_property(duplicate_label, "modulate", Color(1, 1, 1, 1), 0.3)
-		again_btn.text = "Открыть ещё\n(500)"
 	else:
 		duplicate_label.visible = false
-		again_btn.text = "Открыть ещё\n(500)"
+	again_btn.text = tr("chest_open_again")
+	accept_btn.text = tr("chest_accept")
 
 	# Кнопки уже в сцене, просто показываем
 	accept_btn.modulate = Color(1, 1, 1, 0)

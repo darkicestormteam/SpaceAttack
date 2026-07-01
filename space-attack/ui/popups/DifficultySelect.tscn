@@ -2,6 +2,19 @@
 
 [ext_resource type="Script" uid="uid://c51rwudiqc6kj" path="res://ui/popups/DifficultySelect.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://ct67847q65t3v" path="res://levels/Background/StarBackground.tscn" id="2_wj3wy"]
+[ext_resource type="Texture2D" uid="uid://b8pwqu4agqhb0" path="res://assets/icons/settings/generic_button_finger.png" id="3_rmfhm"]
+[ext_resource type="Texture2D" uid="uid://blhymu8tfqe7e" path="res://assets/icons/settings/keyboard_a.png" id="4_3nhgq"]
+[ext_resource type="Texture2D" uid="uid://dpjxpfs3vchm" path="res://assets/icons/settings/keyboard_arrow_down.png" id="5_i7cce"]
+[ext_resource type="Texture2D" uid="uid://c0wgjt4t5sh8a" path="res://assets/icons/settings/keyboard_arrow_left.png" id="6_c6g34"]
+[ext_resource type="Texture2D" uid="uid://bavtex513vl64" path="res://assets/icons/settings/keyboard_arrow_right.png" id="7_ngfdb"]
+[ext_resource type="Texture2D" uid="uid://brsc7wfgq6684" path="res://assets/icons/settings/keyboard_arrow_up.png" id="8_fg0dl"]
+[ext_resource type="Texture2D" uid="uid://c7yww7612wgk0" path="res://assets/icons/settings/keyboard_d.png" id="9_mdn1v"]
+[ext_resource type="Texture2D" uid="uid://bxm7htawaarbl" path="res://assets/icons/settings/keyboard_s.png" id="10_vehvl"]
+[ext_resource type="Texture2D" uid="uid://ditefmr5jpifg" path="res://assets/icons/settings/keyboard_w.png" id="11_pox50"]
+[ext_resource type="Texture2D" uid="uid://bk6e1yv4402rv" path="res://assets/icons/skils/Goliath Charge.png" id="12_t24dh"]
+[ext_resource type="Texture2D" uid="uid://caei4usmqaggb" path="res://assets/icons/skils/Homing Salvo.png" id="13_ojuss"]
+[ext_resource type="Texture2D" uid="uid://bcxcp67b1b032" path="res://assets/icons/skils/PhantomDash.png" id="14_hbget"]
+[ext_resource type="Texture2D" uid="uid://br6ifyifbtpfs" path="res://assets/icons/skils/Shockwave.png" id="15_7hx1d"]
 
 [sub_resource type="StyleBoxFlat" id="panel_style"]
 bg_color = Color(0.05, 0.05, 0.1, 0.95)
@@ -24,6 +37,200 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0, 0, 0, 0.7)
+
+[node name="Panelsettings" type="Panel" parent="." unique_id=200335563]
+visible = false
+offset_left = 104.0
+offset_top = 32.0
+offset_right = 632.0
+offset_bottom = 1240.0
+theme_override_styles/panel = SubResource("panel_style")
+
+[node name="GenericButtonFinger" type="Sprite2D" parent="Panelsettings" unique_id=1627448787]
+position = Vector2(480, 504)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("3_rmfhm")
+
+[node name="GenericButtonFinger2" type="Sprite2D" parent="Panelsettings" unique_id=1416689590]
+position = Vector2(499, 639.99994)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("3_rmfhm")
+
+[node name="GenericButtonFinger5" type="Sprite2D" parent="Panelsettings" unique_id=695643673]
+position = Vector2(280, 1064)
+scale = Vector2(1.4, 1.4)
+texture = ExtResource("3_rmfhm")
+
+[node name="KeyboardA" type="Sprite2D" parent="Panelsettings" unique_id=1595244116]
+position = Vector2(200.00002, 288)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("4_3nhgq")
+
+[node name="KeyboardArrowDown" type="Sprite2D" parent="Panelsettings" unique_id=468412842]
+position = Vector2(272, 359.99994)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("5_i7cce")
+
+[node name="KeyboardArrowLeft" type="Sprite2D" parent="Panelsettings" unique_id=1141283709]
+position = Vector2(128.00003, 288.0001)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("6_c6g34")
+
+[node name="KeyboardArrowRight" type="Sprite2D" parent="Panelsettings" unique_id=502450676]
+position = Vector2(416, 288)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("7_ngfdb")
+
+[node name="KeyboardArrowUp" type="Sprite2D" parent="Panelsettings" unique_id=1875080834]
+position = Vector2(272, 144.00012)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("8_fg0dl")
+
+[node name="KeyboardArrowDown2" type="Sprite2D" parent="Panelsettings" unique_id=1275214140]
+position = Vector2(279.99994, 1152)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("5_i7cce")
+
+[node name="KeyboardArrowLeft2" type="Sprite2D" parent="Panelsettings" unique_id=641399108]
+position = Vector2(192.00006, 1056)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("6_c6g34")
+
+[node name="KeyboardArrowRight2" type="Sprite2D" parent="Panelsettings" unique_id=606815166]
+position = Vector2(368.00018, 1056)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("7_ngfdb")
+
+[node name="KeyboardArrowUp2" type="Sprite2D" parent="Panelsettings" unique_id=741963169]
+position = Vector2(279.99994, 976)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("8_fg0dl")
+
+[node name="KeyboardD" type="Sprite2D" parent="Panelsettings" unique_id=1653007978]
+position = Vector2(344.00006, 288)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("9_mdn1v")
+
+[node name="KeyboardS" type="Sprite2D" parent="Panelsettings" unique_id=848182007]
+position = Vector2(272, 288)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("10_vehvl")
+
+[node name="KeyboardW" type="Sprite2D" parent="Panelsettings" unique_id=478097028]
+position = Vector2(272.00003, 216.00009)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("11_pox50")
+
+[node name="GoliathCharge" type="Sprite2D" parent="Panelsettings" unique_id=1001319530]
+position = Vector2(83, 880)
+texture = ExtResource("12_t24dh")
+
+[node name="HomingSalvo" type="Sprite2D" parent="Panelsettings" unique_id=332150967]
+position = Vector2(83, 744)
+texture = ExtResource("13_ojuss")
+
+[node name="PhantomDash" type="Sprite2D" parent="Panelsettings" unique_id=1323263426]
+position = Vector2(83, 472)
+texture = ExtResource("14_hbget")
+
+[node name="Shockwave" type="Sprite2D" parent="Panelsettings" unique_id=975893268]
+position = Vector2(83, 608)
+texture = ExtResource("15_7hx1d")
+
+[node name="Label" type="Label" parent="Panelsettings" unique_id=1253727819]
+layout_mode = 0
+offset_left = 160.0
+offset_top = 32.0
+offset_right = 432.0
+offset_bottom = 82.0
+theme_override_font_sizes/font_size = 28
+text = "Управление"
+
+[node name="Label2" type="Label" parent="Panelsettings" unique_id=1084625396]
+layout_mode = 0
+offset_left = 171.0
+offset_top = 416.0
+offset_right = 513.0
+offset_bottom = 536.0
+theme_override_font_sizes/font_size = 28
+text = "- двойное нажатие WASD
+- двойной тап"
+autowrap_mode = 3
+
+[node name="Label3" type="Label" parent="Panelsettings" unique_id=1124487916]
+layout_mode = 0
+offset_left = 171.0
+offset_top = 568.0
+offset_right = 495.0
+offset_bottom = 608.0
+theme_override_font_sizes/font_size = 28
+text = "- активировать F"
+
+[node name="Label4" type="Label" parent="Panelsettings" unique_id=847991331]
+layout_mode = 0
+offset_left = 171.0
+offset_top = 624.0
+offset_right = 495.0
+offset_bottom = 664.0
+theme_override_font_sizes/font_size = 28
+text = "- активировать "
+
+[node name="GenericButtonFinger3" type="Sprite2D" parent="Panelsettings" unique_id=1004852304]
+position = Vector2(499, 759.99994)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("3_rmfhm")
+
+[node name="Label5" type="Label" parent="Panelsettings" unique_id=1358141721]
+layout_mode = 0
+offset_left = 171.0
+offset_top = 688.0
+offset_right = 495.0
+offset_bottom = 728.0
+theme_override_font_sizes/font_size = 28
+text = "- активировать E"
+
+[node name="Label6" type="Label" parent="Panelsettings" unique_id=972862831]
+layout_mode = 0
+offset_left = 171.0
+offset_top = 744.0
+offset_right = 495.0
+offset_bottom = 784.0
+theme_override_font_sizes/font_size = 28
+text = "- активировать "
+
+[node name="GenericButtonFinger4" type="Sprite2D" parent="Panelsettings" unique_id=957312067]
+position = Vector2(499, 895.9999)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("3_rmfhm")
+
+[node name="Label7" type="Label" parent="Panelsettings" unique_id=105567439]
+layout_mode = 0
+offset_left = 171.0
+offset_top = 824.0
+offset_right = 495.0
+offset_bottom = 864.0
+theme_override_font_sizes/font_size = 28
+text = "- активировать R"
+
+[node name="Label8" type="Label" parent="Panelsettings" unique_id=589531473]
+layout_mode = 0
+offset_left = 171.0
+offset_top = 880.0
+offset_right = 495.0
+offset_bottom = 920.0
+theme_override_font_sizes/font_size = 28
+text = "- активировать "
+
+[node name="CloseButton" type="Button" parent="Panelsettings" unique_id=657956013]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 424.0
+offset_top = 8.0
+offset_right = 464.0
+offset_bottom = 48.0
+scale = Vector2(2, 2)
+theme_override_font_sizes/font_size = 24
+text = "X"
 
 [node name="Panel" type="Panel" parent="." unique_id=1681527969]
 offset_left = 104.0
@@ -87,13 +294,25 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "???"
 
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/VBox" unique_id=2006564177]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+alignment = 2
+
+[node name="SettingButton" type="Button" parent="Panel/VBox/VBoxContainer" unique_id=293117155]
+custom_minimum_size = Vector2(260, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Управление"
+
 [node name="CloseButton" type="Button" parent="Panel" unique_id=2842477]
 layout_mode = 1
 anchors_preset = -1
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 50.0
-offset_bottom = 50.0
+offset_left = 424.0
+offset_top = 8.0
+offset_right = 464.0
+offset_bottom = 48.0
+scale = Vector2(2, 2)
 theme_override_font_sizes/font_size = 24
 text = "X"
 

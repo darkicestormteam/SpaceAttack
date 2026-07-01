@@ -1,0 +1,484 @@
+key,ru,en
+play_button,Играть,Play
+credits_label,Кредиты: %d,Credits: %d
+high_score_label,"Лучший счёт: %d","Best score: %d"
+shop_button_title,Магазин,Shop
+rewards_button_title,Награды,Rewards
+back_button,← Назад,← Back
+settings_btn,=,=
+ship_title,Корабли,Ships
+slots_title,"Слоты корабля","Ship slots"
+shop_title,Магазин,Shop
+shop_ship_title,Корабли,Ships
+shop_hp_title,"Улучшение здоровья","Health upgrade"
+shop_chests_title,Сундуки,Chests
+ship_vanguard,"Вангвард
+Базовый","Vanguard
+Basic"
+ship_phantom,"Фантом
+Рывок","Phantom
+Dash"
+ship_goliath,"Голиаф
+Таран","Goliath
+Ram"
+ship_phantom_locked,"Фантом
+2000","Phantom
+2000"
+ship_goliath_locked,"Голиаф
+5000","Goliath
+5000"
+ship_name_phantom,Фантом,Phantom
+ship_name_goliath,Голиаф,Goliath
+slot_weapon,"Оружие
+%s","Weapon
+%s"
+slot_defense,"Защита
+%s","Defense
+%s"
+slot_utility,"Утилита
+%s","Utility
+%s"
+slot_skin,"Скин
+%s","Skin
+%s"
+slot_empty,[пусто],[empty]
+health_level,"Уровень: %d","Level: %d"
+health_level_max,"Уровень: MAX","Level: MAX"
+health_cost,"Цена: %d","Cost: %d"
+health_max,Максимум,MAX
+health_button,"Улучшить HP","Upgrade HP"
+health_button_max,MAX,MAX
+shop_bought," — Куплен"," — Bought"
+shop_no_funds," (нет средств)"," (no funds)"
+IAP_all_bought,"Все модули ✓ Куплено","All modules ✓ Bought"
+IAP_all_modules,"Купить все модули + скины","Buy all modules + skins"
+IAP_connecting,"Подключение к магазину...","Connecting to store..."
+IAP_purchasing,"Покупка...","Purchasing..."
+IAP_error,"Ошибка подключения","Connection error"
+chest_button,"Открыть сундук (500)","Open chest (500)"
+chest_modules,"Сундук модулей (500)","Module chest (500)"
+chest_skins,"Сундук скинов (500)","Skin chest (500)"
+chest_no_credits_title,"Недостаточно кредитов","Not enough credits"
+chest_no_credits_modules_msg,"Нужно %d для открытия сундука модулей.","Need %d to open module chest."
+chest_no_credits_skins_msg,"Нужно %d для открытия сундука скинов.","Need %d to open skin chest."
+info_bought_title,Куплено!,Purchased!
+info_bought_msg,"%s теперь доступен!","%s is now available!"
+info_hp_max_title,Максимум,Maximum
+info_hp_max_msg,"HP уже максимального уровня!","HP is already max level!"
+info_no_credits_title,"Недостаточно кредитов","Not enough credits"
+info_no_credits_msg,"Нужно %d для улучшения HP.","Need %d to upgrade HP."
+info_upgraded_title,Улучшено!,Upgraded!
+info_upgraded_msg,"HP увеличен до уровня %d","HP increased to level %d"
+diff_title,"Выберите уровень сложности","Select difficulty"
+diff_recruit,Рекрут,Recruit
+diff_veteran,Ветеран,Veteran
+diff_legend,Легенда,Legend
+diff_recruit_desc,"Стандартные волны. Идеально для начала!","Standard waves. Perfect to start!"
+diff_veteran_desc,"Повышенная сложность. Враги быстрее и сильнее.","Increased difficulty. Enemies are faster and stronger."
+diff_legend_desc,"Максимальный вызов. Сможешь ли ты выжить?","Ultimate challenge. Can you survive?"
+diff_veteran_locked,"Пройдите игру на «Рекруте», чтобы открыть этот уровень сложности.","Beat the game on Recruit to unlock this difficulty."
+diff_legend_locked,"Пройдите игру на «Ветеране», чтобы открыть этот уровень сложности.","Beat the game on Veteran to unlock this difficulty."
+diff_setting,Управление,Controls
+diff_controls_title,Управление,Controls
+diff_phantom_desc,"- двойное нажатие WASD
+- двойной тап","- double tap WASD
+- double tap"
+diff_shockwave_desc,"- активировать F","- press F"
+diff_shockwave_act,"- активировать ","- press "
+diff_homing_desc,"- активировать E","- press E"
+diff_homing_act,"- активировать ","- press "
+diff_goliath_desc,"- активировать R","- press R"
+diff_goliath_act,"- активировать ","- press "
+audio_title,НАСТРОЙКИ,SETTINGS
+audio_music_label,"Музыка: %d%%","Music: %d%%"
+audio_sfx_label,"Звуки: %d%%","SFX: %d%%"
+audio_close,Закрыть,Close
+battle_score_text,"Очки: ","Score: "
+battle_credits_text,"Кредиты: ","Credits: "
+battle_wave_text,"Волна: ","Wave: "
+battle_ready,Готово,Ready
+battle_cooldown_sec,%.0fс,%.0fs
+pause_title,ПАУЗА,PAUSED
+defeat_title,ПОРАЖЕНИЕ,DEFEAT
+victory_title,ПОБЕДА,VICTORY
+pause_score,"Очки: %d","Score: %d"
+pause_credits_earned,"Заработано кредитов: %d","Credits earned: %d"
+pause_credits,"Кредиты: %d","Credits: %d"
+pause_revive_ad,"Воскреснуть за рекламу","Revive via ad"
+pause_revive_unavailable,"Воскрешение недоступно","Revive unavailable"
+pause_music_label,"Музыка: %d%%","Music: %d%%"
+pause_sfx_label,"Звуки: %d%%","SFX: %d%%"
+pause_resume,Продолжить,Resume
+pause_hangar,В ангар,To hangar
+pause_restart,Рестарт,Restart
+pause_settings,Настройки,Settings
+pause_settings_title,НАСТРОЙКИ,SETTINGS
+pause_settings_back,Назад,Back
+rarity_common,Обычный,Common
+rarity_rare,Редкий,Rare
+rarity_epic,Эпический,Epic
+rarity_legendary,Легендарный,Legendary
+type_weapon,Оружие,Weapon
+type_defense,Защита,Defense
+type_utility,Утилита,Utility
+type_skin,Скин,Skin
+stat_damage,Урон,Damage
+stat_fire_rate,Задержка,Fire rate
+stat_pellets,Снарядов,Pellets
+stat_effect,Эффект,Effect
+stat_speed,Скорость,Speed
+stat_duration,Длительность,Duration
+stat_fire_rate_bonus,Скорострельность,Fire rate
+stat_chance,Шанс,Chance
+stat_counter_damage,"Урон контратаки","Counter damage"
+stat_block,Блок,Block
+stat_cd,КД,CD
+stat_revive,Возрождение,Revive
+stat_regen,Регенерация,Regen
+stat_radius,Радиус,Radius
+stat_drones,Дронов,Drones
+stat_copies_weapon,"Копирует оружие","Copies weapon"
+stat_intercept,Перехват,Intercept
+stat_absorb,ед.,pts.
+stat_convert_credits,"Конвертация в кредиты","Convert to credits"
+stat_block_every_4,"Блок каждый 4-й удар","Block every 4th hit"
+stat_sec,сек,s
+stat_hit,попадание,hit
+stat_large,Большой,Large
+stat_yes,Да,Yes
+detail_select,"Выбрать →","Select →"
+detail_back,← Назад,← Back
+detail_stats_title,Характеристики,Stats
+mod_laser_name,Лазер,Laser
+mod_laser_desc,"Стандартное лазерное оружие. Быстрая стрельба, базовый урон.","Standard laser weapon. Fast fire, base damage."
+mod_laser_spec,,
+mod_laser_rate,0.2 сек,0.2s
+mod_laser_mk2_name,"Двойной Лазер Mk.II","Dual Laser Mk.II"
+mod_laser_mk2_desc,"Улучшенная версия лазера, стреляющая двумя расходящимися лучами.","Improved laser shooting two diverging beams."
+mod_laser_mk2_spec,"Два расходящихся луча. Эффективно против групп.","Two diverging beams. Effective against groups."
+mod_laser_mk2_rate,0.22 сек,0.22s
+mod_laser_pierce_name,"Пронзающий Лазер","Piercing Laser"
+mod_laser_pierce_desc,"Мощный лазер, пронзающий врагов насквозь.","Powerful laser piercing through enemies."
+mod_laser_pierce_spec,"Пронзает всех врагов на линии.","Pierces all enemies in line."
+mod_laser_pierce_rate,0.25 сек,0.25s
+mod_laser_plasma_name,"Самонав. Плазма","Homing Plasma"
+mod_laser_plasma_desc,"Плазма с самонаведением. Ускоряется с каждым попаданием.","Homing plasma. Speeds up with each hit."
+mod_laser_plasma_spec,"Самонаведение на врага. Каждое попадание +2% скорострельности (до +100%, сброс через 2 сек).","Homing. Each hit +2% fire rate (up to +100%, reset after 2s)."
+mod_laser_plasma_rate,0.4 сек,0.4s
+mod_shotgun_name,Дробовик,Shotgun
+mod_shotgun_desc,"Дробовик с широким веером разлёта дроби.","Shotgun with wide spread."
+mod_shotgun_spec,"Широкий веер разлёта.","Wide spread."
+mod_shotgun_rate,0.5 сек,0.5s
+mod_shotgun_whistle_name,"Дробовик Mk.II","Shotgun Mk.II"
+mod_shotgun_whistle_desc,"Быстрый дробовик с улучшенной скорострельностью.","Fast shotgun with improved fire rate."
+mod_shotgun_whistle_spec,"Веер 45°. Высокая скорость пуль.","45° spread. High bullet speed."
+mod_shotgun_whistle_rate,0.35 сек,0.35s
+mod_shotgun_pressure_name,"Дробовик Пробивной","Piercing Shotgun"
+mod_shotgun_pressure_desc,"Тяжёлый дробовик с пробивными снарядами.","Heavy shotgun with piercing projectiles."
+mod_shotgun_pressure_spec,"Узкий веер 20°. Каждая дробина пробивает врагов.","Narrow 20° spread. Each pellet pierces."
+mod_shotgun_pressure_rate,0.6 сек,0.6s
+mod_shotgun_heavy_name,"Дробовик Картечь","Grape Shot Shotgun"
+mod_shotgun_heavy_desc,"Легендарный дробовик с эффектом картечи при убийстве.","Legendary shotgun with grapeshot effect on kill."
+mod_shotgun_heavy_spec,"Веер 70°. При убийстве врага вылетает 6 дополнительных пуль.","70° spread. Killing an enemy releases 6 extra pellets."
+mod_shotgun_heavy_rate,0.5 сек,0.5s
+mod_rocket_name,Ракетница,Rocket Launcher
+mod_rocket_desc,"Ракета, летящая прямо. Медленная стрельба.","Rocket flying straight. Slow fire rate."
+mod_rocket_spec,,
+mod_rocket_rate,1.0 сек,1.0s
+mod_rocket_mk2_name,"Ракетница Mk.II","Rocket Launcher Mk.II"
+mod_rocket_mk2_desc,"Ракеты с самонаведением на ближайшую цель.","Rockets homing on nearest target."
+mod_rocket_mk2_spec,"Самонаведение на врага.","Homing on enemy."
+mod_rocket_mk2_rate,1.0 сек,1.0s
+mod_rocket_homing_name,"Самонав. Ракеты","Homing Missiles"
+mod_rocket_homing_desc,"Ракеты с самонаведением на цель.","Rockets homing on target."
+mod_rocket_homing_spec,"Активная способность: залп 5 ракет, перезарядка 10 секунд.","Active ability: volley of 5 missiles, CD 10s."
+mod_rocket_homing_rate,1.0 сек,1.0s
+mod_rocket_nuke_name,"Шторм ракет","Rocket Storm"
+mod_rocket_nuke_desc,"Массовый ракетный залп с периодическим усилением.","Mass rocket volley with periodic enhancement."
+mod_rocket_nuke_spec,"Обычный залп: 3 ракеты. Каждые 4 сек — усиленный залп: 5 ракет.","Normal volley: 3 rockets. Every 4s: enhanced volley of 5 rockets."
+mod_rocket_nuke_rate,1.0 сек,1.0s
+mod_light_armor_name,"Лёгкая Броня","Light Armor"
+mod_light_armor_desc,"Увеличивает запас здоровья на 1.","Increases max HP by 1."
+mod_light_armor_spec,"+1 HP к максимальному здоровью. Постоянный эффект.","+1 HP to max health. Permanent."
+mod_shield_name,Щит,Shield
+mod_shield_desc,"Стандартный силовой щит, поглощающий урон.","Standard energy shield absorbing damage."
+mod_shield_spec,"Прочность 5. После разрушения не восстанавливается до конца раунда.","Durability 5. Does not recover until round end."
+mod_shield_new_name,"Силовой Щит","Power Shield"
+mod_shield_new_desc,"Улучшенный силовой щит с повышенной прочностью.","Improved power shield with increased durability."
+mod_shield_new_spec,"Прочность 10. После разрушения не восстанавливается до конца раунда.","Durability 10. Does not recover until round end."
+mod_energy_shield_name,Энергощит,Energy Shield
+mod_energy_shield_desc,"Поглощает урон и превращает его в кредиты.","Absorbs damage and converts to credits."
+mod_energy_shield_spec,"Поглощает урон и конвертирует в кредиты.","Absorbs damage and converts to credits."
+mod_composite_armor_name,"Композитная Броня","Composite Armor"
+mod_composite_armor_desc,"Композитная броня с периодической блокировкой ударов.","Composite armor with periodic hit blocking."
+mod_composite_armor_spec,"Каждый 3-й удар по вам полностью блокируется.","Every 3rd hit on you is fully blocked."
+mod_forsage_name,Форсаж,Forsage
+mod_forsage_desc,"Ускоряет корабль при получении урона.","Speeds up ship when taking damage."
+mod_forsage_spec,"При получении урона: скорость +50% на 2 сек.","On hit: speed +50% for 2s."
+mod_tactical_accelerator_name,"Тактический Ускоритель","Tactical Accelerator"
+mod_tactical_accelerator_desc,"Повышает скорострельность после получения урона.","Increases fire rate after taking damage."
+mod_tactical_accelerator_spec,"При получении урона: скорость выстрелов +30% на 3 сек.","On hit: fire rate +30% for 3s."
+mod_diffusor_name,Диффузор,Diffusor
+mod_diffusor_desc,"С шансом контратакует врагов при получении урона.","Chance to counterattack enemies when taking damage."
+mod_diffusor_spec,"100% шанс нанести 10 урона случайному врагу в радиусе 200.","100% chance to deal 10 damage to random enemy within radius 200."
+mod_cocoon_shield_name,"Кокон возрождения","Cocoon Shield"
+mod_cocoon_shield_desc,"Легендарный щит с блоком и возрождением.","Legendary shield with block and revive."
+mod_cocoon_shield_spec,"Блокирует 1 попадание (КД 25 сек). При смерти — возрождение с 50% HP (один раз).","Blocks 1 hit (CD 25s). On death: revive with 50% HP (once)."
+mod_turbo_name,"Турбо-ускоритель","Turbo Booster"
+mod_turbo_desc,"Постоянно увеличивает скорость корабля.","Permanently increases ship speed."
+mod_turbo_spec,"Скорость +30%. Постоянный эффект.","Speed +30%. Permanent effect."
+mod_nanobots_name,"Нано-роботы","Nanobots"
+mod_nanobots_desc,"Медленная регенерация здоровья.","Slow health regeneration."
+mod_nanobots_spec,"Автовосстановление +1 HP каждые 20 сек.","Auto-heal +1 HP every 20s."
+mod_shockwave_name,"Импульсная Волна","Shockwave"
+mod_shockwave_desc,"Активируемая ударная волна, отбрасывающая врагов.","Activable shockwave pushing enemies away."
+mod_shockwave_spec,"Активируемая ударная волна. КД 8 сек.","Activable shockwave. CD 8s."
+mod_magnet_name,Магнит,Magnet
+mod_magnet_desc,"Увеличивает радиус сбора ресурсов.","Increases resource pickup radius."
+mod_magnet_spec,"Притягивает кредиты и ресурсы с большого расстояния.","Attracts credits and resources from far away."
+mod_drone_name,Дрон,Drone
+mod_drone_desc,"Призывает дрона для помощи в бою.","Calls a drone to assist in battle."
+mod_drone_spec,"1 вспомогательный дрон, стреляющий лазерами.","1 support drone shooting lasers."
+mod_drone_rare_name,"Дроны-близнецы","Twin Drones"
+mod_drone_rare_desc,"Пара улучшенных боевых дронов.","A pair of enhanced combat drones."
+mod_drone_rare_spec,"2 дрона с усиленными лазерами.","2 drones with enhanced lasers."
+mod_drone_epic_name,"Боевые дроны","Combat Drones"
+mod_drone_epic_desc,"Элитные дроны с копированием оружия.","Elite drones that copy your weapon."
+mod_drone_epic_spec,"2 дрона. Копируют ваше оружие.","2 drones. Copy your weapon."
+mod_drone_legendary_name,Эскадрилья,Squadron
+mod_drone_legendary_desc,"Легендарные дроны с перехватом снарядов.","Legendary drones with projectile interception."
+mod_drone_legendary_spec,"3 дрона. Копируют оружие. Перехватывают вражеские снаряды.","3 drones. Copy weapon. Intercept enemy projectiles."
+mod_skin_vanguard_0_name,Вангвард,Vanguard
+mod_skin_vanguard_0_desc,"Классический корабль-разведчик. Лёгкий, манёвренный, надёжный как сталь. С него начинается путь каждого пилота.","Classic scout ship. Light, maneuverable, reliable as steel. Every pilot starts their journey here."
+mod_skin_vanguard_0_spec,"Скорость - 400 м/с
+Здоровье - 3 HP
+Способность - нет","Speed - 400 m/s
+Health - 3 HP
+Ability - none"
+mod_skin_vanguard_1_name,"Вангвард МКII","Vanguard MKII"
+mod_skin_vanguard_1_desc,"Модернизированная версия с усиленным корпусом и форсированными двигателями. Создан для тех, кто не боится идти вперёд.","Upgraded version with reinforced hull and boosted engines. Made for those who aren't afraid to push forward."
+mod_skin_vanguard_1_spec,"Скорость - 420 м/с
+Здоровье - 3 HP
+Множитель скорости атаки +10%
+Способность - нет","Speed - 420 m/s
+Health - 3 HP
+Attack speed multiplier +10%
+Ability - none"
+mod_skin_vanguard_2_name,"Вангвард МКIII","Vanguard MKIII"
+mod_skin_vanguard_2_desc,"Флагман серии Вангвард. Продвинутая аэродинамика, реактивные ускорители и система распределения энергии — идеальный баланс скорости и огня.","Flagship of the Vanguard series. Advanced aerodynamics, thrust boosters and power distribution system — perfect balance of speed and firepower."
+mod_skin_vanguard_2_spec,"Скорость - 430 м/с
+Здоровье - 4 HP
+Множитель скорости атаки +20%
+Способность - нет","Speed - 430 m/s
+Health - 4 HP
+Attack speed multiplier +20%
+Ability - none"
+mod_skin_phantom_0_name,Фантом,Phantom
+mod_skin_phantom_0_desc,"Призрачный истребитель, созданный по технологиям маскировки. Его силуэт сложно засечь на радарах — враг видит лишь тень перед ударом.","Ghost fighter built with stealth tech. Its silhouette is hard to spot on radar — enemies see only a shadow before the strike."
+mod_skin_phantom_0_spec,"Скорость - 400 м/с
+Здоровье - 3 HP
+Способность - Рывок, телепортирует корабль на небольшое расстояние.
+Кулдаун рывка - 3 сек.
+Неуязвимость при рывке.","Speed - 400 m/s
+Health - 3 HP
+Ability - Dash, teleports ship a short distance.
+Dash cooldown - 3s.
+Invulnerable during dash."
+mod_skin_phantom_1_name,"Фантом ярость","Phantom Fury"
+mod_skin_phantom_1_desc,"Модификация с перегруженными контурами питания. Вспышки ярости плазмы вырываются из двигателей, когда корабль уходит в рывок.","Modified with overloaded power circuits. Bursts of plasma fury erupt from the engines during a dash."
+mod_skin_phantom_1_spec,"Скорость - 430 м/с
+Здоровье - 3 HP
+Множитель скорости атаки +20%
+Способность - Рывок, телепортирует корабль на небольшое расстояние.
+Кулдаун рывка - 3 сек.
+Неуязвимость при рывке.","Speed - 430 m/s
+Health - 3 HP
+Attack speed multiplier +20%
+Ability - Dash, teleports ship a short distance.
+Dash cooldown - 3s.
+Invulnerable during dash."
+mod_skin_phantom_2_name,"Фантом пронзания","Phantom Piercer"
+mod_skin_phantom_2_desc,"Легендарный прототип с экспериментальным фазовым двигателем. Корпус покрыт нано-чешуёй, рассеивающей вражеские лазеры. Говорят, этот корабль способен пробить само пространство.","Legendary prototype with experimental phase drive. Hull coated with nano-scales that scatter enemy lasers. They say this ship can pierce space itself."
+mod_skin_phantom_2_spec,"Скорость - 440 м/с
+Здоровье - 4 HP
+Множитель скорости атаки +30%
+Способность - Рывок, телепортирует корабль на небольшое расстояние.
+Кулдаун рывка - 3 сек.
+Неуязвимость при рывке.","Speed - 440 m/s
+Health - 4 HP
+Attack speed multiplier +30%
+Ability - Dash, teleports ship a short distance.
+Dash cooldown - 3s.
+Invulnerable during dash."
+mod_skin_goliath_0_name,Голиаф,Goliath
+mod_skin_goliath_0_desc,"Тяжёлый штурмовик, броня которого выдержит прямое попадание из плазменной пушки. Медленный, но неудержимый, как таран.","Heavy assault ship whose armor withstands a direct plasma cannon hit. Slow but unstoppable like a battering ram."
+mod_skin_goliath_0_spec,"Скорость - 280 м/с
+Здоровье - 4 HP
+Множитель скорости атаки +10%
+Способность - Рывок со щитом, резко летит вперед активируя щит.
+Кулдаун рывка - 6 сек.
+Длительность рывка - 0.5 сек.
+Урон противникам - 60 ед.
+Неуязвимость при рывке.
+Пассивная способность - композитная броня позволяет игнорировать урон от Скаутов","Speed - 280 m/s
+Health - 4 HP
+Attack speed multiplier +10%
+Ability - Shield charge, rushes forward with shield activated.
+Dash cooldown - 6s.
+Dash duration - 0.5s.
+Enemy damage - 60.
+Invulnerable during dash.
+Passive - composite armor ignores Scout damage."
+mod_skin_goliath_1_name,"Голиаф Ярости","Goliath Fury"
+mod_skin_goliath_1_desc,"Усиленная версия с дополнительными слоями композитной брони и системой аварийного ускорения. Чем сильнее бьют — тем злее он становится.","Reinforced version with extra composite armor layers and emergency acceleration system. The harder they hit, the angrier it gets."
+mod_skin_goliath_1_spec,"Скорость - 290 м/с
+Здоровье - 5 HP
+Множитель скорости атаки +20%
+Способность - Рывок со щитом.
+Кулдаун рывка - 6 сек.
+Длительность рывка - 0.5 сек.
+Урон противникам - 60 ед.
+Неуязвимость при рывке.
+Пассивная способность - композитная броня игнорирует урон от Скаутов, при столкновении они не наносят урон.","Speed - 290 m/s
+Health - 5 HP
+Attack speed multiplier +20%
+Ability - Shield charge.
+Dash cooldown - 6s.
+Dash duration - 0.5s.
+Enemy damage - 60.
+Invulnerable during dash.
+Passive - composite armor ignores Scout damage, collision deals no damage."
+mod_skin_goliath_2_name,"Голиаф Императора","Emperor's Goliath"
+mod_skin_goliath_2_desc,"Личный флагманский корабль, достойный Императора. Композитные накладки, церемониальная гравировка на броне и двигатели, ревущие как раненый зверь. Его появление на поле боя меняет исход сражения.","A personal flagship worthy of the Emperor. Composite plating, ceremonial armor engravings and engines roaring like a wounded beast. Its arrival on the battlefield changes the course of the fight."
+mod_skin_goliath_2_spec,"Скорость - 300 м/с
+Здоровье - 6 HP
+Множитель скорости атаки +30%
+Способность - Рывок со щитом.
+Кулдаун рывка - 6 сек.
+Длительность рывка - 0.5 сек.
+Урон противникам - 60 ед.
+Неуязвимость при рывке.
+Пассивная способность - композитная броня игнорирует урон от Скаутов, при столкновении они не наносят урон.","Speed - 300 m/s
+Health - 6 HP
+Attack speed multiplier +30%
+Ability - Shield charge.
+Dash cooldown - 6s.
+Dash duration - 0.5s.
+Enemy damage - 60.
+Invulnerable during dash.
+Passive - composite armor ignores Scout damage, collision deals no damage."
+ach_first_blood_name,Первая кровь,First Blood
+ach_first_blood_desc,Уничтожьте 10 врагов,Destroy 10 enemies
+ach_veteran_name,Ветеран,Veteran
+ach_veteran_desc,Уничтожьте 500 врагов (всего),Destroy 500 enemies (total)
+ach_mass_murderer_name,Космический палач,Space Executioner
+ach_mass_murderer_desc,Уничтожьте 2000 врагов (всего),Destroy 2000 enemies (total)
+ach_survivor_name,Выживальщик,Survivor
+ach_survivor_desc,Дойдите до волны 5,Reach wave 5
+ach_asteroid_survivor_name,Сквозь астероиды,Through Asteroids
+ach_asteroid_survivor_desc,Пройдите астероидное поле не получив урона,Pass the asteroid field without taking damage
+ach_laser_wall_name,Лазерный ад,Laser Hell
+ach_laser_wall_desc,Пройдите лазерную полосу (волна 9),Pass the laser wall (wave 9)
+ach_conqueror_name,Покоритель,Conqueror
+ach_conqueror_desc,Дойдите до босса волны 10,Reach the wave 10 boss
+ach_invincible_name,Непобедимый,Invincible
+ach_invincible_desc,Пройдите все 10 волн,Complete all 10 waves
+ach_boss_hunter_name,Босс-хантер,Boss Hunter
+ach_boss_hunter_desc,Убейте 3 боссов (всего),Kill 3 bosses (total)
+ach_boss_master_name,Повелитель боссов,Boss Master
+ach_boss_master_desc,Убейте 10 боссов (всего),Kill 10 bosses (total)
+ach_high_scorer_name,Живучий,Tenacious
+ach_high_scorer_desc,Наберите 10 000 очков за одну игру,Score 10 000 points in one game
+ach_legendary_score_name,Легендарный счёт,Legendary Score
+ach_legendary_score_desc,Наберите 50 000 очков за одну игру,Score 50 000 points in one game
+ach_collector_name,Коллекционер,Collector
+ach_collector_desc,Разблокируйте все 3 корабля,Unlock all 3 ships
+ach_phantom_ghost_name,Призрак,Ghost
+ach_phantom_ghost_desc,Пройдите волну 5 на Фантоме не получив урон,Complete wave 5 on Phantom without taking damage
+ach_goliath_wall_name,Стена,Wall
+ach_goliath_wall_desc,Уничтожьте тараном 10 врагов на Голиафе за одну игру,Destroy 10 enemies with Goliath ram in one game
+ach_vanguard_speed_name,Скорость,Speed
+ach_vanguard_speed_desc,Пройдите волну 5 на Вангварде,Complete wave 5 on Vanguard
+ach_triumvirate_name,Триумвират,Triumvirate
+ach_triumvirate_desc,Выиграйте игру на каждом корабле,Win the game on every ship
+ach_fashionista_name,Модник,Fashionista
+ach_fashionista_desc,Разблокируйте все скины для любого корабля,Unlock all skins for any ship
+ach_machine_gunner_name,Пулемётчик,Machine Gunner
+ach_machine_gunner_desc,Убейте 200 врагов лазером Mk2,Kill 200 enemies with Laser Mk2
+ach_armor_piercer_name,Бронебой,Armor Piercer
+ach_armor_piercer_desc,Убейте 100 врагов пробивающим лазером,Kill 100 enemies with piercing laser
+ach_plasma_master_name,Плазма-мастер,Plasma Master
+ach_plasma_master_desc,Достигните 25 стаков плазмы 5 раз за одну игру,Reach 25 plasma stacks 5 times in one game
+ach_shotgunner_name,Обойма,Drum Mag
+ach_shotgunner_desc,Убейте 300 врагов дробовиком любого типа (всего),Kill 300 enemies with any shotgun (total)
+ach_rocketeer_name,Реактивный,Jet
+ach_rocketeer_desc,Убейте 100 врагов ракетами,Kill 100 enemies with rockets
+ach_shockwave_master_name,Шок и трепет,Shock and Awe
+ach_shockwave_master_desc,Активируйте ударную волну 20 раз,Activate shockwave 20 times
+ach_cocoon_user_name,Неуязвимый,Invulnerable
+ach_cocoon_user_desc,Заблокируйте урон Коконом Перерождения 10 раз,Block damage with Cocoon Shield 10 times
+ach_nanobot_healer_name,Нано-лечение,Nano Heal
+ach_nanobot_healer_desc,Исцелитесь наноботами 20 раз,Heal with nanobots 20 times
+ach_phantom_dasher_name,Призрачный рывок,Ghost Dash
+ach_phantom_dasher_desc,Совершите 50 рывков за Фантома,Perform 50 dashes as Phantom
+ach_goliath_crusher_name,Сокрушитель,Crusher
+ach_goliath_crusher_desc,Уничтожьте тараном Голиафа 50 врагов,Destroy 50 enemies with Goliath ram
+ach_homing_master_name,Хомер,Homer
+ach_homing_master_desc,Уничтожьте 30 врагов самонаводящимися ракетами,Destroy 30 enemies with homing rockets
+ach_perfect_run_name,Идеальный забег,Perfect Run
+ach_perfect_run_desc,Пройдите игру не получив урона (Вангвард),Complete the game without taking damage (Vanguard)
+ach_forsage_user_name,Ускорение,Acceleration
+ach_forsage_user_desc,Активируйте Forsage 20 раз,Activate Forsage 20 times
+ach_tactician_name,Тактик,Tactician
+ach_tactician_desc,Активируйте Tactical Accelerator 20 раз,Activate Tactical Accelerator 20 times
+ach_magnet_name,Магнит,Magnet
+ach_magnet_desc,Соберите 35 аптечек,Collect 35 health packs
+ach_epic_crafter_name,Эпик крафт,Epic Crafter
+ach_epic_crafter_desc,Соберите 3 эпических модуля,Collect 3 epic modules
+ach_saver_name,Скупердяй,Miser
+ach_saver_desc,Накопите 10 000 кредитов,Accumulate 10 000 credits
+ach_oligarch_name,Олигарх,Oligarch
+ach_oligarch_desc,Накопите 100 000 кредитов,Accumulate 100 000 credits
+ach_gambler_name,Азартный,Gambler
+ach_gambler_desc,Откройте 10 сундуков,Open 10 chests
+ach_spender_name,Транжира,Spender
+ach_spender_desc,Откройте 50 сундуков,Open 50 chests
+ach_carrier_slayer_name,Один в поле воин,One Man Army
+ach_carrier_slayer_desc,Убейте Носитель без получения урона,Kill the Carrier without taking damage
+ach_meat_grinder_name,Мясорубка,Meat Grinder
+ach_meat_grinder_desc,Убейте 10 врагов за 3 секунды,Kill 10 enemies in 3 seconds
+ach_combo_breaker_name,Комбо-брейкер,Combo Breaker
+ach_combo_breaker_desc,Убейте 3 разных типа врагов за 2 секунды,Kill 3 different enemy types in 2 seconds
+ach_greedy_name,Жадина,Greedy
+ach_greedy_desc,Откройте все модули и стили кораблей,Unlock all modules and ship skins
+cat_progress,Прогрессия,Progress
+cat_ships,Корабли,Ships
+cat_weapons,Оружие и модули,Weapons & Modules
+cat_mastery,Мастерство,Mastery
+cat_economy,Экономика,Economy
+cat_special,Особые,Special
+select_title,"Выберите модуль: %s","Select module: %s"
+select_empty,"Нет доступных модулей для этого слота.\nОткройте сундук!","No modules available for this slot.\nOpen a chest!"
+select_slot_weapon,Оружие,Weapon
+select_slot_defense,Защита,Defense
+select_slot_utility,Утилита,Utility
+select_slot_skin,Скины,Skins
+select_unequip,Снять,Unequip
+select_close,Закрыть,Close
+ach_title,Достижения,Achievements
+ach_locked_header,"--- Не получено ---","--- Not earned ---"
+chest_progress,"Получено: %d / %d","Obtained: %d / %d"
+chest_open_again,"Открыть ещё
+(500)","Open again
+(500)"
+chest_accept,Принять,Accept
+chest_duplicate,"Дубликат! +%d","Duplicate! +%d"
+double_title,"Удвоение кредитов!","Double credits!"
+double_earned,"Вы заработали %d кредитов!","You earned %d credits!"
+double_sub,"Хотите удвоить за просмотр рекламы?","Double by watching an ad?"
+double_yes,"Да, удвоить!","Yes, double!"
+double_no,"Нет, спасибо","No, thanks"
+double_yes_ad,"Да, удвоить за рекламу","Yes, double via ad"
+buy_no_credits,"Не хватает кредитов!","Not enough credits!"
+buy_cost,"Цена: %d кредитов","Cost: %d credits"
+buy_ok,OK,OK

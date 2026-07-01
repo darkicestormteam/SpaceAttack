@@ -21,7 +21,25 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build_ui()
 	_sync_settings_sliders()
+	_setup_localization()
 	_show_animation()
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
+
+
+func _setup_localization() -> void:
+	for child in panel.get_children():
+		if child is Label and child.has_meta("key_title"):
+			child.text = tr("audio_title")
+		break
+	if close_btn:
+		close_btn.text = tr("audio_close")
+	_update_volume_labels()
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
 
 
 func _build_ui() -> void:
@@ -46,7 +64,7 @@ func _build_ui() -> void:
 	add_child(panel)
 
 	var title := Label.new()
-	title.text = "НАСТРОЙКИ"
+	title.text = tr("audio_title")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 36)
 	title.add_theme_color_override("font_color", Color.WHITE)
@@ -63,7 +81,7 @@ func _build_ui() -> void:
 	panel.add_child(music_row)
 
 	music_label = Label.new()
-	music_label.text = "Музыка: 50%"
+	music_label.text = tr("audio_music_label") % 50
 	music_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	music_label.add_theme_font_size_override("font_size", 22)
 	music_label.add_theme_color_override("font_color", Color.WHITE)
@@ -86,7 +104,7 @@ func _build_ui() -> void:
 	panel.add_child(sfx_row)
 
 	sfx_label = Label.new()
-	sfx_label.text = "Звуки: 50%"
+	sfx_label.text = tr("audio_sfx_label") % 50
 	sfx_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	sfx_label.add_theme_font_size_override("font_size", 22)
 	sfx_label.add_theme_color_override("font_color", Color.WHITE)
@@ -107,7 +125,7 @@ func _build_ui() -> void:
 	panel.add_child(close_spacer)
 
 	close_btn = Button.new()
-	close_btn.text = "Закрыть"
+	close_btn.text = tr("audio_close")
 	close_btn.custom_minimum_size = Vector2(200, 64)
 	close_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	close_btn.add_theme_font_size_override("font_size", 24)
@@ -140,9 +158,9 @@ func _sync_settings_sliders() -> void:
 
 func _update_volume_labels() -> void:
 	if music_label and music_slider:
-		music_label.text = "Музыка: %d%%" % int(music_slider.value * 100.0)
+		music_label.text = tr("audio_music_label") % int(music_slider.value * 100.0)
 	if sfx_label and sfx_slider:
-		sfx_label.text = "Звуки: %d%%" % int(sfx_slider.value * 100.0)
+		sfx_label.text = tr("audio_sfx_label") % int(sfx_slider.value * 100.0)
 
 
 func _on_music_volume_changed(value: float) -> void:

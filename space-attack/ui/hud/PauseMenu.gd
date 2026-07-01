@@ -30,10 +30,49 @@ signal revive_requested
 @onready var sfx_label: Label = %SfxLabel
 
 var _current_mode: Mode = Mode.PAUSED
+var _last_score: int = 0
+var _last_credits: int = 0
+
+
+func _setup_localization() -> void:
+	_sync_settings_sliders()
+	
+	resume_button.text = tr("pause_resume")
+	hangar_button.text = tr("pause_hangar")
+	restart_button.text = tr("pause_restart")
+	settings_button.text = tr("pause_settings")
+	menu_button.text = tr("settings_btn")
+	%SettingsBackButton.text = tr("pause_settings_back")
+	
+	var settings_title: Label = settings_panel.get_node("SettingsTitle")
+	if settings_title:
+		settings_title.text = tr("pause_settings_title")
+	
+	if _current_mode == Mode.PAUSED:
+		title_label.text = tr("pause_title")
+	elif _current_mode == Mode.GAME_OVER:
+		title_label.text = tr("defeat_title")
+		score_label.text = tr("pause_score") % _last_score
+		credits_label.text = tr("pause_credits_earned") % _last_credits
+		revive_button.text = tr("pause_revive_ad") if not revive_button.disabled else tr("pause_revive_unavailable")
+	elif _current_mode == Mode.VICTORY:
+		title_label.text = tr("victory_title")
+		score_label.text = tr("pause_score") % _last_score
+		credits_label.text = tr("pause_credits") % _last_credits
+	_update_volume_labels()
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
 
 
 func _ready() -> void:
 	_apply_all_button_styles()
+	_setup_localization()
+	
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
 	
 	resume_button.pressed.connect(_on_resume_pressed)
 	hangar_button.pressed.connect(_on_hangar_pressed)
@@ -56,6 +95,8 @@ func _ready() -> void:
 ## Установить режим и показать меню.
 func show_mode(mode: Mode, score: int = 0, credits_earned: int = 0, can_revive: bool = true) -> void:
 	_current_mode = mode
+	_last_score = score
+	_last_credits = credits_earned
 	dim.visible = true
 	panel.visible = true
 	menu_button.visible = false
@@ -63,7 +104,7 @@ func show_mode(mode: Mode, score: int = 0, credits_earned: int = 0, can_revive: 
 	
 	match mode:
 		Mode.PAUSED:
-			title_label.text = "ПАУЗА"
+			title_label.text = tr("pause_title")
 			score_label.visible = false
 			credits_label.visible = false
 			revive_button.visible = false
@@ -73,13 +114,13 @@ func show_mode(mode: Mode, score: int = 0, credits_earned: int = 0, can_revive: 
 			settings_button.visible = true
 			
 		Mode.GAME_OVER:
-			title_label.text = "ПОРАЖЕНИЕ"
+			title_label.text = tr("defeat_title")
 			score_label.visible = true
-			score_label.text = "Очки: %d" % score
+			score_label.text = tr("pause_score") % score
 			credits_label.visible = true
-			credits_label.text = "Заработано кредитов: %d" % credits_earned
+			credits_label.text = tr("pause_credits_earned") % credits_earned
 			revive_button.visible = can_revive
-			revive_button.text = "Воскреснуть за рекламу" if can_revive else "Воскрешение недоступно"
+			revive_button.text = tr("pause_revive_ad") if can_revive else tr("pause_revive_unavailable")
 			revive_button.disabled = not can_revive
 			resume_button.visible = false
 			hangar_button.visible = true
@@ -87,11 +128,11 @@ func show_mode(mode: Mode, score: int = 0, credits_earned: int = 0, can_revive: 
 			settings_button.visible = false
 			
 		Mode.VICTORY:
-			title_label.text = "ПОБЕДА"
+			title_label.text = tr("victory_title")
 			score_label.visible = true
-			score_label.text = "Очки: %d" % score
+			score_label.text = tr("pause_score") % score
 			credits_label.visible = true
-			credits_label.text = "Кредиты: %d" % credits_earned
+			credits_label.text = tr("pause_credits") % credits_earned
 			revive_button.visible = false
 			resume_button.visible = false
 			hangar_button.visible = true
@@ -241,8 +282,8 @@ func _sync_settings_sliders() -> void:
 	
 	
 func _update_volume_labels() -> void:
-	music_label.text = "Музыка: %d%%" % int(music_slider.value * 100.0)
-	sfx_label.text = "Звуки: %d%%" % int(sfx_slider.value * 100.0)
+	music_label.text = tr("pause_music_label") % int(music_slider.value * 100.0)
+	sfx_label.text = tr("pause_sfx_label") % int(sfx_slider.value * 100.0)
 
 
 func _show_settings() -> void:

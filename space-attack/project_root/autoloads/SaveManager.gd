@@ -615,14 +615,7 @@ func get_skin_cost(skin_index: int) -> int:
 
 
 func get_skin_name(ship_id: String, skin_index: int) -> String:
-	var path := "res://data/modules/skin_%s_%d.tres" % [ship_id, skin_index]
-	if ResourceLoader.exists(path):
-		var res: Resource = load(path)
-		if res != null and "name" in res:
-			var name_str: String = str(res.name)
-			if not name_str.is_empty():
-				return name_str.strip_edges()
-	return SKIN_NAMES.get(skin_index, "Стиль %d" % [skin_index + 1])
+	return tr("mod_skin_" + ship_id + "_" + str(skin_index) + "_name")
 
 
 func get_skin_count(ship_id: String) -> int:
@@ -755,48 +748,48 @@ func add_credits(amount: int) -> void:
 
 
 const ACHIEVEMENT_DATA: Dictionary = {
-	"first_blood": {"name": "Первая кровь", "description": "Уничтожьте 10 врагов", "category": "progress", "rarity": "bronze", "reward": 100},
-	"veteran": {"name": "Ветеран", "description": "Уничтожьте 500 врагов (всего)", "category": "progress", "rarity": "silver", "reward": 500},
-	"mass_murderer": {"name": "Космический палач", "description": "Уничтожьте 2000 врагов (всего)", "category": "progress", "rarity": "gold", "reward": 2000},
-	"survivor": {"name": "Выживальщик", "description": "Дойдите до волны 5", "category": "progress", "rarity": "bronze", "reward": 100},
-	"asteroid_survivor": {"name": "Сквозь астероиды", "description": "Пройдите астероидное поле не получив урона", "category": "progress", "rarity": "gold", "reward": 2000},
-	"laser_wall": {"name": "Лазерный ад", "description": "Пройдите лазерную полосу (волна 9)", "category": "progress", "rarity": "silver", "reward": 500},
-	"conqueror": {"name": "Покоритель", "description": "Дойдите до босса волны 10", "category": "progress", "rarity": "silver", "reward": 500},
-	"invincible": {"name": "Непобедимый", "description": "Пройдите все 10 волн", "category": "progress", "rarity": "gold", "reward": 2000},
-	"boss_hunter": {"name": "Босс-хантер", "description": "Убейте 3 боссов (всего)", "category": "progress", "rarity": "silver", "reward": 500},
-	"boss_master": {"name": "Повелитель боссов", "description": "Убейте 10 боссов (всего)", "category": "progress", "rarity": "gold", "reward": 2000},
-	"high_scorer": {"name": "Живучий", "description": "Наберите 10 000 очков за одну игру", "category": "progress", "rarity": "silver", "reward": 500},
-	"legendary_score": {"name": "Легендарный счёт", "description": "Наберите 50 000 очков за одну игру", "category": "progress", "rarity": "legendary", "reward": 5000},
-	"collector": {"name": "Коллекционер", "description": "Разблокируйте все 3 корабля", "category": "ships", "rarity": "silver", "reward": 500},
-	"phantom_ghost": {"name": "Призрак", "description": "Пройдите волну 5 на Фантоме, не получив урон", "category": "ships", "rarity": "gold", "reward": 2000},
-	"goliath_wall": {"name": "Стена", "description": "Уничтожьте тараном 10 врагов на Голиафе за одну игру", "category": "ships", "rarity": "gold", "reward": 2000},
-	"vanguard_speed": {"name": "Скорость", "description": "Пройдите волну 5 на Вангварде", "category": "ships", "rarity": "silver", "reward": 500},
-	"triumvirate": {"name": "Триумвират", "description": "Выиграйте игру на каждом корабле", "category": "ships", "rarity": "legendary", "reward": 5000},
-	"fashionista": {"name": "Модник", "description": "Разблокируйте все скины для любого корабля", "category": "ships", "rarity": "silver", "reward": 500},
-	"machine_gunner": {"name": "Пулемётчик", "description": "Убейте 200 врагов лазером Mk2", "category": "weapons", "rarity": "bronze", "reward": 100},
-	"armor_piercer": {"name": "Бронебой", "description": "Убейте 100 врагов пробивающим лазером", "category": "weapons", "rarity": "silver", "reward": 500},
-	"plasma_master": {"name": "Плазма-мастер", "description": "Достигните 25 стаков плазмы 5 раз за одну игру", "category": "weapons", "rarity": "gold", "reward": 2000},
-	"shotgunner": {"name": "Обойма", "description": "Убейте 300 врагов дробовиком любого типа (всего)", "category": "weapons", "rarity": "silver", "reward": 500},
-	"rocketeer": {"name": "Реактивный", "description": "Убейте 100 врагов ракетами", "category": "weapons", "rarity": "silver", "reward": 500},
-	"shockwave_master": {"name": "Шок и трепет", "description": "Активируйте ударную волну 20 раз", "category": "weapons", "rarity": "bronze", "reward": 100},
-	"cocoon_user": {"name": "Неуязвимый", "description": "Заблокируйте урон Коконом Перерождения 10 раз", "category": "weapons", "rarity": "silver", "reward": 500},
-	"nanobot_healer": {"name": "Нано-лечение", "description": "Исцелитесь наноботами 20 раз", "category": "weapons", "rarity": "bronze", "reward": 100},
-	"phantom_dasher": {"name": "Призрачный рывок", "description": "Совершите 50 рывков за Фантома", "category": "mastery", "rarity": "silver", "reward": 500},
-	"goliath_crusher": {"name": "Сокрушитель", "description": "Уничтожьте тараном Голиафа 50 врагов", "category": "mastery", "rarity": "gold", "reward": 2000},
-	"homing_master": {"name": "Хомер", "description": "Уничтожьте 30 врагов самонаводящимися ракетами", "category": "mastery", "rarity": "silver", "reward": 500},
-	"perfect_run": {"name": "Идеальный забег", "description": "Пройдите игру не получив урона (Вангвард)", "category": "mastery", "rarity": "legendary", "reward": 5000},
-	"forsage_user": {"name": "Ускорение", "description": "Активируйте Forsage 20 раз", "category": "mastery", "rarity": "bronze", "reward": 100},
-	"tactician": {"name": "Тактик", "description": "Активируйте Tactical Accelerator 20 раз", "category": "mastery", "rarity": "bronze", "reward": 100},
-	"magnet": {"name": "Магнит", "description": "Соберите 35 аптечек", "category": "mastery", "rarity": "bronze", "reward": 100},
-	"epic_crafter": {"name": "Эпик крафт", "description": "Соберите 3 эпических модуля", "category": "mastery", "rarity": "silver", "reward": 500},
-	"saver": {"name": "Скупердяй", "description": "Накопите 10 000 кредитов", "category": "economy", "rarity": "bronze", "reward": 100},
-	"oligarch": {"name": "Олигарх", "description": "Накопите 100 000 кредитов", "category": "economy", "rarity": "gold", "reward": 2000},
-	"gambler": {"name": "Азартный", "description": "Откройте 10 сундуков", "category": "economy", "rarity": "bronze", "reward": 100},
-	"spender": {"name": "Транжира", "description": "Откройте 50 сундуков", "category": "economy", "rarity": "gold", "reward": 2000},
-	"carrier_slayer": {"name": "Один в поле воин", "description": "Убейте Носитель без получения урона", "category": "special", "rarity": "gold", "reward": 2000},
-	"meat_grinder": {"name": "Мясорубка", "description": "Убейте 10 врагов за 3 секунды", "category": "special", "rarity": "gold", "reward": 2000},
-	"combo_breaker": {"name": "Комбо-брейкер", "description": "Убейте 3 разных типа врагов за 2 секунды", "category": "special", "rarity": "silver", "reward": 500},
-	"greedy": {"name": "Жадина", "description": "Откройте все модули и стили кораблей", "category": "special", "rarity": "legendary", "reward": 5000},
+	"first_blood": {"name": "", "description": "", "category": "progress", "rarity": "bronze", "reward": 100},
+	"veteran": {"name": "", "description": "", "category": "progress", "rarity": "silver", "reward": 500},
+	"mass_murderer": {"name": "", "description": "", "category": "progress", "rarity": "gold", "reward": 2000},
+	"survivor": {"name": "", "description": "", "category": "progress", "rarity": "bronze", "reward": 100},
+	"asteroid_survivor": {"name": "", "description": "", "category": "progress", "rarity": "gold", "reward": 2000},
+	"laser_wall": {"name": "", "description": "", "category": "progress", "rarity": "silver", "reward": 500},
+	"conqueror": {"name": "", "description": "", "category": "progress", "rarity": "silver", "reward": 500},
+	"invincible": {"name": "", "description": "", "category": "progress", "rarity": "gold", "reward": 2000},
+	"boss_hunter": {"name": "", "description": "", "category": "progress", "rarity": "silver", "reward": 500},
+	"boss_master": {"name": "", "description": "", "category": "progress", "rarity": "gold", "reward": 2000},
+	"high_scorer": {"name": "", "description": "", "category": "progress", "rarity": "silver", "reward": 500},
+	"legendary_score": {"name": "", "description": "", "category": "progress", "rarity": "legendary", "reward": 5000},
+	"collector": {"name": "", "description": "", "category": "ships", "rarity": "silver", "reward": 500},
+	"phantom_ghost": {"name": "", "description": "", "category": "ships", "rarity": "gold", "reward": 2000},
+	"goliath_wall": {"name": "", "description": "", "category": "ships", "rarity": "gold", "reward": 2000},
+	"vanguard_speed": {"name": "", "description": "", "category": "ships", "rarity": "silver", "reward": 500},
+	"triumvirate": {"name": "", "description": "", "category": "ships", "rarity": "legendary", "reward": 5000},
+	"fashionista": {"name": "", "description": "", "category": "ships", "rarity": "silver", "reward": 500},
+	"machine_gunner": {"name": "", "description": "", "category": "weapons", "rarity": "bronze", "reward": 100},
+	"armor_piercer": {"name": "", "description": "", "category": "weapons", "rarity": "silver", "reward": 500},
+	"plasma_master": {"name": "", "description": "", "category": "weapons", "rarity": "gold", "reward": 2000},
+	"shotgunner": {"name": "", "description": "", "category": "weapons", "rarity": "silver", "reward": 500},
+	"rocketeer": {"name": "", "description": "", "category": "weapons", "rarity": "silver", "reward": 500},
+	"shockwave_master": {"name": "", "description": "", "category": "weapons", "rarity": "bronze", "reward": 100},
+	"cocoon_user": {"name": "", "description": "", "category": "weapons", "rarity": "silver", "reward": 500},
+	"nanobot_healer": {"name": "", "description": "", "category": "weapons", "rarity": "bronze", "reward": 100},
+	"phantom_dasher": {"name": "", "description": "", "category": "mastery", "rarity": "silver", "reward": 500},
+	"goliath_crusher": {"name": "", "description": "", "category": "mastery", "rarity": "gold", "reward": 2000},
+	"homing_master": {"name": "", "description": "", "category": "mastery", "rarity": "silver", "reward": 500},
+	"perfect_run": {"name": "", "description": "", "category": "mastery", "rarity": "legendary", "reward": 5000},
+	"forsage_user": {"name": "", "description": "", "category": "mastery", "rarity": "bronze", "reward": 100},
+	"tactician": {"name": "", "description": "", "category": "mastery", "rarity": "bronze", "reward": 100},
+	"magnet": {"name": "", "description": "", "category": "mastery", "rarity": "bronze", "reward": 100},
+	"epic_crafter": {"name": "", "description": "", "category": "mastery", "rarity": "silver", "reward": 500},
+	"saver": {"name": "", "description": "", "category": "economy", "rarity": "bronze", "reward": 100},
+	"oligarch": {"name": "", "description": "", "category": "economy", "rarity": "gold", "reward": 2000},
+	"gambler": {"name": "", "description": "", "category": "economy", "rarity": "bronze", "reward": 100},
+	"spender": {"name": "", "description": "", "category": "economy", "rarity": "gold", "reward": 2000},
+	"carrier_slayer": {"name": "", "description": "", "category": "special", "rarity": "gold", "reward": 2000},
+	"meat_grinder": {"name": "", "description": "", "category": "special", "rarity": "gold", "reward": 2000},
+	"combo_breaker": {"name": "", "description": "", "category": "special", "rarity": "silver", "reward": 500},
+	"greedy": {"name": "", "description": "", "category": "special", "rarity": "legendary", "reward": 5000},
 }
 
 const ACHIEVEMENTS_TOTAL: int = 42
@@ -841,8 +834,18 @@ func get_achievement_count() -> int:
 	return count
 
 
+func translate_achievement_data(ach_id: String, data: Dictionary) -> Dictionary:
+	var result = data.duplicate()
+	result["name"] = tr("ach_" + ach_id + "_name")
+	result["description"] = tr("ach_" + ach_id + "_desc")
+	return result
+
+
 func get_achievement_data(ach_id: String) -> Dictionary:
-	return ACHIEVEMENT_DATA.get(ach_id, {}).duplicate()
+	var data = ACHIEVEMENT_DATA.get(ach_id, {})
+	if data.is_empty():
+		return {}
+	return translate_achievement_data(ach_id, data)
 
 
 func get_all_achievement_ids() -> Array:
