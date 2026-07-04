@@ -66,7 +66,6 @@ alignment = 1
 
 [node name="HangarContent" type="VBoxContainer" parent="ScrollContainer/VBox" unique_id=289227654]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 12
@@ -75,7 +74,7 @@ alignment = 1
 [node name="TitleLabel" type="Label" parent="ScrollContainer/VBox/HangarContent" unique_id=1709792476]
 layout_mode = 2
 theme_override_font_sizes/font_size = 50
-text = "SpaceAttack"
+text = "name_game"
 horizontal_alignment = 1
 
 [node name="CreditsLabel" type="Label" parent="ScrollContainer/VBox/HangarContent" unique_id=952774593]
@@ -178,9 +177,9 @@ text = "Голиаф
 [node name="Goliath" type="Label" parent="ScrollContainer/VBox/HangarContent/ShipRow/GoliathButton" unique_id=1867785379]
 custom_minimum_size = Vector2(200, 140)
 layout_mode = 0
-offset_top = 120.0
+offset_top = 122.0
 offset_right = 200.0
-offset_bottom = 260.0
+offset_bottom = 262.0
 theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -281,6 +280,7 @@ text = "Открыть сундук (500)"
 
 [node name="ShopBg" type="Panel" parent="ScrollContainer/VBox" unique_id=1559008836]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(680, 1200)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -405,12 +405,13 @@ autoplay = true
 bus = &"Music"
 
 [node name="Label" type="Label" parent="." unique_id=647132555]
+visible = false
 layout_mode = 0
 offset_left = 344.0
 offset_top = 1232.0
 offset_right = 394.0
 offset_bottom = 1252.0
-text = "0020"
+text = "0028"
 
 [node name="ShipRow2" type="HBoxContainer" parent="." unique_id=724700021]
 visible = false
@@ -421,3 +422,12 @@ offset_right = 675.0
 offset_bottom = 366.0
 size_flags_horizontal = 8
 theme_override_constants/separation = 12
+
+[node name="Label2" type="Label" parent="." unique_id=1741490621]
+visible = false
+layout_mode = 0
+offset_left = 360.0
+offset_top = 1160.0
+offset_right = 410.0
+offset_bottom = 1180.0
+text = "001"

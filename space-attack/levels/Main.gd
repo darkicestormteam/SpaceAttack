@@ -73,9 +73,6 @@ var _last_tap_time: float = 0.0
 var _last_tap_pos: Vector2 = Vector2.ZERO
 
 
-var _focus_paused: bool = false
-var _focus_audio_snapshot: Dictionary = {}
-
 func _ready() -> void:
 	sm = get_node("/root/SaveManager")
 	sm.load_game()
@@ -154,80 +151,6 @@ func _ready() -> void:
 	# MegaBossV1 на волне 1 — для теста
 	if wave_counter == mega_boss_wave:
 		get_tree().create_timer(2.0).timeout.connect(func(): start_boss_fight(true))
-	
-	# Подписываемся на сигналы Яндекс SDK для паузы/фокуса (важно для Web/HTML)
-	# В браузере NOTIFICATION_WM_WINDOW_FOCUS_OUT/IN может не срабатывать,
-	# поэтому дублируем через game_api_paused/resumed от YandexSDK
-	var yandex_sdk = get_node_or_null("/root/YandexSDK")
-	if yandex_sdk:
-		if not yandex_sdk.is_connected("game_api_paused", _on_focus_lost):
-			yandex_sdk.game_api_paused.connect(_on_focus_lost)
-		if not yandex_sdk.is_connected("game_api_resumed", _on_focus_gained):
-			yandex_sdk.game_api_resumed.connect(_on_focus_gained)
-		print("[Main] Subscribed to YandexSDK game_api_paused/resumed")
-
-
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
-		_on_focus_lost()
-	elif what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
-		_on_focus_gained()
-
-
-func _on_focus_lost() -> void:
-	if current_phase == GamePhase.GAME_OVER:
-		return
-	if _paused_by_gameover:
-		return
-	
-	_focus_paused = true
-	
-	# Сохраняем громкость и выключаем звук
-	var am := get_node_or_null("/root/AudioManager")
-	if am:
-		_focus_audio_snapshot["music"] = am.music_volume
-		_focus_audio_snapshot["sfx"] = am.sfx_volume
-		am.set_music_volume_direct(0.0)
-		am.set_sfx_volume_direct(0.0)
-	
-	# Ставим на паузу (через call_deferred для надёжности в Web)
-	call_deferred(&"_set_paused_deferred", true)
-	
-	# Уведомляем Yandex SDK
-	var gm := get_node_or_null("/root/GameManager")
-	if gm and gm.has_method("on_game_paused"):
-		gm.on_game_paused()
-	
-	print("[Main] Focus lost — game paused, audio muted")
-
-
-func _on_focus_gained() -> void:
-	if not _focus_paused:
-		return
-	_focus_paused = false
-	
-	# Восстанавливаем громкость
-	var am := get_node_or_null("/root/AudioManager")
-	if am and _focus_audio_snapshot.has("music"):
-		am.set_music_volume_direct(_focus_audio_snapshot["music"])
-		am.set_sfx_volume_direct(_focus_audio_snapshot["sfx"])
-	_focus_audio_snapshot.clear()
-	
-	# НЕ снимаем паузу, если активно меню паузы (PauseMenu открыт)
-	var pause_menu := $PauseMenu
-	if pause_menu and pause_menu.panel and pause_menu.panel.visible:
-		print("[Main] Focus gained — but pause menu is open, keeping pause")
-		return
-	
-	# Снимаем паузу (через call_deferred для надёжности в Web)
-	call_deferred(&"_set_paused_deferred", false)
-	
-	# Уведомляем Yandex SDK
-	var gm := get_node_or_null("/root/GameManager")
-	if gm and gm.has_method("on_game_resumed"):
-		gm.on_game_resumed()
-	
-	print("[Main] Focus gained — game resumed, audio restored")
 
 
 func _process(_delta: float) -> void:
@@ -282,8 +205,12 @@ func game_over() -> void:
 		carrier_timer.stop()
 	if scout_cluster_timer:
 		scout_cluster_timer.stop()
+	# Останавливаем всю музыку — game over, звуки не нужны.
+	# При воскрешении музыка запустится заново в revive_player().
 	if bg_music:
 		bg_music.stop()
+	if boss_music:
+		boss_music.stop()
 	if score > sm.high_score:
 		sm.high_score = score
 	sm.save_game()
@@ -324,6 +251,12 @@ func revive_player() -> void:
 	_has_revived_this_run = true
 	_can_revive = false
 	
+	# Ждём 0.1 сек чтобы AdsManager успел снять паузу после закрытия рекламы
+	await get_tree().create_timer(0.1).timeout
+	
+	# Ставим паузу для обратного отсчёта
+	get_tree().paused = true
+	
 	# Скрываем PauseMenu (но паузу НЕ снимаем — враги не должны двигаться)
 	var pause_menu = $PauseMenu
 	if pause_menu and pause_menu.has_method("hide_menu"):
@@ -333,7 +266,13 @@ func revive_player() -> void:
 	var player = $Player
 	if player and player.has_method("revive_to_half"):
 		player.revive_to_half()
-		current_phase = GamePhase.NORMAL
+		
+		# Запоминаем фазу, в которой умерли (до сброса current_phase)
+		var death_phase = current_phase
+		var was_boss_wave = (wave_counter in [boss_wave, mega_boss_wave])
+		var was_boss_fight = (death_phase == GamePhase.BOSS_FIGHT or was_boss_wave)
+		
+		current_phase = GamePhase.NORMAL if not was_boss_fight else GamePhase.BOSS_FIGHT
 		
 		# Показываем обратный отсчёт 3-2-1 (игра на паузе — враги не двигаются)
 		var countdown_scene = preload("res://ui/popups/ReviveCountdown.tscn")
@@ -346,21 +285,47 @@ func revive_player() -> void:
 		# Снимаем паузу ПОСЛЕ отсчёта
 		_paused_by_gameover = false
 		get_tree().paused = false
+		# Даём временную неуязвимость на 1.5 сек после воскрешения
+		if player and player.has_method("set_invulnerable_for_duration"):
+			player.set_invulnerable_for_duration(1.5)
 		# Уведомляем GameManager о возобновлении (gameplay_start)
 		var gm = get_node_or_null("/root/GameManager")
 		if gm and gm.has_method("on_game_resumed"):
 			gm.on_game_resumed()
 		
 		# Возобновляем спавн врагов
-		scout_timer.start()
-		if fighter_timer.is_stopped():
-			fighter_timer.start()
-		if carrier_timer and carrier_timer.is_stopped():
-			carrier_timer.wait_time = 15.0
-			carrier_timer.start()
-		if scout_cluster_timer:
-			scout_cluster_timer.wait_time = randf_range(SCOUT_CLUSTER_INTERVAL_MIN, SCOUT_CLUSTER_INTERVAL_MAX)
-			scout_cluster_timer.start()
+		if not was_boss_fight:
+			# Обычная фаза — запускаем спавн
+			scout_timer.start()
+			if fighter_timer.is_stopped():
+				fighter_timer.start()
+			if carrier_timer and carrier_timer.is_stopped():
+				carrier_timer.wait_time = 15.0
+				carrier_timer.start()
+			if scout_cluster_timer:
+				scout_cluster_timer.wait_time = randf_range(SCOUT_CLUSTER_INTERVAL_MIN, SCOUT_CLUSTER_INTERVAL_MAX)
+				scout_cluster_timer.start()
+		else:
+			# Босс-фаза — НЕ запускаем спавн обычных врагов, оставляем босса
+			print("[Main] Revived during boss fight — keeping boss phase")
+		
+		# Восстанавливаем музыку в зависимости от фазы
+		if was_boss_fight:
+			# Если были на боссе — останавливаем bg_music и включаем музыку босса
+			if bg_music and bg_music.playing:
+				bg_music.stop()
+			if boss_music and boss_music.stream and not boss_music.playing:
+				boss_music.volume_db = 0.0
+				boss_music.play()
+			print("[Main] Boss music resumed after revive")
+		else:
+			# Обычная фаза — выключаем музыку босса и включаем обычную
+			if boss_music and boss_music.playing:
+				boss_music.stop()
+			if bg_music and bg_music.stream and not bg_music.playing:
+				bg_music.volume_db = 0.0
+				bg_music.play()
+			print("[Main] Normal music resumed after revive")
 		
 		print("[Main] Player revived with 50% HP!")
 		print("[Main] Revive used — one revive per run")
@@ -1074,10 +1039,6 @@ func _on_pause_restart() -> void:
 	_save_cloud_now()
 	get_tree().paused = false
 	get_tree().reload_current_scene()
-
-
-func _set_paused_deferred(paused: bool) -> void:
-	get_tree().paused = paused
 
 
 func _save_cloud_now() -> void:

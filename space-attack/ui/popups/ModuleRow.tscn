@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://d3m5k7n2x1f6"]
+
+[ext_resource type="Script" uid="uid://cpkcjyh8sb3ki" path="res://ui/popups/ModuleRow.gd" id="1_row"]
+
+[node name="ModuleRow" type="HBoxContainer" unique_id=685617299]
+theme_override_constants/separation = 10
+script = ExtResource("1_row")
+
+[node name="Label" type="Label" parent="." unique_id=1985940805]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3

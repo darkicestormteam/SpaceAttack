@@ -12,9 +12,10 @@ bg_color = Color(0.6, 0.6, 0.6, 0)
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
 [node name="ModuleButton" type="Button" unique_id=42644821]
+clip_contents = true
 custom_minimum_size = Vector2(64, 64)
-offset_right = 64.0
-offset_bottom = 64.0
+offset_right = 128.0
+offset_bottom = 128.0
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 24
 theme_override_styles/normal = SubResource("StyleBoxFlat_3t4f4")
@@ -25,7 +26,6 @@ script = ExtResource("1_modulebutton")
 
 [node name="Background" type="AnimatedSprite2D" parent="." unique_id=1701493511]
 unique_name_in_owner = true
-visible = false
 z_index = 1
 position = Vector2(64, 64)
 scale = Vector2(2, 2)
@@ -33,7 +33,6 @@ autoplay = "default"
 
 [node name="IconRect" type="TextureRect" parent="." unique_id=930395356]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -50,18 +49,15 @@ stretch_mode = 5
 
 [node name="IconAnimated" type="AnimatedSprite2D" parent="." unique_id=1900000001]
 unique_name_in_owner = true
-visible = false
 position = Vector2(64, 64)
 centered = false
 
 [node name="SkinPreview" type="Node2D" parent="." unique_id=2100000001]
 unique_name_in_owner = true
-visible = false
 position = Vector2(64, 64)
 
 [node name="RarityFrame" type="TextureRect" parent="." unique_id=2031377821]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -78,6 +74,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = 520.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 32

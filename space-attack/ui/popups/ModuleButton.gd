@@ -56,6 +56,7 @@ func _ready() -> void:
 func setup(p_module_id: String, p_visuals: Resource = null) -> void:
 	module_id = p_module_id
 	visuals = p_visuals if p_visuals != null else _load_visuals(p_module_id)
+	custom_minimum_size = Vector2(128, 128)
 	# Если нода уже в дереве — _ready отработал, можно применить.
 	# Если нет — _ready вызовет _apply_visuals сам.
 	if _ready_done:

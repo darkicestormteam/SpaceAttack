@@ -4,6 +4,7 @@ signal module_selected(module_id: String)
 signal popup_closed
 
 const MODULE_DETAIL_SCENE: PackedScene = preload("res://ui/popups/ModuleDetail.tscn")
+const MODULE_ROW_SCENE: PackedScene = preload("res://ui/popups/ModuleRow.tscn")
 
 const RARITY_COLORS: Dictionary = {
 	"common": Color(1, 1, 1, 1),
@@ -47,11 +48,10 @@ const MODULE_PATHS: Dictionary = {
 	"skin_phantom_2": "res://data/modules/skin_phantom_2.tres",
 	"skin_goliath_0": "res://data/modules/skin_goliath_0.tres",
 	"skin_goliath_1": "res://data/modules/skin_goliath_1.tres",
-	"skin_goliath_2": "res://data/modules/skin_goliath_2.tres",
+	"skin_goliath_2": "res://data/modules/skin_goliath_2.tres"
 }
 
 const MODULE_BUTTON_SCENE: PackedScene = preload("res://ui/popups/ModuleButton.tscn")
-
 const DEFAULT_VISUALS_PATH: String = "res://data/visuals/default_module_visuals.tres"
 
 var _target_slot: String = "weapon"
@@ -71,16 +71,13 @@ func _ready() -> void:
 		LocalizationManager.language_changed.disconnect(_on_language_changed)
 	LocalizationManager.language_changed.connect(_on_language_changed)
 
-
 func _setup_localization() -> void:
 	title_label.text = tr("select_title") % tr("select_slot_" + _target_slot)
 	unequip_button.text = tr("select_unequip")
 	close_button.text = tr("select_close")
 
-
 func _on_language_changed(_locale: String) -> void:
 	_setup_localization()
-
 
 func setup(slot: String) -> void:
 	_target_slot = slot
@@ -91,47 +88,42 @@ func setup(slot: String) -> void:
 func _refresh_list() -> void:
 	for child in list_container.get_children():
 		child.queue_free()
-
 	var owned_ids: Array = SaveManager.get_owned_module_ids()
 	var has_any_for_slot := false
-
 	for raw_id in owned_ids:
 		var mid := str(raw_id)
 		if not _module_matches_slot(mid, _target_slot):
 			continue
-
-		# Для скинов — показываем только реально разблокированные, не все подряд
-		if mid.begins_with("skin_"):
-			var parts := mid.split("_")
-			if parts.size() < 3:
-				continue
-			var ship_id := parts[1]
-			var skin_idx := int(parts[2])
-			if not SaveManager.is_skin_unlocked(ship_id, skin_idx):
-				continue
-
+		if mid.begins_with("skin_") and not SaveManager.has_module(mid):
+			continue
 		has_any_for_slot = true
-		var row := HBoxContainer.new()
+		
+		# Используем ModuleRow — кастомный HBoxContainer с логикой тап/скролл
+		var row = MODULE_ROW_SCENE.instantiate()
 		row.custom_minimum_size = Vector2(0, 128)
-
-		# Иконка (слева)
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.module_id = mid
+		row.module_selected.connect(_on_module_chosen)
+		
+		# ModuleButton — только визуал
 		var btn: ModuleButton = MODULE_BUTTON_SCENE.instantiate()
+		btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(btn)
 		btn.setup(mid, _load_visuals_for(mid))
-		btn.pressed_with_id.connect(_on_module_chosen)
-
-		# Название (справа от иконки)
+		
+		# Label — название модуля
 		var name_label := Label.new()
 		name_label.text = _get_module_name_safe(mid)
-		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		name_label.add_theme_font_size_override("font_size", 28)
-		var module_res: Resource = _load_module(mid)
-		if module_res != null and "rarity" in module_res:
-			name_label.add_theme_color_override("font_color", RARITY_COLORS.get(str(module_res.rarity), Color.WHITE))
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		name_label.add_theme_constant_override("margin_left", 0)
+		var mod_res: Resource = _load_module(mid)
+		if mod_res != null and "rarity" in mod_res:
+			name_label.add_theme_color_override("font_color", RARITY_COLORS.get(str(mod_res.rarity), Color.WHITE))
 		row.add_child(name_label)
+		
 		list_container.add_child(row)
-
 	if not has_any_for_slot:
 		var empty_label := Label.new()
 		empty_label.text = tr("select_empty")
@@ -149,7 +141,6 @@ func _module_matches_slot(mid: String, slot: String) -> bool:
 		return false
 	return str(module_res.type) == slot
 
-
 func _load_visuals_for(module_id: String) -> Resource:
 	var per_id: String = "res://data/visuals/%s_visuals.tres" % module_id
 	if ResourceLoader.exists(per_id):
@@ -160,10 +151,8 @@ func _load_visuals_for(module_id: String) -> Resource:
 		return load(DEFAULT_VISUALS_PATH)
 	return null
 
-
 func _get_module_name_safe(module_id: String) -> String:
 	return tr("mod_" + module_id + "_name")
-
 
 func _load_module(module_id: String) -> Resource:
 	if _module_cache.has(module_id):
@@ -178,10 +167,8 @@ func _load_module(module_id: String) -> Resource:
 		_module_cache[module_id] = res
 	return res
 
-
 func _on_module_chosen(module_id: String) -> void:
 	_open_module_detail(module_id)
-
 
 func _open_module_detail(module_id: String) -> void:
 	var detail: CanvasLayer = MODULE_DETAIL_SCENE.instantiate()
@@ -189,40 +176,20 @@ func _open_module_detail(module_id: String) -> void:
 	detail.setup(module_id, _target_slot)
 	detail.module_confirmed.connect(_on_detail_confirmed)
 	detail.detail_closed.connect(_on_detail_closed)
-	# Скрываем список модулей — окно деталей поверх
 	visible = false
-
 
 func _on_detail_confirmed(module_id: String) -> void:
 	module_selected.emit(module_id)
 	queue_free()
 
-
 func _on_detail_closed() -> void:
-	# Показываем список модулей обратно
 	visible = true
-
 
 func _on_close_pressed() -> void:
 	popup_closed.emit()
 	queue_free()
 
-
 func _on_unequip_pressed() -> void:
 	SaveManager.unequip_module(_target_slot)
 	popup_closed.emit()
 	queue_free()
-
-
-func _slot_display_name(slot: String) -> String:
-	match slot:
-		"weapon":
-			return "Оружие"
-		"defense":
-			return "Защита"
-		"utility":
-			return "Утилита"
-		"skin":
-			return "Скины"
-		_:
-			return slot

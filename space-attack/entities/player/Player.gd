@@ -658,6 +658,36 @@ func _process(delta: float) -> void:
 func _detect_dash_input(event: InputEvent) -> void:
 	if current_ship != "phantom":
 		return
+	
+	# Для мобильных устройств — обрабатываем ScreenTouch напрямую
+	if event is InputEventScreenTouch and event.pressed:
+		var touch_pos = event.position
+		var now := Time.get_ticks_msec() / 1000.0
+		
+		# Определяем направление по трети экрана для отслеживания двойного тапа
+		var screen_size = get_viewport_rect().size
+		var dir_key: String = ""
+		if touch_pos.x < screen_size.x * 0.33:
+			dir_key = "left"
+		elif touch_pos.x > screen_size.x * 0.66:
+			dir_key = "right"
+		elif touch_pos.y < screen_size.y * 0.5:
+			dir_key = "up"
+		else:
+			dir_key = "down"
+		
+		if not dir_key.is_empty():
+			var elapsed = now - _dash_last_press[dir_key]
+			_dash_last_press[dir_key] = now
+			if elapsed > 0.0 and elapsed < DOUBLE_TAP_WINDOW and dash_cooldown <= 0.0:
+				# Даш в направлении от корабля к точке касания
+				# Преобразуем экранные координаты в мировые через камеру
+				var cam = get_viewport().get_camera_2d()
+				var world_pos = cam.global_position + (touch_pos - get_viewport_rect().size * 0.5) / cam.zoom
+				dash_to_target(world_pos)
+		return
+	
+	# Для клавиатуры — старая логика через Input Actions
 	if not event.is_action_pressed("left") and not event.is_action_pressed("right") \
 		and not event.is_action_pressed("up") and not event.is_action_pressed("down"):
 		return
@@ -1119,15 +1149,37 @@ func revive_to_half() -> void:
 	health = ceil(float(max_health) * 0.5)
 	if health <= 0:
 		health = 1
-	invulnerable = false
 	shooting_disabled = false
-	collision_layer = 3
-	collision_mask = 1
-	_stop_blinking()
 	var revive_wave := preload("res://entities/effects/CocoonReviveWave.tscn").instantiate()
 	get_tree().current_scene.add_child(revive_wave)
 	revive_wave.global_position = global_position
 	health_changed.emit(health)
+
+
+## Включает неуязвимость на указанное количество секунд.
+## Использует Timer с process_mode=ALWAYS, чтобы работать даже на паузе.
+func set_invulnerable_for_duration(duration: float) -> void:
+	invulnerable = true
+	collision_layer = 2
+	collision_mask = 0
+	_start_blinking()
+	
+	var timer := Timer.new()
+	timer.name = "InvulnTimer_revive"
+	timer.wait_time = duration
+	timer.one_shot = true
+	timer.autostart = true
+	timer.process_callback = Timer.TIMER_PROCESS_PHYSICS
+	timer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(timer)
+	timer.timeout.connect(_on_revive_invuln_end)
+
+
+func _on_revive_invuln_end() -> void:
+	invulnerable = false
+	collision_layer = 3
+	collision_mask = 1
+	_stop_blinking()
 
 
 func die() -> void:

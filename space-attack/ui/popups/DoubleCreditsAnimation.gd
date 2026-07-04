@@ -15,6 +15,19 @@ var _old_balance: int = 0
 
 func _ready() -> void:
 	_apply_button_style(accept_button)
+	_setup_localization()
+	if LocalizationManager.language_changed.is_connected(_on_language_changed):
+		LocalizationManager.language_changed.disconnect(_on_language_changed)
+	LocalizationManager.language_changed.connect(_on_language_changed)
+
+
+func _setup_localization() -> void:
+	accept_button.text = tr("anim_accept")
+
+
+func _on_language_changed(_locale: String) -> void:
+	_setup_localization()
+	_update_animation(1.0)
 
 
 func _apply_button_style(btn: Button) -> void:
@@ -76,7 +89,7 @@ func _apply_button_style(btn: Button) -> void:
 func setup(amount: int) -> void:
 	_amount = amount
 	_old_balance = SaveManager.credits - amount
-	main_balance_label.text = "Баланс: %d" % _old_balance
+	main_balance_label.text = tr("anim_balance") % _old_balance
 	bonus_label.text = "+%d" % amount
 	
 	accept_button.visible = true
@@ -99,7 +112,7 @@ func _update_animation(progress: float) -> void:
 	var current_bonus = int(ceil(float(_amount) * (1.0 - progress)))
 	var current_balance = int(_old_balance + float(_amount) * progress)
 	bonus_label.text = "+%d" % max(0, current_bonus)
-	main_balance_label.text = "Баланс: %d" % current_balance
+	main_balance_label.text = tr("anim_balance") % current_balance
 
 
 func _on_accept_pressed() -> void:

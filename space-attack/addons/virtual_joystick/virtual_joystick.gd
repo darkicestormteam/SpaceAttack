@@ -88,22 +88,22 @@ func _input(event: InputEvent) -> void:
 					_touch_index = event.index
 					_tip.modulate = pressed_color
 					_update_joystick(event.position)
-					get_viewport().set_input_as_handled()
+					# Не блокируем touch — нужно для двойного тапа Phantom Dash
 		elif event.index == _touch_index:
 			_reset()
 			if visibility_mode == Visibility_mode.WHEN_TOUCHED:
 				hide()
-			get_viewport().set_input_as_handled()
+			# Не блокируем touch
 	elif event is InputEventScreenDrag:
 		if event.index == _touch_index:
 			_update_joystick(event.position)
-			get_viewport().set_input_as_handled()
+			# Не блокируем touch
 
 func _move_base(new_position: Vector2) -> void:
 	_base.global_position = new_position - (_base.size * get_global_transform_with_canvas().get_scale()) / 2.0
 
 func _move_tip(new_position: Vector2) -> void:
-	_tip.global_position = new_position - _tip.pivot_offset * _base.get_global_transform_with_canvas().get_scale()
+	_tip.global_position = new_position - _tip.pivot_offset * get_global_transform_with_canvas().get_scale()
 
 func _is_point_inside_joystick_area(point: Vector2) -> bool:
 	var x: bool = point.x >= global_position.x and point.x <= global_position.x + (size.x * get_global_transform_with_canvas().get_scale().x)
@@ -159,6 +159,11 @@ func _update_joystick(touch_position: Vector2) -> void:
 			Input.action_press(action_up, -output.y)
 		if output.y > 0:
 			Input.action_press(action_down, output.y)
+
+func _process(delta: float) -> void:
+	if not is_pressed and output != Vector2.ZERO:
+		output = output.move_toward(Vector2.ZERO, delta * 10.0)
+
 
 func _reset():
 	is_pressed = false

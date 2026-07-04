@@ -141,7 +141,7 @@ stat_copies_weapon,"Копирует оружие","Copies weapon"
 stat_intercept,Перехват,Intercept
 stat_absorb,ед.,pts.
 stat_convert_credits,"Конвертация в кредиты","Convert to credits"
-stat_block_every_4,"Блок каждый 4-й удар","Block every 4th hit"
+stat_block_every_4,"Блоквв 3-й удар","Block every 3th hit"
 stat_sec,сек,s
 stat_hit,попадание,hit
 stat_large,Большой,Large
@@ -482,3 +482,5 @@ double_yes_ad,"Да, удвоить за рекламу","Yes, double via ad"
 buy_no_credits,"Не хватает кредитов!","Not enough credits!"
 buy_cost,"Цена: %d кредитов","Cost: %d credits"
 buy_ok,OK,OK
+anim_balance,"Баланс: %d","Balance: %d"
+anim_accept,Принять,Accept

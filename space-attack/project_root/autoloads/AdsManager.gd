@@ -748,10 +748,18 @@ func get_tld() -> String:
 
 func _on_interstitial_opened() -> void:
 	interstitial_opened.emit()
+	# Ставим игру на паузу и глушим звук на время рекламы
+	get_tree().paused = true
+	_mute_all_audio(true)
 
 func _on_interstitial_closed(was_shown: bool) -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
+	# Снимаем паузу и восстанавливаем звук после рекламы
+	get_tree().paused = false
+	_mute_all_audio(false)
+	# Возвращаем фокус на canvas (важно для Web/браузера)
+	_focus_game_canvas()
 	interstitial_closed.emit(was_shown)
 	# Автозапуск очереди, если есть ожидающие элементы
 	if not _ad_queue.is_empty() and not _queue_processing:
@@ -760,6 +768,7 @@ func _on_interstitial_closed(was_shown: bool) -> void:
 func _on_interstitial_error(error_message: String) -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
+	_mute_all_audio(false)
 	interstitial_error.emit(error_message)
 	interstitial_closed.emit(false)
 	# Автозапуск очереди, если есть ожидающие элементы
@@ -769,6 +778,7 @@ func _on_interstitial_error(error_message: String) -> void:
 func _on_interstitial_offline() -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
+	_mute_all_audio(false)
 	interstitial_offline.emit()
 	interstitial_closed.emit(false)
 	# Автозапуск очереди, если есть ожидающие элементы
@@ -778,10 +788,16 @@ func _on_interstitial_offline() -> void:
 
 func _on_rewarded_opened() -> void:
 	rewarded_video_opened.emit()
+	get_tree().paused = true
+	_mute_all_audio(true)
 
 func _on_rewarded_closed() -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
+	get_tree().paused = false
+	_mute_all_audio(false)
+	# Возвращаем фокус на canvas (важно для Web/браузера)
+	_focus_game_canvas()
 	rewarded_video_closed.emit()
 	# Автозапуск очереди, если есть ожидающие элементы
 	if not _ad_queue.is_empty() and not _queue_processing:
@@ -790,6 +806,8 @@ func _on_rewarded_closed() -> void:
 func _on_rewarded_error(error_message: String) -> void:
 	_is_ad_showing = false
 	is_ad_showing = false
+	get_tree().paused = false
+	_mute_all_audio(false)
 	rewarded_video_error.emit(error_message)
 	rewarded_video_closed.emit()
 	# Автозапуск очереди, если есть ожидающие элементы
@@ -798,6 +816,42 @@ func _on_rewarded_error(error_message: String) -> void:
 
 func _on_rewarded_rewarded() -> void:
 	rewarded_video_rewarded.emit()
+
+
+# ============================================================
+# Управление звуком при показе рекламы
+# ============================================================
+
+func _mute_all_audio(muted: bool) -> void:
+	var master_idx := AudioServer.get_bus_index("Master")
+	if master_idx >= 0:
+		AudioServer.set_bus_mute(master_idx, muted)
+		print("[AdsManager] Master bus muted=", muted)
+
+
+# ============================================================
+# Возврат фокуса на canvas после рекламы (важно для Web/браузера)
+# ============================================================
+
+## Принудительно возвращает фокус клавиатуры на canvas игры.
+## Без этого в браузере после закрытия рекламы клавиатура не работает,
+## пока игрок не кликнет по игре мышкой.
+func _focus_game_canvas() -> void:
+	if not OS.has_feature("web"):
+		return
+	JavaScriptBridge.eval("""
+		(function() {
+			try {
+				var canvas = document.querySelector('canvas');
+				if (canvas) {
+					canvas.focus();
+					canvas.setAttribute('tabindex', '0');
+					canvas.style.outline = 'none';
+				}
+				window.focus();
+			} catch(e) {}
+		})()
+	""")
 
 
 # ============================================================

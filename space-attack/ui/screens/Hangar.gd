@@ -79,6 +79,7 @@ const DIFFICULTY_SELECT_SCENE: PackedScene = preload("res://ui/popups/Difficulty
 
 # ============== НОДЫ ==============
 
+@onready var title_label: Label = $ScrollContainer/VBox/HangarContent/TitleLabel
 @onready var credits_label: Label = %CreditsLabel
 @onready var high_score_label: Label = %HighScoreLabel
 
@@ -377,6 +378,11 @@ func _process(delta: float) -> void:
 
 
 func _setup_localization() -> void:
+	if title_label:
+		var title_text := tr("name_game")
+		if title_text == "name_game" or title_text.is_empty():
+			title_text = "Космическая Атака" if LocalizationManager.get_locale() == "ru" else "Space Attack"
+		title_label.text = title_text
 	play_button.text = tr("play_button")
 	shop_button.text = tr("shop_button_title")
 	if rewards_button:
@@ -407,6 +413,11 @@ func _setup_localization() -> void:
 
 
 func _on_language_changed(_locale: String) -> void:
+	if title_label:
+		var title_text := tr("name_game")
+		if title_text == "name_game" or title_text.is_empty():
+			title_text = "Космическая Атака" if LocalizationManager.get_locale() == "ru" else "Space Attack"
+		title_label.text = title_text
 	play_button.text = tr("play_button")
 	shop_button.text = tr("shop_button_title")
 	if rewards_button:
@@ -974,7 +985,7 @@ func _show_info(title: String, message: String) -> void:
 	add_child(overlay)
 	
 	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0, 0.7)
+	dim.color = Color(0.0, 0.0, 0.0, 0.9)
 	dim.size = get_viewport_rect().size
 	dim.anchors_preset = Control.PRESET_FULL_RECT
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -1263,19 +1274,8 @@ func _apply_button_style(btn: Button, custom_height: int = 64) -> void:
 # ============== АУДИО ==============
 
 func _setup_lang_button() -> void:
-	var lang_btn := Button.new()
-	lang_btn.name = "LangBtn"
-	lang_btn.text = "RU" if LocalizationManager.get_locale() == "ru" else "EN"
-	lang_btn.custom_minimum_size = Vector2(64, 64)
-	lang_btn.size = Vector2(64, 64)
-	lang_btn.position = Vector2(720 - 64 - 16 - 160, 16)
-	lang_btn.pressed.connect(_on_lang_toggle)
-	add_child(lang_btn)
-	_apply_button_style(lang_btn, 64)
-	
-	if LocalizationManager.language_changed.is_connected(_update_lang_btn_text):
-		LocalizationManager.language_changed.disconnect(_update_lang_btn_text)
-	LocalizationManager.language_changed.connect(_update_lang_btn_text)
+	# Кнопка скрыта — язык автоматически определяется из Яндекс SDK
+	pass
 
 
 func _on_lang_toggle() -> void:

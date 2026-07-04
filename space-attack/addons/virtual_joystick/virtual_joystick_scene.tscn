@@ -54,3 +54,4 @@ grow_vertical = 2
 pivot_offset = Vector2(50, 50)
 texture = ExtResource("3_3etdg")
 stretch_mode = 5
+metadata/_edit_use_anchors_ = true

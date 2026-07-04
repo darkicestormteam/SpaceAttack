@@ -22,7 +22,7 @@ scroll_speed = Vector2(0, -200)
 z_index = -2
 
 [node name="Player" parent="." unique_id=930832991 instance=ExtResource("1_s5j47")]
-position = Vector2(360, 1092)
+position = Vector2(360, 611)
 
 [node name="ScoutTimer" type="Timer" parent="." unique_id=416042736]
 wait_time = 2.0
@@ -62,6 +62,8 @@ bus = &"Music"
 modulate = Color(1, 1, 1, 0.05882353)
 offset_right = 449.75
 mouse_filter = 1
+deadzone_size = 15.0
+clampzone_size = 100.0
 visibility_mode = 2
 action_left = "left"
 action_right = "right"

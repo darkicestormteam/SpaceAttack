@@ -339,18 +339,6 @@ func _apply_data(data: Dictionary) -> void:
 	ship_skins = (loaded_skins as Dictionary).duplicate(true) if loaded_skins is Dictionary else {}
 	_init_default_skins()
 
-	var to_remove: Array = []
-	for mid in owned_modules:
-		if mid is String and mid.begins_with("skin_"):
-			var parts: PackedStringArray = str(mid).split("_")
-			if parts.size() >= 3:
-				var sid: String = parts[1]
-				var sidx: int = int(parts[2])
-				if not is_skin_unlocked(sid, sidx):
-					to_remove.append(mid)
-	for mid in to_remove:
-		owned_modules.erase(mid)
-
 	_update_persistent_modules_count()
 
 
@@ -571,22 +559,37 @@ func get_current_skin(ship_id: String) -> int:
 
 
 func get_unlocked_skins(ship_id: String) -> Array:
-	_init_default_skins()
-	var entry = ship_skins.get(ship_id, {})
-	return entry.get("unlocked", [0]).duplicate()
+	# Собираем разблокированные скины из owned_modules (как и для обычных модулей)
+	var result: Array = []
+	for mid in owned_modules:
+		if mid is String and mid.begins_with("skin_" + ship_id):
+			var parts: PackedStringArray = mid.split("_")
+			if parts.size() >= 3:
+				var skin_idx := int(parts[2])
+				if not skin_idx in result:
+					result.append(skin_idx)
+	if result.is_empty():
+		result = [0]
+	return result
 
 
 func is_skin_unlocked(ship_id: String, skin_index: int) -> bool:
-	return skin_index in get_unlocked_skins(ship_id)
+	# Проверяем через owned_modules — как и для обычных модулей
+	var mid := "skin_%s_%d" % [ship_id, skin_index]
+	return has_module(mid)
 
 
 func select_skin(ship_id: String, skin_index: int) -> bool:
-	if not is_skin_unlocked(ship_id, skin_index):
+	# Проверяем через owned_modules — как и для обычных модулей
+	var mid := "skin_%s_%d" % [ship_id, skin_index]
+	if not has_module(mid):
 		return false
+	# Обновляем ship_skins для визуала (какой скин сейчас надет)
+	_init_default_skins()
 	if not ship_skins.has(ship_id):
 		ship_skins[ship_id] = {"unlocked": [0], "current": 0}
 	ship_skins[ship_id]["current"] = skin_index
-	save_game_async()
+	save_game_cloud_now()
 	return true
 
 
@@ -606,7 +609,8 @@ func unlock_skin(ship_id: String, skin_index: int) -> bool:
 		owned_modules[mid] = 1
 	_update_persistent_modules_count()
 	on_achievement_progress_check()
-	save_game_async()
+	# Немедленное облачное сохранение — скины не должны пропадать при перезагрузке
+	save_game_cloud_now()
 	return true
 
 
@@ -648,7 +652,8 @@ func select_ship(ship_id: String) -> bool:
 	if not is_ship_unlocked(ship_id):
 		return false
 	current_ship = ship_id
-	save_game_async()
+	# Немедленное облачное сохранение для выбора корабля
+	save_game_cloud_now()
 	return true
 
 
