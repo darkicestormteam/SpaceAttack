@@ -66,6 +66,7 @@ alignment = 1
 
 [node name="HangarContent" type="VBoxContainer" parent="ScrollContainer/VBox" unique_id=289227654]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 12
@@ -280,7 +281,6 @@ text = "Открыть сундук (500)"
 
 [node name="ShopBg" type="Panel" parent="ScrollContainer/VBox" unique_id=1559008836]
 unique_name_in_owner = true
-visible = false
 custom_minimum_size = Vector2(680, 1200)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -424,10 +424,9 @@ size_flags_horizontal = 8
 theme_override_constants/separation = 12
 
 [node name="Label2" type="Label" parent="." unique_id=1741490621]
-visible = false
 layout_mode = 0
 offset_left = 360.0
 offset_top = 1160.0
 offset_right = 410.0
 offset_bottom = 1180.0
-text = "001"
+text = "00111"
