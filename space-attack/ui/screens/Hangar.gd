@@ -190,7 +190,7 @@ func _ready() -> void:
 	_setup_lang_button()
 	_setup_localization()
 	_apply_styles_to_all_buttons()
-	SaveManager.load_game()
+	# SaveManager инициализирует себя сам (set_defaults + облачная загрузка)
 	
 	# Фоновая музыка
 	if music:

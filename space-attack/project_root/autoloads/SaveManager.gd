@@ -1,7 +1,7 @@
 extends Node
 
 signal achievement_unlocked(achievement_id: String, achievement_data: Dictionary)
-## Сигнал — данные загружены (из локального файла или из облака)
+## Сигнал — данные загружены (из облака)
 signal data_loaded()
 
 var credits: int = 0
@@ -81,7 +81,6 @@ const SHIP_NAMES: Dictionary = {"vanguard": "Вангвард", "phantom": "Фа
 const SKIN_NAMES: Dictionary = {0: "Стиль 1", 1: "Стиль 2", 2: "Стиль 3", 3: "Стиль 4", 4: "Стиль 5"}
 
 const MODULE_SLOT_BY_TYPE: Dictionary = {"weapon": "weapon", "defense": "defense", "utility": "utility"}
-const SAVE_PATH: String = "user://savegame.json"
 
 const ALL_MODULE_IDS: Array = [
 	"laser_mk2", "laser_pierce", "laser_plasma",
@@ -104,7 +103,7 @@ const DEFAULT_MODULE_IDS: Array = ["laser"]
 # ============================================================
 # Версия сохранения
 # ============================================================
-## Версия формата. Старые файлы с меньшей версией игнорируются.
+## Версия формата. Старые данные с меньшей версией игнорируются.
 const SAVE_VERSION: int = 2
 
 # ============================================================
@@ -119,38 +118,61 @@ const AUTO_CLOUD_INTERVAL: float = 15.0
 var _last_cloud_save_time: float = 0.0
 ## Таймер для автосохранения
 var _auto_save_timer: float = 0.0
-## Флаг — облако было успешно синхронизировано хотя бы раз
-## Хранится в локальном savegame.json как "_cloud_was_synced"
-var _cloud_was_synced: bool = false
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	# Не загружаем сразу — ждём инициализацию AdsManager
+	# Загружаем дефолты мгновенно (UI сразу видит данные)
+	set_defaults()
 	_on_ads_init(false)
 
 
 func _on_ads_init(_success: bool = false) -> void:
 	var ads = get_node_or_null("/root/AdsManager")
 	if ads == null or not ads.is_sdk_ready or ads.sdk == null:
-		# SDK ещё не готов — подписываемся на сигнал и ждём
+		# SDK ещё не готов — подписываемся на init_completed
 		if ads != null and not ads.is_connected("init_completed", _on_ads_init):
 			ads.init_completed.connect(_on_ads_init)
 			print("[SaveManager] Waiting for AdsManager init...")
 			return
 		else:
-			# AdsManager не найден — загружаем локально
-			print("[SaveManager] AdsManager not found, loading from local...")
-			load_game()
+			# AdsManager не найден — играем с дефолтами
+			print("[SaveManager] AdsManager not found, using defaults")
+			emit_signal("data_loaded")
 			return
 	
-	# Сначала грузим локально (мгновенно, UI увидит актуальный кеш)
-	load_game()
+	# SDK готов — подписываемся на сигнал завершения проверки покупок
+	if ads.has_signal("purchases_checked"):
+		if not ads.is_connected("purchases_checked", _load_from_cloud):
+			ads.purchases_checked.connect(_load_from_cloud)
+	
+	# Выдаём дефолты в UI
 	emit_signal("data_loaded")
 	
-	# SDK инициализирован — загружаем из облака.
-	# После синхронизации ещё раз вызовем data_loaded, чтобы UI обновился
-	call_deferred("_load_from_cloud")
+	# Если purchases_checked уже был или проверка покупок не нужна,
+	# запускаем облачную загрузку напрямую (на случай, если сигнал уже прошёл)
+	# Используем call_deferred, чтобы дать время подписаться на сигнал
+	if ads.has_method("check_unconsumed_purchases"):
+		# Если сигнал уже был бы испущен до подписки — вызываем загрузку напрямую
+		if not ads.is_connected("purchases_checked", _load_from_cloud):
+			call_deferred("_load_from_cloud")
+		else:
+			# Проверим, не ожидаем ли мы purchases_checked
+			# Если purchases_checked уже был (например при is_empty early return) —
+			# нам нужен fallback таймер на случай, если сигнал уже прошёл
+			get_tree().create_timer(2.0).timeout.connect(_on_cloud_load_timeout)
+
+
+## Fallback: если purchases_checked не сработал (уже был до подписки),
+## загружаем облако через 2 секунды.
+func _on_cloud_load_timeout() -> void:
+	var ads = get_node_or_null("/root/AdsManager")
+	if ads != null and ads.has_signal("purchases_checked"):
+		if ads.is_connected("purchases_checked", _load_from_cloud):
+			# Сигнал ещё не сработал — ждём его, не делаем ничего
+			return
+	# Сигнал уже отключился или не нужен — загружаем облако
+	_load_from_cloud()
 
 
 # ============================================================
@@ -168,105 +190,43 @@ func _validate_save_data(data: Variant) -> Variant:
 
 
 # ============================================================
-# Новая стратегия загрузки: "Облако — источник истины"
-# ============================================================
-# Сценарии:
-# 1. Облако ДОСТУПНО + данные есть → облако главное, пишем в локал
-# 2. Облако ДОСТУПНО + пусто + _cloud_was_synced == true → намеренный сброс → дефолт
-# 3. Облако ДОСТУПНО + пусто + синхронизации не было → первый вход
-#    - локальные есть → отправляем в облако
-#    - локальных нет → дефолт
-# 4. Облако НЕДОСТУПНО → офлайн с локальным кешем
+# Облако — единственный источник истины
 # ============================================================
 
 func _load_from_cloud() -> void:
 	var ads = get_node_or_null("/root/AdsManager")
 	if ads == null or ads.sdk == null or not ads.sdk.is_inited() or ads.sdk.player == null:
-		# Сценарий 4: облако недоступно — играем офлайн
-		print("[SaveManager] Cloud not available, loading local...")
-		load_game()
+		# Облако недоступно — играем с тем, что есть (дефолты/локальные изменения сессии)
+		print("[SaveManager] Cloud not available, keeping current data")
+		emit_signal("data_loaded")
 		return
 	
-	# 1. Загружаем локальный файл (может быть null)
-	var local_data = _load_local_raw_data()
-	
-	if local_data is Dictionary:
-		_cloud_was_synced = local_data.get("_cloud_was_synced", false)
-		# Проверяем версию — если старая, игнорируем локальные данные
-		local_data = _validate_save_data(local_data)
-	
-	# 2. Убеждаемся, что player проинициализирован
+	# Убеждаемся, что player проинициализирован
 	if not ads.sdk.player.is_inited():
 		print("[SaveManager] Player not inited, initializing before cloud load...")
 		var player_init = await ads.sdk.player.init()
 		if player_init != true:
-			print("[SaveManager] Player init failed, loading local...")
-			load_game()
+			print("[SaveManager] Player init failed, keeping current data")
+			emit_signal("data_loaded")
 			return
 	
-	# 3. Загружаем из облака
+	# Загружаем из облака
 	print("[SaveManager] Loading from cloud...")
 	var cloud_data = await ads.sdk.player.get_data()
 	
-	# Проверяем версию облачных данных
+	# Проверяем версию
 	if cloud_data is Dictionary:
 		cloud_data = _validate_save_data(cloud_data)
 	
-	var cloud_has_data = cloud_data is Dictionary and not cloud_data.is_empty()
-	var cloud_is_empty = not cloud_has_data
-	
-	if cloud_is_empty:
-		if _cloud_was_synced:
-			# Сценарий 2: облако очистили намеренно (Clear Cloud Data)
-			print("[SaveManager] Cloud empty but sync flag exists -> data was cleared, resetting to defaults...")
-			set_defaults()
-			_cloud_was_synced = false
-			save_game()
-			await _save_to_cloud_impl(true)
-		elif local_data is Dictionary:
-			# Сценарий 3a: первый вход, есть локальные данные
-			print("[SaveManager] Cloud empty, first sync - uploading local data...")
-			_apply_data(local_data)
-			_cloud_was_synced = true
-			save_game()
-			await _save_to_cloud_impl(true)
-		else:
-			# Сценарий 3b: первый вход, нет данных
-			print("[SaveManager] No data anywhere, setting defaults...")
-			set_defaults()
-			_cloud_was_synced = true
-			save_game()
-			await _save_to_cloud_impl(true)
-	else:
-		# Сценарий 1: облачные данные есть — облако главное
+	if cloud_data is Dictionary and not cloud_data.is_empty():
 		print("[SaveManager] Cloud data found - applying cloud (truth source)...")
 		_apply_data(cloud_data)
-		_cloud_was_synced = true
-		save_game()
+	else:
+		print("[SaveManager] Cloud empty or invalid, keeping defaults")
+		set_defaults()
 	
-	# В любом случае (сценарии 1, 2, 3) после синхронизации с облаком
-	# обновляем UI. Исключение — сценарий 4 (облако недоступно), но там
-	# data_loaded уже был вызван при локальной загрузке.
+	# Уведомляем UI об обновлении
 	emit_signal("data_loaded")
-
-
-## Прочитать данные из локального файла без применения их в переменные.
-func _load_local_raw_data() -> Variant:
-	if not FileAccess.file_exists(SAVE_PATH):
-		return null
-	
-	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
-	if not file:
-		return null
-	
-	var json_str = file.get_as_text()
-	file.close()
-	
-	var json = JSON.new()
-	var parse_result = json.parse(json_str)
-	if parse_result == OK:
-		return json.data as Dictionary
-	return null
 
 
 func _get_save_data() -> Dictionary:
@@ -291,7 +251,6 @@ func _get_save_data() -> Dictionary:
 		"all_modules_purchased": all_modules_purchased,
 		"difficulty_unlocked": difficulty_unlocked.duplicate(),
 		"difficulty_level": difficulty_level,
-		"_cloud_was_synced": _cloud_was_synced,
 	}
 
 
@@ -342,43 +301,6 @@ func _apply_data(data: Dictionary) -> void:
 	_update_persistent_modules_count()
 
 
-func _get_cloud_time(cloud_data: Dictionary) -> int:
-	return cloud_data.get("last_saved_at", 0)
-
-
-func load_game() -> Dictionary:
-	if not FileAccess.file_exists(SAVE_PATH):
-		set_defaults()
-		return _to_dict()
-
-	var file = FileAccess.open(SAVE_PATH, FileAccess.READ)
-	if file:
-		var json_str = file.get_as_text()
-		file.close()
-
-		var json = JSON.new()
-		var parse_result = json.parse(json_str)
-		if parse_result == OK:
-			var data = json.data as Dictionary
-			# Проверяем версию — старая = игнорируем
-			var valid_data = _validate_save_data(data)
-			if valid_data is Dictionary:
-				_cloud_was_synced = valid_data.get("_cloud_was_synced", false)
-				_apply_data(valid_data)
-			else:
-				print("[SaveManager] Local save outdated, resetting...")
-				set_defaults()
-			return _to_dict()
-		else:
-			set_defaults()
-		return _to_dict()
-	else:
-		set_defaults()
-		return _to_dict()
-	
-	return _to_dict()
-
-
 func _to_dict() -> Dictionary:
 	return {
 		"credits": credits,
@@ -398,7 +320,6 @@ func _to_dict() -> Dictionary:
 		"persistent_bosses_killed": persistent_bosses_killed,
 		"persistent_modules_unlocked_count": persistent_modules_unlocked_count,
 		"persistent_chests_opened": persistent_chests_opened,
-		"_cloud_was_synced": _cloud_was_synced,
 	}
 
 
@@ -442,31 +363,25 @@ func _mark_cloud_pending() -> void:
 
 
 # ============================================================
-# Сохранение
+# Сохранение (только облако, без локальных файлов)
 # ============================================================
 
+## save_game теперь не пишет в локальный файл, а ставит в очередь на облачное сохранение.
 func save_game() -> void:
-	var data = _get_save_data()
-	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.new().stringify(data))
-		file.close()
+	_mark_cloud_pending()
 
 
 func save_game_async() -> void:
-	save_game()
 	_mark_cloud_pending()
 
 
 func save_game_cloud_now() -> void:
-	save_game()
 	_cloud_pending = false
 	_auto_save_timer = 0.0
 	_save_to_cloud_impl(false)
 
 
 func force_save_to_cloud() -> void:
-	save_game()
 	_cloud_pending = false
 	_auto_save_timer = 0.0
 	_last_cloud_save_time = 0.0
@@ -474,7 +389,6 @@ func force_save_to_cloud() -> void:
 
 
 func save_game_critical_async() -> bool:
-	save_game()
 	_cloud_pending = false
 	_auto_save_timer = 0.0
 	_last_cloud_save_time = 0.0
@@ -513,7 +427,6 @@ func _save_to_cloud_impl(flush: bool) -> bool:
 	var result = await ads.sdk.player.set_data(cloud_data, flush)
 	if result == true:
 		print("[SaveManager] Cloud save completed (flush=" + str(flush) + ")")
-		_cloud_was_synced = true
 		return true
 	else:
 		print("[SaveManager] Cloud save returned: " + str(result))
@@ -545,7 +458,6 @@ func set_defaults() -> void:
 	persistent_chests_opened = 0
 	difficulty_level = 0
 	difficulty_unlocked = [0]
-	_cloud_was_synced = false
 
 
 # ============================================================
@@ -559,7 +471,6 @@ func get_current_skin(ship_id: String) -> int:
 
 
 func get_unlocked_skins(ship_id: String) -> Array:
-	# Собираем разблокированные скины из owned_modules (как и для обычных модулей)
 	var result: Array = []
 	for mid in owned_modules:
 		if mid is String and mid.begins_with("skin_" + ship_id):
@@ -574,17 +485,14 @@ func get_unlocked_skins(ship_id: String) -> Array:
 
 
 func is_skin_unlocked(ship_id: String, skin_index: int) -> bool:
-	# Проверяем через owned_modules — как и для обычных модулей
 	var mid := "skin_%s_%d" % [ship_id, skin_index]
 	return has_module(mid)
 
 
 func select_skin(ship_id: String, skin_index: int) -> bool:
-	# Проверяем через owned_modules — как и для обычных модулей
 	var mid := "skin_%s_%d" % [ship_id, skin_index]
 	if not has_module(mid):
 		return false
-	# Обновляем ship_skins для визуала (какой скин сейчас надет)
 	_init_default_skins()
 	if not ship_skins.has(ship_id):
 		ship_skins[ship_id] = {"unlocked": [0], "current": 0}
@@ -609,7 +517,6 @@ func unlock_skin(ship_id: String, skin_index: int) -> bool:
 		owned_modules[mid] = 1
 	_update_persistent_modules_count()
 	on_achievement_progress_check()
-	# Немедленное облачное сохранение — скины не должны пропадать при перезагрузке
 	save_game_cloud_now()
 	return true
 
@@ -652,7 +559,6 @@ func select_ship(ship_id: String) -> bool:
 	if not is_ship_unlocked(ship_id):
 		return false
 	current_ship = ship_id
-	# Немедленное облачное сохранение для выбора корабля
 	save_game_cloud_now()
 	return true
 
@@ -933,18 +839,14 @@ func on_enemy_killed(weapon_id: String, enemy_name: String, is_boss: bool = fals
 		unlock_achievement("goliath_crusher")
 	
 	var now: float = Time.get_ticks_msec() / 1000.0
-	# "Мясорубка": 10 убийств за 3 секунды от ПЕРВОГО убийства в серии
 	if tmp_kill_count_fast == 0:
-		# Начало новой серии
 		tmp_last_kill_time = now
 		tmp_kill_count_fast = 1
 	elif now - tmp_last_kill_time <= 3.0:
-		# Всё ещё в окне 3 секунд
 		tmp_kill_count_fast += 1
 		if tmp_kill_count_fast >= 10:
 			unlock_achievement("meat_grinder")
 	else:
-		# Окно истекло — сбрасываем, начинаем новое с текущим убийством
 		tmp_last_kill_time = now
 		tmp_kill_count_fast = 1
 	

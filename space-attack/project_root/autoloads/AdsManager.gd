@@ -53,6 +53,8 @@ signal queue_completed()
 # --- Purchase Availability ---
 ## Сигнал об изменении доступности покупок (для Hangar и других UI)
 signal purchase_availability_changed(available: bool)
+## Сигнал — проверка непотреблённых покупок завершена (для SaveManager)
+signal purchases_checked()
 
 
 ## Ссылка на экземпляр YandexGamesSDK (устанавливается при инициализации)
@@ -595,6 +597,11 @@ func check_unconsumed_purchases() -> void:
 		return
 		
 	print("[AdsManager] Found ", purchases.size(), " unconsumed purchase(s)")
+	
+	# Если покупок нет — всё равно испускаем сигнал, чтобы SaveManager знал, что можно загружать облако
+	# Реально purchases уже проверены выше на is_empty, и return бы не сработал,
+	# но для единообразия сигнал всегда будет в конце метода.
+	
 	for purchase in purchases:
 		var pid: String = purchase.get("product_id", "")
 		var token: String = purchase.get("purchase_token", "")
@@ -630,6 +637,9 @@ func check_unconsumed_purchases() -> void:
 			print("[AdsManager] Token consumed successfully.")
 		else:
 			printerr("[AdsManager] Failed to grant reward for ", pid, " — NOT consuming purchase. Will retry on next launch.")
+	
+	# Сигнал для SaveManager — проверка покупок завершена, можно загружать облако
+	purchases_checked.emit()
 
 
 ## Вспомогательный: начислить все модули и скины
