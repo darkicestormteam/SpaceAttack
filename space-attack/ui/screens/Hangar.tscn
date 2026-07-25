@@ -445,7 +445,6 @@ size_flags_horizontal = 8
 theme_override_constants/separation = 12
 
 [node name="Label2" type="Label" parent="." unique_id=1741490621]
-visible = false
 layout_mode = 0
 offset_left = 360.0
 offset_top = 1160.0

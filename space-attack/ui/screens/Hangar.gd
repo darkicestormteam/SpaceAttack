@@ -1050,6 +1050,16 @@ func _on_iap_all_modules_pressed() -> void:
 	if ads == null or not ads.has_method("purchase_all_modules"):
 		return
 	
+	# Проверка: если уже куплено — показываем инфо-попап и выходим
+	if SaveManager.all_modules_purchased:
+		_show_info(tr("IAP_all_bought"), tr("IAP_already_purchased_msg"))
+		return
+	
+	# Проверка: доступны ли покупки
+	if not ads.can_purchase():
+		_show_info(tr("IAP_not_available_title"), tr("IAP_not_available_msg"))
+		return
+	
 	iap_all_modules_btn.disabled = true
 	iap_all_modules_btn.text = tr("IAP_connecting")
 	
@@ -1060,8 +1070,12 @@ func _on_iap_all_modules_pressed() -> void:
 		return
 	
 	iap_all_modules_btn.text = tr("IAP_purchasing")
+	
+	# Запоминаем, что покупка была инициирована — после неё обновим UI
+	# purchase_all_modules внутри вызывает purchase() и consume_purchase()
 	await ads.purchase_all_modules()
 	
+	# Обновляем UI после завершения потока покупки
 	_refresh_iap_buttons()
 	update_ui()
 

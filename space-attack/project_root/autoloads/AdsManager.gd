@@ -330,6 +330,10 @@ func _auto_init_payments() -> void:
 		_is_payments_ready = true
 		print("[AdsManager] Auto-payments initialized, purchases available")
 		_on_purchase_availability_changed()
+	else:
+		_is_payments_ready = false
+		printerr("[AdsManager] Auto-payments init failed")
+		_on_purchase_availability_changed()
 
 
 func _init_fail(msg: String) -> void:
@@ -597,29 +601,39 @@ func check_unconsumed_purchases() -> void:
 		var token: String = purchase.get("purchase_token", "")
 		print("[AdsManager] Processing pending purchase: ", pid)
 		
+		# Проверка: если token пустой — не вызывать consume_purchase
+		if token.is_empty():
+			printerr("[AdsManager] CRITICAL: Empty purchase token for ", pid, " — skipping consume")
+			continue
+		
+		var grant_success := false
+		
 		match pid:
 			"all_modules":
 				print("[AdsManager] Granting all_modules...")
 				_apply_all_modules()
+				grant_success = true
 			"remove_ads":
 				print("[AdsManager] Granting remove_ads...")
 				if SaveManager:
 					if "no_ads_purchased" in SaveManager:
 						SaveManager.no_ads_purchased = true
 					SaveManager.save_game()
+					grant_success = true
 			_:
 				# Если это неизвестная покупка (например, скины), мы не знаем, как её выдать,
 				# НО мы обязаны её консумировать, чтобы она не висела вечно и Яндекс не забанил игру!
 				printerr("[AdsManager] WARNING: Unknown pending purchase ID: ", pid)
+				# Для неизвестных покупок всё равно пытаемся consum'ить
+				grant_success = true
 		
-		# САМОЕ ВАЖНОЕ: В ЛЮБОМ СЛУЧАЕ КОНСУМИРУЕМ ПОКУПКУ!
-		# Иначе плашка будет висеть вечно, а деньги сгорят.
-		if not token.is_empty():
+		# Consume ТОЛЬКО после успешной выдачи награды
+		if grant_success:
 			print("[AdsManager] Consuming token for ", pid)
 			await sdk.payments.consume_purchase(token)
 			print("[AdsManager] Token consumed successfully.")
 		else:
-			printerr("[AdsManager] ERROR: No purchase token found for ", pid)
+			printerr("[AdsManager] CRITICAL: Failed to grant reward for ", pid, " — NOT consuming purchase. Will retry on next launch.")
 
 
 ## Вспомогательный: начислить все модули и скины
@@ -637,24 +651,43 @@ func _apply_all_modules() -> void:
 
 
 ## Получить каталог доступных товаров.
+## Дёргает SDK с ретраями (до 3 попыток с задержкой 1 сек).
 func get_catalog() -> Array:
 	if sdk == null or not sdk.payments.is_inited():
 		return []
-	var products: Variant = await sdk.payments.get_catalog()
-	if products is Array:
-		return products
+	
+	var max_attempts := 3
+	for attempt in range(1, max_attempts + 1):
+		var products: Variant = await sdk.payments.get_catalog()
+		if products is Array:
+			return products
+		if attempt < max_attempts:
+			printerr("[AdsManager] Catalog fetch attempt ", attempt, " failed, retrying in 1s...")
+			await get_tree().create_timer(1.0).timeout
+		else:
+			printerr("[AdsManager] Catalog fetch failed after ", max_attempts, " attempts")
+	
 	return []
 
 
 ## Совершить покупку по ID товара.
-## Возвращает Dictionary с деталями покупки или null.
+## Возвращает Dictionary: {status: "success"|"cancelled"|"error", data: {details или сообщение об ошибке}}.
 func purchase(product_id: String, developer_payload: String = "") -> Dictionary:
 	if sdk == null or not sdk.payments.is_inited():
-		return {}
+		return {"status": "error", "data": {"message": "Payments not inited"}}
 	var result: Variant = await sdk.payments.purchase(product_id, developer_payload)
+	
+	# Проверка на null — SDK может вернуть null при отмене или ошибке
 	if result == null:
-		return {}
-	return result
+		# Яндекс SDK возвращает null при отмене (пользователь закрыл платёжное окно)
+		return {"status": "cancelled", "data": {"message": "Purchase cancelled by user"}}
+	
+	# Проверка, что это Dictionary с ожидаемыми полями
+	if result is Dictionary and result.has("purchase_token"):
+		return {"status": "success", "data": result}
+	
+	# Любой другой результат — ошибка
+	return {"status": "error", "data": {"message": str(result)}}
 
 
 ## Потратить расходную покупку (чтобы можно было купить снова).
@@ -668,10 +701,24 @@ func consume_purchase(purchase_token: String) -> bool:
 ## Купить "Все модули" — открывает все модули игры.
 ## ID товара в панели Яндекса: "all_modules"
 func purchase_all_modules() -> void:
-	var purchase_data: Variant = await purchase("all_modules")
-	if purchase_data == null:
-		printerr("[AdsManager] Purchase all_modules failed")
+	# Защита от повторной покупки
+	if SaveManager.all_modules_purchased == true:
+		print("[AdsManager] All modules already purchased, skipping.")
 		return
+	
+	var purchase_result: Dictionary = await purchase("all_modules")
+	if purchase_result.status != "success":
+		printerr("[AdsManager] Purchase all_modules failed: ", purchase_result.get("data", {}).get("message", "unknown"))
+		return
+	
+	var purchase_data: Dictionary = purchase_result.get("data", {})
+	# Проверка purchase_token
+	var token: String = purchase_data.get("purchase_token", "")
+	if token.is_empty():
+		printerr("[AdsManager] CRITICAL: Missing purchase token in purchase_data!")
+		return
+	
+	# 1. Выдаём награду
 	SaveManager.all_modules_purchased = true
 	
 	# Открываем все модули
@@ -687,23 +734,26 @@ func purchase_all_modules() -> void:
 	
 	SaveManager.on_achievement_progress_check()
 	
-	# 1. СНАЧАЛА сохраняем в облако (плашка Яндекса висит, ожидая завершения сохранения — это нормально!)
+	# 2. Сохраняем в облако (плашка Яндекса висит, ожидая завершения сохранения — это нормально!)
+	var cloud_save_success := false
 	if SaveManager.has_method(&"save_game_critical_async"):
 		var saved = await SaveManager.save_game_critical_async()
 		if not saved:
-			printerr("[AdsManager] CRITICAL: Cloud save failed after IAP purchase!")
+			printerr("[AdsManager] CRITICAL: Cloud save failed after IAP purchase! Will retry on next launch.")
 		else:
 			print("[AdsManager] IAP data saved to cloud successfully")
+			cloud_save_success = true
 	else:
 		SaveManager.save_game()
-		
-	# 2. ТОЛЬКО ПОСЛЕ успешного сохранения консумируем покупку.
-	# Как только Яндекс получает consume, плашка мгновенно закрывается.
-	if purchase_data is Dictionary and purchase_data.has("purchase_token"):
-		await consume_purchase(purchase_data.purchase_token)
+		cloud_save_success = true
+	
+	# 3. Consume ТОЛЬКО после успешного сохранения в облако
+	if cloud_save_success:
+		await consume_purchase(token)
 		print("[AdsManager] Purchase consumed successfully, Yandex UI should close.")
 	else:
-		printerr("[AdsManager] Missing purchase token!")
+		printerr("[AdsManager] CRITICAL: Cloud save failed — NOT consuming purchase. Will retry on next launch via check_unconsumed_purchases().")
+		return
 		
 	print("[AdsManager] All modules purchased!")
 
