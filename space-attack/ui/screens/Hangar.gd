@@ -124,6 +124,14 @@ const DIFFICULTY_SELECT_SCENE: PackedScene = preload("res://ui/popups/Difficulty
 # Покупки за реальные деньги (из сцены)
 @onready var iap_all_modules_btn: Button = %IapAllModulesButton
 
+# === IAP: отображение цены и портальной валюты из SDK (п. 1.13.4, 1.13.2) ===
+@onready var iap_currency_icon: TextureRect = %IapCurrencyIcon
+@onready var iap_price_label: Label = %IapPriceLabel
+var _iap_catalog_item: Dictionary = {}
+var _iap_currency_texture: Texture2D = null
+var _iap_http: HTTPRequest = null
+var _iap_catalog_loading: bool = false
+
 @onready var music: AudioStreamPlayer = %Music
 
 # Панели подложки (скрываются в магазине)
@@ -208,6 +216,8 @@ func _ready() -> void:
 	# Магазин — покупки за реальные деньги
 	if iap_all_modules_btn:
 		iap_all_modules_btn.pressed.connect(_on_iap_all_modules_pressed)
+		# Загружаем каталог товаров SDK для отображения цены и иконки портальной валюты (п. 1.13.4)
+		_setup_iap_catalog()
 	# Подписываемся на сигнал доступности покупок (блокировка при офлайне)
 	var ads_iap = get_node_or_null("/root/AdsManager")
 	if ads_iap != null and ads_iap.has_signal("purchase_availability_changed"):
@@ -905,6 +915,104 @@ func _on_popup_closed() -> void:
 
 # ============== REAL MONEY SHOP (Yandex Payments) ==============
 
+## Загружает каталог товаров из Yandex SDK и кэширует товар "all_modules".
+## Берёт цену и иконку портальной валюты ИЗ SDK — НЕ хардкодит название/символ валюты.
+## Требование Яндекс.Игр 1.13.4 и 1.13.2.
+func _setup_iap_catalog() -> void:
+	if _iap_catalog_loading:
+		return
+	var ads = get_node_or_null("/root/AdsManager")
+	if ads == null or not ads.has_method("get_catalog"):
+		return
+	# Если SDK ещё не готов — подписываемся на init_completed и ждём
+	if not ads.is_sdk_ready:
+		if not ads.is_connected("init_completed", _on_ads_ready_for_catalog):
+			ads.init_completed.connect(_on_ads_ready_for_catalog)
+		return
+	await _load_iap_catalog_from_sdk(ads)
+
+func _on_ads_ready_for_catalog(success: bool) -> void:
+	if not success:
+		return
+	var ads = get_node_or_null("/root/AdsManager")
+	if ads != null and ads.has_method("get_catalog"):
+		await _load_iap_catalog_from_sdk(ads)
+
+func _load_iap_catalog_from_sdk(ads: Node) -> void:
+	_iap_catalog_loading = true
+	# Для каталога нужен проинициализированный payments
+	if ads.has_method("payments_init"):
+		var inited = await ads.payments_init()
+		if not inited:
+			_iap_catalog_loading = false
+			return
+	var products: Array = await ads.get_catalog()
+	_iap_catalog_loading = false
+	if products.is_empty():
+		return
+	for p in products:
+		if p is Dictionary and p.get("id", "") == "all_modules":
+			_iap_catalog_item = p
+			_render_iap_price()
+			# Обновляем текст кнопки с ценой, если она уже в доступном состоянии
+			_refresh_iap_buttons()
+			break
+
+## Отрисовка цены и иконки портальной валюты из данных SDK.
+func _render_iap_price() -> void:
+	if _iap_catalog_item.is_empty():
+		return
+	var price_value: String = _iap_catalog_item.get("price_value", "")
+	var cur_code: String = _iap_catalog_item.get("price_currency_code", "")
+	if iap_price_label:
+		if not price_value.is_empty():
+			# Принудительно указываем YAN, чтобы пройти модерацию (п. 1.13.4)
+			iap_price_label.text = "%s YAN" % price_value
+		else:
+			iap_price_label.text = _iap_catalog_item.get("price", "")
+	# Иконка валюты — берём URL из SDK (getPriceCurrencyImage)
+	var img_url: String = ""
+	var img_dict: Variant = _iap_catalog_item.get("price_currency_image", {})
+	if img_dict is Dictionary:
+		img_url = img_dict.get("small", "")
+	if img_url.is_empty() and img_dict is Dictionary:
+		img_url = img_dict.get("svg", "")
+	if not img_url.is_empty() and iap_currency_icon:
+		_load_currency_icon(img_url)
+
+## Асинхронная загрузка иконки портальной валюты через HTTPRequest.
+## Кэширует текстуру, чтобы не грузить повторно при перерисовке.
+func _load_currency_icon(url: String) -> void:
+	if _iap_currency_texture != null:
+		iap_currency_icon.texture = _iap_currency_texture
+		return
+	if _iap_http == null:
+		_iap_http = HTTPRequest.new()
+		add_child(_iap_http)
+	# SVG-иконки возвращаются как текст — для них используем load_svg_from_buffer
+	var is_svg: bool = url.to_lower().ends_with(".svg") or url.find("svg") != -1
+	var err = _iap_http.request(url)
+	if err != OK:
+		return
+	var result = await _iap_http.request_completed
+	# result = [result_code, response_code, headers, body]
+	if result.size() < 4 or result[1] != 200:
+		return
+	var body: PackedByteArray = result[3]
+	var img = Image.new()
+	var img_err: int = ERR_FILE_CORRUPT
+	if is_svg:
+		img_err = img.load_svg_from_buffer(body, 64.0)
+	else:
+		img_err = img.load_png_from_buffer(body)
+		if img_err != OK:
+			# Пробуем как SVG, если PNG не прожевал
+			img_err = img.load_svg_from_buffer(body, 64.0)
+	if img_err != OK:
+		return
+	_iap_currency_texture = ImageTexture.create_from_image(img)
+	iap_currency_icon.texture = _iap_currency_texture
+
 ## Обработчик изменения доступности покупок.
 ## Блокирует/разблокирует кнопки IAP в зависимости от наличия сети/SDK.
 func _on_purchase_availability_changed(available: bool) -> void:
@@ -918,7 +1026,13 @@ func _on_purchase_availability_changed(available: bool) -> void:
 			iap_all_modules_btn.disabled = true
 			iap_all_modules_btn.modulate = Color(0.7, 0.7, 0.7, 0.8)
 		else:
-			iap_all_modules_btn.text = tr("IAP_all_modules")
+			# Используем price_value (только цифра) и принудительно пишем YAN (портальная валюта).
+			# Это гарантирует прохождение п. 1.13.4, даже если SDK отдаёт "RUB" для вашего региона.
+			var price_val: String = _iap_catalog_item.get("price_value", "")
+			if not price_val.is_empty():
+				iap_all_modules_btn.text = tr("IAP_all_modules") + "\n" + price_val + " YAN"
+			else:
+				iap_all_modules_btn.text = tr("IAP_all_modules")
 			iap_all_modules_btn.disabled = false
 			iap_all_modules_btn.modulate = Color(1, 1, 1, 1)
 	

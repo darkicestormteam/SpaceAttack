@@ -572,43 +572,54 @@ func payments_init() -> Variant:
 ## Обязательно для модерации (п. 1.13.1).
 ## Вызывать после init_async() и payments_init().
 func check_unconsumed_purchases() -> void:
-	if sdk == null or not sdk.is_inited() or not sdk.payments.is_inited():
-		push_warning("[AdsManager] Payments not inited, cannot check unconsumed purchases")
+	if sdk == null or not sdk.is_inited():
+		push_warning("[AdsManager] SDK not inited")
 		return
-	
+		
+	# Если платежи еще не инициализированы — инициализируем их принудительно!
+	if not sdk.payments.is_inited():
+		print("[AdsManager] Payments not inited, initializing now for unconsumed check...")
+		var inited = await sdk.payments.init()
+		if not inited:
+			push_warning("[AdsManager] Payments init failed, cannot check unconsumed")
+			return
+			
 	var purchases: Variant = await sdk.payments.get_purchases()
 	if purchases == null or not purchases is Array:
 		return
 	if purchases.is_empty():
+		print("[AdsManager] No unconsumed purchases found.")
 		return
-	
+		
 	print("[AdsManager] Found ", purchases.size(), " unconsumed purchase(s)")
-	
 	for purchase in purchases:
 		var pid: String = purchase.get("product_id", "")
 		var token: String = purchase.get("purchase_token", "")
+		print("[AdsManager] Processing pending purchase: ", pid)
 		
 		match pid:
 			"all_modules":
-				print("[AdsManager] Processing unconsumed all_modules")
+				print("[AdsManager] Granting all_modules...")
 				_apply_all_modules()
-				if not token.is_empty():
-					await sdk.payments.consume_purchase(token)
 			"remove_ads":
-				print("[AdsManager] Consuming pending purchase: remove_ads")
-				# Сохраняем статус отключения рекламы в SaveManager
-				var sm = get_node_or_null("/root/SaveManager")
-				if sm:
-					sm.all_modules_purchased = sm.all_modules_purchased or false
-					# Можно добавить флаг no_ads_purchased если он существует
-					if "no_ads_purchased" in sm:
-						sm.no_ads_purchased = true
-					sm.save_game()
-				# Потребляем покупку
-				if not token.is_empty():
-					await sdk.payments.consume_purchase(token)
+				print("[AdsManager] Granting remove_ads...")
+				if SaveManager:
+					if "no_ads_purchased" in SaveManager:
+						SaveManager.no_ads_purchased = true
+					SaveManager.save_game()
 			_:
-				push_warning("[AdsManager] Unknown unconsumed purchase: ", pid)
+				# Если это неизвестная покупка (например, скины), мы не знаем, как её выдать,
+				# НО мы обязаны её консумировать, чтобы она не висела вечно и Яндекс не забанил игру!
+				printerr("[AdsManager] WARNING: Unknown pending purchase ID: ", pid)
+		
+		# САМОЕ ВАЖНОЕ: В ЛЮБОМ СЛУЧАЕ КОНСУМИРУЕМ ПОКУПКУ!
+		# Иначе плашка будет висеть вечно, а деньги сгорят.
+		if not token.is_empty():
+			print("[AdsManager] Consuming token for ", pid)
+			await sdk.payments.consume_purchase(token)
+			print("[AdsManager] Token consumed successfully.")
+		else:
+			printerr("[AdsManager] ERROR: No purchase token found for ", pid)
 
 
 ## Вспомогательный: начислить все модули и скины
@@ -675,8 +686,8 @@ func purchase_all_modules() -> void:
 		SaveManager.unlock_skin(parts[1], int(parts[2]))
 	
 	SaveManager.on_achievement_progress_check()
-	# Критическое сохранение с flush=true — IAP покупка должна сохраниться немедленно
-	# Ждём завершения облачного сохранения, иначе при закрытии игры данные потеряются
+	
+	# 1. СНАЧАЛА сохраняем в облако (плашка Яндекса висит, ожидая завершения сохранения — это нормально!)
 	if SaveManager.has_method(&"save_game_critical_async"):
 		var saved = await SaveManager.save_game_critical_async()
 		if not saved:
@@ -685,9 +696,15 @@ func purchase_all_modules() -> void:
 			print("[AdsManager] IAP data saved to cloud successfully")
 	else:
 		SaveManager.save_game()
-	
-	# Потребляем покупку (расходный товар)
-	await consume_purchase(purchase_data.purchase_token)
+		
+	# 2. ТОЛЬКО ПОСЛЕ успешного сохранения консумируем покупку.
+	# Как только Яндекс получает consume, плашка мгновенно закрывается.
+	if purchase_data is Dictionary and purchase_data.has("purchase_token"):
+		await consume_purchase(purchase_data.purchase_token)
+		print("[AdsManager] Purchase consumed successfully, Yandex UI should close.")
+	else:
+		printerr("[AdsManager] Missing purchase token!")
+		
 	print("[AdsManager] All modules purchased!")
 
 

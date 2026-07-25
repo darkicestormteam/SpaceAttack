@@ -390,6 +390,27 @@ theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("StyleBoxFlat_12i1o")
 text = "Купить все модули + скины"
 
+[node name="IapPriceRow" type="HBoxContainer" parent="ScrollContainer/VBox/ShopBg/ShopContent" unique_id=468995835]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 8
+
+[node name="IapCurrencyIcon" type="TextureRect" parent="ScrollContainer/VBox/ShopBg/ShopContent/IapPriceRow" unique_id=783746972]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="IapPriceLabel" type="Label" parent="ScrollContainer/VBox/ShopBg/ShopContent/IapPriceRow" unique_id=1088995709]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6627451, 0, 1)
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
 [node name="BackButton" type="Button" parent="ScrollContainer/VBox/ShopBg/ShopContent" unique_id=507890478]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(640, 60)
@@ -424,9 +445,10 @@ size_flags_horizontal = 8
 theme_override_constants/separation = 12
 
 [node name="Label2" type="Label" parent="." unique_id=1741490621]
+visible = false
 layout_mode = 0
 offset_left = 360.0
 offset_top = 1160.0
 offset_right = 410.0
 offset_bottom = 1180.0
-text = "00111"
+text = "004"
