@@ -569,6 +569,8 @@ func payments_init() -> Variant:
 		_on_purchase_availability_changed()
 	else:
 		_is_payments_ready = false
+		printerr("[AdsManager] Payments init failed")
+		_on_purchase_availability_changed()
 	return ok == true
 
 
@@ -606,34 +608,31 @@ func check_unconsumed_purchases() -> void:
 			printerr("[AdsManager] CRITICAL: Empty purchase token for ", pid, " — skipping consume")
 			continue
 		
-		var grant_success := false
+		var granted: bool = false
 		
 		match pid:
 			"all_modules":
 				print("[AdsManager] Granting all_modules...")
 				_apply_all_modules()
-				grant_success = true
+				granted = true
 			"remove_ads":
 				print("[AdsManager] Granting remove_ads...")
 				if SaveManager:
 					if "no_ads_purchased" in SaveManager:
 						SaveManager.no_ads_purchased = true
 					SaveManager.save_game()
-					grant_success = true
+					granted = true
 			_:
-				# Если это неизвестная покупка (например, скины), мы не знаем, как её выдать,
-				# НО мы обязаны её консумировать, чтобы она не висела вечно и Яндекс не забанил игру!
-				printerr("[AdsManager] WARNING: Unknown pending purchase ID: ", pid)
-				# Для неизвестных покупок всё равно пытаемся consum'ить
-				grant_success = true
+				# Неизвестный pid — не можем выдать награду, не consum'им
+				printerr("[AdsManager] Unknown pending purchase ID: ", pid, " — cannot grant, skipping consume")
 		
 		# Consume ТОЛЬКО после успешной выдачи награды
-		if grant_success:
+		if granted:
 			print("[AdsManager] Consuming token for ", pid)
 			await sdk.payments.consume_purchase(token)
 			print("[AdsManager] Token consumed successfully.")
 		else:
-			printerr("[AdsManager] CRITICAL: Failed to grant reward for ", pid, " — NOT consuming purchase. Will retry on next launch.")
+			printerr("[AdsManager] Failed to grant reward for ", pid, " — NOT consuming purchase. Will retry on next launch.")
 
 
 ## Вспомогательный: начислить все модули и скины
@@ -671,23 +670,26 @@ func get_catalog() -> Array:
 
 
 ## Совершить покупку по ID товара.
-## Возвращает Dictionary: {status: "success"|"cancelled"|"error", data: {details или сообщение об ошибке}}.
+## Возвращает Dictionary:
+##   {status: "success", data: result_dictionary_from_sdk}
+##   {status: "cancelled", data: ""}
+##   {status: "error", data: "error_description"}
 func purchase(product_id: String, developer_payload: String = "") -> Dictionary:
 	if sdk == null or not sdk.payments.is_inited():
-		return {"status": "error", "data": {"message": "Payments not inited"}}
+		return {"status": "error", "data": "Payments not inited"}
 	var result: Variant = await sdk.payments.purchase(product_id, developer_payload)
 	
 	# Проверка на null — SDK может вернуть null при отмене или ошибке
 	if result == null:
 		# Яндекс SDK возвращает null при отмене (пользователь закрыл платёжное окно)
-		return {"status": "cancelled", "data": {"message": "Purchase cancelled by user"}}
+		return {"status": "cancelled", "data": ""}
 	
 	# Проверка, что это Dictionary с ожидаемыми полями
 	if result is Dictionary and result.has("purchase_token"):
 		return {"status": "success", "data": result}
 	
 	# Любой другой результат — ошибка
-	return {"status": "error", "data": {"message": str(result)}}
+	return {"status": "error", "data": str(result)}
 
 
 ## Потратить расходную покупку (чтобы можно было купить снова).
@@ -708,12 +710,14 @@ func purchase_all_modules() -> void:
 	
 	var purchase_result: Dictionary = await purchase("all_modules")
 	if purchase_result.status != "success":
-		printerr("[AdsManager] Purchase all_modules failed: ", purchase_result.get("data", {}).get("message", "unknown"))
+		printerr("[AdsManager] Purchase all_modules failed: ", purchase_result.get("data", "unknown"))
 		return
 	
-	var purchase_data: Dictionary = purchase_result.get("data", {})
-	# Проверка purchase_token
-	var token: String = purchase_data.get("purchase_token", "")
+	var purchase_data: Variant = purchase_result.get("data", {})
+	# Проверка purchase_token — data это словарь от SDK
+	var token: String = ""
+	if purchase_data is Dictionary:
+		token = purchase_data.get("purchase_token", "")
 	if token.is_empty():
 		printerr("[AdsManager] CRITICAL: Missing purchase token in purchase_data!")
 		return
