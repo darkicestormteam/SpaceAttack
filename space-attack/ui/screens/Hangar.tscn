@@ -392,6 +392,7 @@ text = "Купить все модули + скины"
 
 [node name="IapPriceRow" type="HBoxContainer" parent="ScrollContainer/VBox/ShopBg/ShopContent" unique_id=468995835]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 8
@@ -449,4 +450,4 @@ offset_left = 360.0
 offset_top = 1160.0
 offset_right = 410.0
 offset_bottom = 1180.0
-text = "008"
+text = "012"

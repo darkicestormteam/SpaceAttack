@@ -84,6 +84,21 @@ func toggle_sfx() -> void:
 		sfx_volume = _last_nonzero_sfx
 
 
+## Останавливает всю музыку в игре (для предотвращения наложения треков при смене сцен).
+func stop_all_music() -> void:
+	# Останавливаем все AudioStreamPlayer в дереве сцены
+	var players := get_tree().get_nodes_in_group("music")
+	for p in players:
+		if p is AudioStreamPlayer:
+			p.stop()
+	
+	# Также ищем все AudioStreamPlayer2D/3D с тегом "music"
+	var players_2d := get_tree().get_nodes_in_group("music_2d")
+	for p in players_2d:
+		if p is AudioStreamPlayer2D:
+			p.stop()
+
+
 func reset_settings() -> void:
 	_music_volume = 0.5
 	_sfx_volume = 0.5

@@ -75,7 +75,12 @@ var _last_tap_pos: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	sm = get_node("/root/SaveManager")
-	sm.load_game()
+	
+	# Останавливаем музыку ангара, если она вдруг осталась (предотвращает наложение)
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("stop_all_music"):
+		am.stop_all_music()
+	
 	sm.reset_tmp_counters()
 	sm.tmp_current_ship = sm.current_ship
 	

@@ -630,8 +630,15 @@ func check_unconsumed_purchases() -> void:
 				# Неизвестный pid — не можем выдать награду, не consum'им
 				printerr("[AdsManager] Unknown pending purchase ID: ", pid, " — cannot grant, skipping consume")
 		
-		# Consume ТОЛЬКО после успешной выдачи награды
+		# Сохраняем и консумим ТОЛЬКО после успешной выдачи награды
 		if granted:
+			print("[AdsManager] Saving granted purchase to cloud...")
+			if SaveManager.has_method(&"save_game_critical_async"):
+				var saved = await SaveManager.save_game_critical_async()
+				if not saved:
+					printerr("[AdsManager] CRITICAL: Cloud save failed after granting purchase! Aborting consume to retry later.")
+					return # Прерываем функцию! Токен не консумится, покупка останется непотребленной.
+			
 			print("[AdsManager] Consuming token for ", pid)
 			await sdk.payments.consume_purchase(token)
 			print("[AdsManager] Token consumed successfully.")
@@ -639,6 +646,7 @@ func check_unconsumed_purchases() -> void:
 			printerr("[AdsManager] Failed to grant reward for ", pid, " — NOT consuming purchase. Will retry on next launch.")
 	
 	# Сигнал для SaveManager — проверка покупок завершена, можно загружать облако
+	# ВАЖНО: если был return из-за ошибки сохранения, сигнал НЕ испускается
 	purchases_checked.emit()
 
 
@@ -653,7 +661,7 @@ func _apply_all_modules() -> void:
 		var parts: PackedStringArray = sid.split("_")
 		SaveManager.unlock_skin(parts[1], int(parts[2]))
 	SaveManager.on_achievement_progress_check()
-	SaveManager.save_game()
+	# Сохранение вызывается в check_unconsumed_purchases() через save_game_critical_async() — не дублируем
 
 
 ## Получить каталог доступных товаров.

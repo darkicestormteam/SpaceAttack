@@ -114,6 +114,12 @@ const MIN_CLOUD_INTERVAL: float = 10.0
 ## Интервал автосохранения в облако
 const AUTO_CLOUD_INTERVAL: float = 15.0
 
+## Флаг — облако хотя бы раз загружено (для блокировки старта игры)
+var is_cloud_loaded: bool = false
+
+## Timestamp последнего реального сохранения (для сравнения с облаком)
+var last_saved_at: int = 0
+
 ## Время последнего сохранения в облако
 var _last_cloud_save_time: float = 0.0
 ## Таймер для автосохранения
@@ -146,33 +152,15 @@ func _on_ads_init(_success: bool = false) -> void:
 		if not ads.is_connected("purchases_checked", _load_from_cloud):
 			ads.purchases_checked.connect(_load_from_cloud)
 	
-	# Выдаём дефолты в UI
+	# Выдаём дефолты в UI мгновенно
 	emit_signal("data_loaded")
 	
-	# Если purchases_checked уже был или проверка покупок не нужна,
-	# запускаем облачную загрузку напрямую (на случай, если сигнал уже прошёл)
-	# Используем call_deferred, чтобы дать время подписаться на сигнал
-	if ads.has_method("check_unconsumed_purchases"):
-		# Если сигнал уже был бы испущен до подписки — вызываем загрузку напрямую
-		if not ads.is_connected("purchases_checked", _load_from_cloud):
-			call_deferred("_load_from_cloud")
-		else:
-			# Проверим, не ожидаем ли мы purchases_checked
-			# Если purchases_checked уже был (например при is_empty early return) —
-			# нам нужен fallback таймер на случай, если сигнал уже прошёл
-			get_tree().create_timer(2.0).timeout.connect(_on_cloud_load_timeout)
+	# Если AdsManager не найден — загружаем облако напрямую
+	if not ads.has_signal("purchases_checked"):
+		call_deferred("_load_from_cloud")
 
 
-## Fallback: если purchases_checked не сработал (уже был до подписки),
-## загружаем облако через 2 секунды.
-func _on_cloud_load_timeout() -> void:
-	var ads = get_node_or_null("/root/AdsManager")
-	if ads != null and ads.has_signal("purchases_checked"):
-		if ads.is_connected("purchases_checked", _load_from_cloud):
-			# Сигнал ещё не сработал — ждём его, не делаем ничего
-			return
-	# Сигнал уже отключился или не нужен — загружаем облако
-	_load_from_cloud()
+
 
 
 # ============================================================
@@ -218,14 +206,26 @@ func _load_from_cloud() -> void:
 	if cloud_data is Dictionary:
 		cloud_data = _validate_save_data(cloud_data)
 	
-	if cloud_data is Dictionary and not cloud_data.is_empty():
-		print("[SaveManager] Cloud data found - applying cloud (truth source)...")
-		_apply_data(cloud_data)
+	var cloud_has_data = cloud_data is Dictionary and not cloud_data.is_empty()
+	
+	if cloud_has_data:
+		var cloud_time = cloud_data.get("last_saved_at", 0)
+		
+		# При старте локальное время = 0. Облако всегда новее.
+		# Если мы только что выдали покупку и сохранили её, локальное время обновится.
+		if cloud_time > last_saved_at:
+			print("[SaveManager] Cloud is newer - applying cloud...")
+			_apply_data(cloud_data)
+		else:
+			print("[SaveManager] Local is newer or equal - uploading local to cloud...")
+			save_game_cloud_now()
 	else:
-		print("[SaveManager] Cloud empty or invalid, keeping defaults")
-		set_defaults()
+		print("[SaveManager] Cloud empty or invalid, keeping current data")
+		# ВАЖНО: Не вызываем save_game_cloud_now() здесь, чтобы не затереть облако при ошибке сети.
+		# Если облака реально нет, оно сохранится при следующем автосейве или покупке.
 	
 	# Уведомляем UI об обновлении
+	is_cloud_loaded = true
 	emit_signal("data_loaded")
 
 
@@ -233,7 +233,7 @@ func _get_save_data() -> Dictionary:
 	return {
 		"save_version": SAVE_VERSION,
 		"credits": credits,
-		"last_saved_at": Time.get_unix_time_from_system(),
+		"last_saved_at": last_saved_at,
 		"health_upgrade_level": health_upgrade_level,
 		"high_score": high_score,
 		"owned_modules": owned_modules,
@@ -299,6 +299,7 @@ func _apply_data(data: Dictionary) -> void:
 	_init_default_skins()
 
 	_update_persistent_modules_count()
+	last_saved_at = data.get("last_saved_at", 0)
 
 
 func _to_dict() -> Dictionary:
@@ -422,6 +423,7 @@ func _save_to_cloud_impl(flush: bool) -> bool:
 			return false
 	
 	_last_cloud_save_time = now
+	last_saved_at = int(Time.get_unix_time_from_system())
 	
 	var cloud_data = _get_save_data()
 	var result = await ads.sdk.player.set_data(cloud_data, flush)
@@ -458,6 +460,7 @@ func set_defaults() -> void:
 	persistent_chests_opened = 0
 	difficulty_level = 0
 	difficulty_unlocked = [0]
+	last_saved_at = 0
 
 
 # ============================================================

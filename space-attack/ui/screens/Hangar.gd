@@ -1177,6 +1177,16 @@ func _on_play_pressed() -> void:
 
 
 func _on_difficulty_selected(difficulty: int) -> void:
+	# Если облако ещё не загружено — ждём
+	if not SaveManager.is_cloud_loaded:
+		_show_loading_popup()
+		await SaveManager.data_loaded
+		_hide_loading_popup()
+	
+	# Останавливаем музыку ангара перед переходом
+	if music and music.playing:
+		music.stop()
+	
 	get_tree().change_scene_to_file("res://levels/Main.tscn")
 
 
@@ -1496,3 +1506,38 @@ func _on_settings_pressed() -> void:
 
 func _on_audio_settings_closed() -> void:
 	_update_audio_button_texts()
+
+
+# ============== ПОПАП ЗАГРУЗКИ ==============
+
+var _loading_popup: CanvasLayer = null
+
+func _show_loading_popup() -> void:
+	if _loading_popup != null:
+		return
+	_loading_popup = CanvasLayer.new()
+	_loading_popup.process_mode = PROCESS_MODE_ALWAYS
+	add_child(_loading_popup)
+	
+	var dim := ColorRect.new()
+	dim.color = Color(0.0, 0.0, 0.0, 0.8)
+	dim.size = get_viewport_rect().size
+	dim.anchors_preset = Control.PRESET_FULL_RECT
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_loading_popup.add_child(dim)
+	
+	var label := Label.new()
+	label.text = tr("loading")
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.position = Vector2(get_viewport_rect().size.x / 2 - 150, get_viewport_rect().size.y / 2 - 30)
+	label.size = Vector2(300, 60)
+	label.add_theme_font_size_override("font_size", 32)
+	label.add_theme_color_override("font_color", Color.WHITE)
+	_loading_popup.add_child(label)
+
+
+func _hide_loading_popup() -> void:
+	if _loading_popup:
+		_loading_popup.queue_free()
+		_loading_popup = null
