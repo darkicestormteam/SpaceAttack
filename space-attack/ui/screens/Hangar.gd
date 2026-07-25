@@ -171,6 +171,21 @@ var _goliath_skin_btn: ModuleButton = null
 # ============== ГОТОВНОСТЬ ==============
 
 func _ready() -> void:
+	# 1. Инициализируем Yandex SDK и ждем завершения
+	var ads = get_node_or_null("/root/AdsManager")
+	if ads != null and ads.has_method("init_async"):
+		if not ads.is_sdk_ready:
+			await ads.init_async()
+	
+	# 2. Получаем язык из SDK и применяем его ДО отрисовки UI
+	if ads != null and ads.has_method("get_lang"):
+		var yandex_lang: String = ads.get_lang()
+		if LocalizationManager.has_method("set_locale"):
+			LocalizationManager.set_locale(yandex_lang)
+		elif LocalizationManager.has_method("set_language"):
+			LocalizationManager.set_language(yandex_lang)
+	
+	# 3. Настройка UI (локализация применится здесь с уже установленным языком)
 	_setup_audio_buttons()
 	_setup_lang_button()
 	_setup_localization()
@@ -223,10 +238,6 @@ func _ready() -> void:
 	if ads_iap != null and ads_iap.has_signal("purchase_availability_changed"):
 		if not ads_iap.is_connected("purchase_availability_changed", _on_purchase_availability_changed):
 			ads_iap.purchase_availability_changed.connect(_on_purchase_availability_changed)
-		# НЕ вызываем _on_purchase_availability_changed принудительно!
-		# На старте SDK ещё не инициализирован, can_purchase() вернёт false,
-		# что заблокирует кнопку. Сигнал сработает сам, когда payments_init()
-		# выполнится успешно — тогда и обновим состояние.
 	
 	# Магазин — кнопка "Назад"
 	var back_btn: Button = %BackButton if has_node("%BackButton") else null
@@ -244,12 +255,14 @@ func _ready() -> void:
 	if goliath_skin_preview:
 		goliath_skin_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# Показываем ангар по умолчанию
+	# 4. Показываем ангар (UI становится видимым)
 	_show_hangar_tab()
 	
-	# Проверка необработанных покупок Yandex Payments
-	# Если SDK ещё не готов — подписываемся на сигнал инициализации
-	var ads = get_node_or_null("/root/AdsManager")
+	# 5. Сообщаем Яндексу, что игра ГОТОВА (прячем загрузочный экран)
+	if ads != null and ads.has_method("notify_game_ready"):
+		ads.notify_game_ready()
+	
+	# 6. Запускаем фоновые задачи (проверка покупок, облако)
 	if ads != null and ads.has_method("check_unconsumed_purchases"):
 		if ads.is_sdk_ready:
 			ads.check_unconsumed_purchases()
@@ -260,12 +273,6 @@ func _ready() -> void:
 	if SaveManager.has_signal("data_loaded"):
 		if not SaveManager.is_connected("data_loaded", update_ui):
 			SaveManager.data_loaded.connect(update_ui)
-	
-	# Запускаем инициализацию Yandex SDK, если ещё не запущена
-	var ads_mgr = get_node_or_null("/root/AdsManager")
-	if ads_mgr != null and ads_mgr.has_method("init_async"):
-		if not ads_mgr.is_sdk_ready:
-			ads_mgr.init_async()
 	
 	# Устанавливаем состояние MENU — гарантируем красную иконку в ангаре
 	var gm_mgr = get_node_or_null("/root/GameManager")
@@ -962,15 +969,14 @@ func _load_iap_catalog_from_sdk(ads: Node) -> void:
 func _render_iap_price() -> void:
 	if _iap_catalog_item.is_empty():
 		return
-	var price_value: String = _iap_catalog_item.get("price_value", "")
-	var cur_code: String = _iap_catalog_item.get("price_currency_code", "")
+	
+	# Берем ГОТОВУЮ локализованную строку цены из SDK (например, "100 Янов" или "100 YAN")
+	var price_str: String = _iap_catalog_item.get("price", "")
+	
 	if iap_price_label:
-		if not price_value.is_empty():
-			# Принудительно указываем YAN, чтобы пройти модерацию (п. 1.13.4)
-			iap_price_label.text = "%s YAN" % price_value
-		else:
-			iap_price_label.text = _iap_catalog_item.get("price", "")
-	# Иконка валюты — берём URL из SDK (getPriceCurrencyImage)
+		iap_price_label.text = price_str
+		
+	# Иконка валюты — берём URL из SDK
 	var img_url: String = ""
 	var img_dict: Variant = _iap_catalog_item.get("price_currency_image", {})
 	if img_dict is Dictionary:
@@ -1026,11 +1032,10 @@ func _on_purchase_availability_changed(available: bool) -> void:
 			iap_all_modules_btn.disabled = true
 			iap_all_modules_btn.modulate = Color(0.7, 0.7, 0.7, 0.8)
 		else:
-			# Используем price_value (только цифра) и принудительно пишем YAN (портальная валюта).
-			# Это гарантирует прохождение п. 1.13.4, даже если SDK отдаёт "RUB" для вашего региона.
-			var price_val: String = _iap_catalog_item.get("price_value", "")
-			if not price_val.is_empty():
-				iap_all_modules_btn.text = tr("IAP_all_modules") + "\n" + price_val + " YAN"
+			# Берем готовую строку цены из SDK (например "100 Янов")
+			var price_str: String = _iap_catalog_item.get("price", "")
+			if not price_str.is_empty():
+				iap_all_modules_btn.text = tr("IAP_all_modules") + "\n" + price_str
 			else:
 				iap_all_modules_btn.text = tr("IAP_all_modules")
 			iap_all_modules_btn.disabled = false

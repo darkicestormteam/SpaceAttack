@@ -287,10 +287,7 @@ func init_async() -> bool:
 			_init_fail("SDK initialization failed")
 			return false
 	
-	# 3. Сообщаем платформе, что игра готова
-	sdk.game_ready()
-	
-	# 4. Инициализация leaderboard
+	# 3. Инициализация leaderboard
 	var lb_ok: Variant = await sdk.leaderboard.init()
 	if lb_ok == true:
 		_is_leaderboard_ready = true
@@ -760,6 +757,13 @@ func purchase_all_modules() -> void:
 		return
 		
 	print("[AdsManager] All modules purchased!")
+
+
+## Вручную вызывает GameReady API, когда UI готов.
+func notify_game_ready() -> void:
+	if sdk != null and sdk.is_inited():
+		sdk.game_ready()
+		print("[AdsManager] GameReady API called.")
 
 
 ## Язык интерфейса пользователя (ISO 639-1).

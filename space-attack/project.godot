@@ -127,5 +127,6 @@ textures/vram_compression/import_etc2_astc=true
 [yandex_games_sdk]
 
 yandex_sdk_enabled=true
-yandex_sdk_auto_init=false
+yandex_sdk_auto_init=true
+yandex_sdk_auto_game_ready=false
 custom_head_include=""

@@ -40,19 +40,6 @@ func _register_fallback_translations() -> void:
 				tr.add_message(key, fallbacks[key][locale])
 				TranslationServer.add_translation(tr)
 				print("[LocalizationManager] Added fallback translation: ", key, " (", locale, ")")
-	
-	# Подписываемся на готовность SDK, чтобы применить язык из Яндекс.Игр
-	# Это гарантирует прохождение проверки I18N модерации (требование 2.14)
-	var ads = get_node_or_null("/root/AdsManager")
-	if ads:
-		if ads.is_sdk_ready:
-			apply_language_from_yandex_sdk()
-		elif not ads.is_connected("init_completed", _on_sdk_init):
-			ads.init_completed.connect(_on_sdk_init)
-
-
-func _on_sdk_init(_success: bool) -> void:
-	apply_language_from_yandex_sdk()
 
 
 ## Загружает готовые .translation файлы (созданные Godot из CSV)
